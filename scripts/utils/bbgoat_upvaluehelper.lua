@@ -1,6 +1,6 @@
 -- 此lua文件由冰冰羊参考其它模组的upvaluehelper.lua代码制作而成，如果你想使用我这个版本的upvaluehelper，建议去模组Chinese++ Pro模组的scripts/utils文件夹下获取最新版的
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=2941527805
-
+GLOBAL.setfenv(1, GLOBAL)
 -- 查看函数里有哪些上值，方便调试
 --- @param fn function
 local function LookUpvalue(fn)

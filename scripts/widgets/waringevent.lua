@@ -20,25 +20,29 @@ local WaringEvent = Class(Widget, function(self, anim_data)
     end
 end)
 
-local function ConversionTime(seconds)
-    if seconds < 0 then
-        seconds = 0
+local function TimeToString(t)
+    if t < 60 then
+        return math.floor(t) .. STRINGS.SCRAPBOOK.DATA_SECONDS -- 秒
+    elseif t < 480 then
+        return math.floor(t / 60 * 10) / 10 .. STRINGS.SCRAPBOOK.DATA_MINUTE -- 分
+    else
+        return math.floor(t / TUNING.TOTAL_DAY_TIME * 10) / 10 .. STRINGS.SCRAPBOOK.DATA_DAY -- 天
     end
-
-    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
-    local d = math.floor(seconds / daytime)
-    local min = math.floor(seconds % daytime / 60)
-    local s = seconds % daytime % 60
-
-    d = d < 10 and ("0" .. d) or d
-    min = min < 10 and ("0" .. min) or min
-    s = s < 10 and ("0" .. s) or s
-
-    return d .. ":" .. min .. ":" .. s
 end
 
-function WaringEvent:OnUpdate(seconds)
-    self.timer:SetString(ConversionTime(seconds))
+local function ConversionTime(data)
+    if type(data) == "number" then
+        if data < 0 then
+            data = 0
+        end
+        return TimeToString(data)
+    elseif type(data) == "string" then
+        return data
+    end
+end
+
+function WaringEvent:OnUpdate(data)
+    self.timer:SetString(ConversionTime(data))
 end
 
 function WaringEvent:SetEventAnim(data)

@@ -1,21 +1,43 @@
+local SyncTimer = EventTimer.env.GetModConfigData("SyncTimer")
+local function GetWorldType()
+    if TheWorld:HasTag("porkland") then
+        return STRINGS.eventtimer.worldtype.porkland
+    elseif TheWorld:HasTag("island") then
+        return STRINGS.eventtimer.worldtype.shipwrecked
+    elseif TheWorld:HasTag("volcano") then
+        return STRINGS.eventtimer.worldtype.volcano
+    elseif TheWorld:HasTag("cave") then
+        return STRINGS.eventtimer.worldtype.cave
+    else
+        return STRINGS.eventtimer.worldtype.forest
+    end
+end
+
 local function OnUpdate(self)
     for waringevent, data in pairs(WaringEvents) do
-        if data.turn_on then
-            while true do
-                local time = data.gettimefn()
-                if data.ShardRPC then
-                    if data.ShardRPC.IsSendShard() then
-                        for id in pairs(Shard_GetConnectedShards()) do
-                            SendModRPCToShard(SHARD_MOD_RPC["Island Adventures Assistant"][waringevent], id, time)
-                        end
-                    else
-                        break
-                    end
+        if data.gettextfn then
+            local text = data.gettextfn()
+            if SyncTimer and text and not data.DisableShardRPC then
+                for id in pairs(Shard_GetConnectedShards()) do
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_text"], id, text , GetWorldType())
                 end
+            end
 
+            if text and text ~= 0 then
+                self.inst.replica.waringtimer[waringevent .. "_text"]:set(text)
+            end
+        end
+        if data.gettimefn then
+            local time = data.gettimefn()
+            if SyncTimer and time and time > 0 and not data.DisableShardRPC then
+                for id in pairs(Shard_GetConnectedShards()) do
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_time"], id, time)
+                end
+            end
+
+            if time then
                 -- self.inst.replica.waringtimer[waringevent]:set_local(0)
-                self.inst.replica.waringtimer[waringevent]:set(time or 0)
-                break
+                self.inst.replica.waringtimer[waringevent .. "_time"]:set(time)
             end
         end
     end

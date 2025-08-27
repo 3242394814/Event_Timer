@@ -48,7 +48,7 @@ function ShowAllWaring()
     end
 
     for event, _ in pairs(WaringEvents) do
-        ThePlayer.HUD[event].force = "show"
+        ThePlayer.HUD[event].force = true
     end
 end
 
@@ -58,18 +58,19 @@ function HideAllWaring()
     end
 
     for event, _ in pairs(WaringEvents) do
-        ThePlayer.HUD[event].force = "hide"
+        ThePlayer.HUD[event].force = false
     end
 end
 
 function DefaultWaring()
-    if not ThePlayer then
-        return
-    end
+    -- if not ThePlayer then
+    --     return
+    -- end
 
-    for event, _ in pairs(WaringEvents) do
-        ThePlayer.HUD[event].force = nil
-    end
+    -- for event, _ in pairs(WaringEvents) do
+    --     ThePlayer.HUD[event].force = nil
+    -- end
+    HideAllWaring()
 end
 
 function ShowWaring(event)
@@ -78,7 +79,7 @@ function ShowWaring(event)
     end
 
     if event and ThePlayer.HUD[event] then
-        ThePlayer.HUD[event].force = "show"
+        ThePlayer.HUD[event].force = true
     end
 end
 
@@ -88,7 +89,7 @@ function HideWaring(event)
     end
 
     if event and ThePlayer.HUD[event] then
-        ThePlayer.HUD[event].force = "hide"
+        ThePlayer.HUD[event].force = false
     end
 end
 
