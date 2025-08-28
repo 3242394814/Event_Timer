@@ -92,9 +92,8 @@ GLOBAL.EventTimer.env = env
 
 modimport("Languages/" .. ModLanguage) -- 加载翻译
 
-
-GLOBAL.TimerMode = GetModConfigData("BossTimer", true) -- 倒计时格式
-GLOBAL.TimerTips = GetModConfigData("ShowTips", true) -- 醒目提示
+GLOBAL.EventTimer.TimerMode = GetModConfigData("BossTimer", true) -- 倒计时格式
+GLOBAL.EventTimer.TimerTips = GetModConfigData("ShowTips", true) -- 醒目提示
 
 local IA_CONFIG = GLOBAL.rawget(GLOBAL, "IA_CONFIG")
 if IA_CONFIG then
@@ -105,5 +104,3 @@ AddReplicableComponent("waringtimer")
 
 modimport("main/commands")
 modimport("main/waringevent") -- 事件计时功能
-
--- TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/XP_bar_fill_unlock") -- 播放BOSS提示音

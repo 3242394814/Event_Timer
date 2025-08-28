@@ -1,4 +1,5 @@
 GLOBAL.setfenv(1, GLOBAL)
+local TimerMode = EventTimer.TimerMode
 
 -- for master
 function TurnOnAllWaring()

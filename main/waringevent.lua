@@ -26,7 +26,7 @@ local function AddWaringEvents(self)
     local msgnum = 0
 
     function self:ShowTips(timefn, second)
-        if not _G.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
+        if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
         if type(timefn) ~= "function" then return end
         -- 创建新的 widget
         local message = self:AddChild(WaringTips(self.owner, timefn(), msgnum))

@@ -3,9 +3,9 @@ local GetModConfigData = GetModConfigData
 local SyncTimer = GetModConfigData("SyncTimer")
 local Upvaluehelper = Upvaluehelper
 local ReplacePrefabName = ReplacePrefabName
-local ModLanguage = ModLanguage
 
 GLOBAL.setfenv(1, GLOBAL)
+local TimerMode = EventTimer.TimerMode
 modimport("main/timerprefab")
 
 -- 反向提取信息

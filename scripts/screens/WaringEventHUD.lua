@@ -1,4 +1,5 @@
 local RW_Data = EventTimer.env.RW_Data
+local TimerMode = EventTimer.TimerMode
 local save_data = RW_Data:LoadData()
 
 local ImageButton = require "widgets/imagebutton"
