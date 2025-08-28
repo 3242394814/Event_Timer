@@ -87,9 +87,12 @@ local function NightmareWild()
     end
 
     local data = nightmareclock:OnSave()
+    local locked = data.lockedphase
     local lengths = data.lengths
     local phase = data.phase
     local remainingtimeinphase = data.remainingtimeinphase
+
+        if locked then return end
         if phase == "calm" then
             remainingtimeinphase = remainingtimeinphase + lengths["warn"] * 30
         elseif phase == "wild" then
@@ -736,7 +739,16 @@ WaringEvents = {
         end
     },
     NightmareWild = {
-        gettimefn = NightmareWild,
+        gettimefn = NightmareWild, -- 仅返回倒计时
+        gettextfn = function() -- 仅锁定阶段返回
+            local nightmareclock = TheWorld.net.components.nightmareclock
+            if not nightmareclock then
+                return
+            end
+
+            local data = nightmareclock:OnSave()
+            return data.lockedphase and string.format(STRINGS.eventtimer.nightmarewild.phase_locked_text)
+        end,
         anim = {
             scale = 0.25,
             bank = "nightmare_watch",
@@ -744,7 +756,20 @@ WaringEvents = {
             animation = "idle_1",
             pos = {-45, -15}
         },
-        animchangefn = NightmareWildAnimChange
+        animchangefn = NightmareWildAnimChange,
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.NightmareWild_time
+            local text = ThePlayer.HUD.WaringEventTimeData.NightmareWild_text
+            if text and string.find(text, STRINGS.eventtimer.nightmarewild.phase_locked_text) then
+                return STRINGS.eventtimer.nightmarewild.phase_locked
+            end
+            if TheWorld.state.nightmarephase == "none" then
+                return time and string.format(STRINGS.eventtimer.nightmarewild.cooldown_none, TimeToString(time))
+            else
+                local phase = STRINGS.eventtimer.nightmarewild.phases[TheWorld.state.nightmarephase]
+                return time and phase and string.format(STRINGS.eventtimer.nightmarewild.cooldown, phase, TimeToString(time))
+            end
+        end
     }
 }
 

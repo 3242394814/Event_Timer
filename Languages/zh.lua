@@ -112,7 +112,15 @@ STRINGS.eventtimer = {
 		cooldown = ((STRINGS.UI.CUSTOMIZATIONSCREEN and STRINGS.UI.CUSTOMIZATIONSCREEN.ATRIUMGATE) or "远古大门") .. "会重置于%s后",
     },
     nightmarewild = { -- 遗迹当前阶段
-        -- cooldown = ""
-        -- TODO
+        phase_locked_text = "被远古钥匙锁住",
+        phase_locked = "远古遗迹现在锁定在暴动期",
+        phases = {
+            calm = "平静",
+            warn = "警告",
+            wild = "暴动",
+            dawn = "黎明",
+        },
+        cooldown = "远古遗迹现在在%s期 (还剩%s)",
+        cooldown_none = "远古遗迹当前阶段还剩%s秒",
     },
 }
