@@ -184,9 +184,8 @@ WaringEvents = {
                 return TheWorld.components.chessnavy.spawn_timer
             end
         end,
-        gettextfn = function()
+        gettextfn = function(time)
             if not TheWorld.components.chessnavy then return end
-            local time = WaringEvents.ChessnavySpawn.gettimefn()
             return time > 0 and TimeToString(time) or STRINGS.eventtimer.chessnavyspawn.readytext
         end,
         anim = {
@@ -233,10 +232,9 @@ WaringEvents = {
     },
     TwisterAttack = {
         gettimefn = GetWorldSettingsTimeLeft("twister_timetoattack"),
-        gettextfn = function()
+        gettextfn = function(time)
             local self = TheWorld.components.twisterspawner
             if not self then return end
-            local time = WaringEvents.TwisterAttack.gettimefn()
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
             if time and target and target.name then
@@ -282,9 +280,8 @@ WaringEvents = {
                 return TheWorld.components.krakener:TimeUntilCanSpawn()
             end
         end,
-        gettextfn = function()
+        gettextfn = function(time)
             if not TheWorld.components.krakener then return end
-            local time = WaringEvents.KrakenCooldown.gettimefn()
             if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.krakencooldown.cooldown), TimeToString(time))
             end
@@ -321,10 +318,9 @@ WaringEvents = {
                 return math.max(appear_time, respawn_time)
             end
         end,
-        gettextfn = function()
+        gettextfn = function(time)
             local self = TheWorld.components.tigersharker
             if not self then return end
-            local time = WaringEvents.TigersharkCooldown.gettimefn()
             if self.shark then
                 return ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.exists)
             elseif self:CanSpawn(true, true) then
@@ -416,10 +412,9 @@ WaringEvents = {
     },
     DeerclopsAttack = {
         gettimefn = GetWorldSettingsTimeLeft("deerclops_timetoattack"),
-        gettextfn = function()
+        gettextfn = function(time)
             local self = TheWorld.components.deerclopsspawner
             if not self then return end
-            local time = WaringEvents.DeerclopsAttack.gettimefn()
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
             if time and target and target.name then
@@ -488,7 +483,7 @@ WaringEvents = {
     },
     KlaussackSpawn = {
         gettimefn = GetWorldSettingsTimeLeft("klaussack_spawntimer"),
-        gettextfn = function()
+        gettextfn = function(time)
             local function sack_can_despawn(inst)
                 if not IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) and
                     inst.components.entitytracker:GetEntity("klaus") == nil and
@@ -504,7 +499,6 @@ WaringEvents = {
             if sack and sack:IsValid() and sack.despawnday and sack_can_despawn(sack) then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.despawntext), sack.despawnday)
             else
-                local time = WaringEvents.KlaussackSpawn.gettimefn()
                 return time and string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.cooldowntext), TimeToString(time))
             end
         end,
@@ -557,10 +551,9 @@ WaringEvents = {
     },
     BeargerSpawn = {
         gettimefn = GetWorldSettingsTimeLeft("bearger_timetospawn"),
-        gettextfn = function()
+        gettextfn = function(time)
             local self = TheWorld.components.beargerspawn
             if not self then return end
-            local time = WaringEvents.BeargerSpawn.gettimefn()
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
             if time and target and target.name then
@@ -740,7 +733,7 @@ WaringEvents = {
     },
     NightmareWild = {
         gettimefn = NightmareWild, -- 仅返回倒计时
-        gettextfn = function() -- 仅锁定阶段返回
+        gettextfn = function(time) -- 仅锁定阶段返回
             local nightmareclock = TheWorld.net.components.nightmareclock
             if not nightmareclock then
                 return
@@ -773,35 +766,41 @@ WaringEvents = {
     }
 }
 
-for event, _ in pairs(WaringEvents) do
+for event in pairs(WaringEvents) do
     WaringEvents[event].name = event -- 给 WaringEventHUD.lua 使用
 end
 
 --跨世界同步计时
 for waringevent, data in pairs(WaringEvents) do
-    if data.gettextfn then
-        local event_text_shardrpc = waringevent .. "_text_shardrpc"
-        AddShardModRPCHandler("EventTimer", event_text_shardrpc, function(shardid, timedata, worldtype)
-            if not SyncTimer then return end -- 未开启同步功能，取消同步
-
-            local waringtimer = TheWorld.net.components.waringtimer
-            if timedata then
-                timedata = timedata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. timedata)
-                waringtimer[event_text_shardrpc] = timedata
-                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(waringtimer[event_text_shardrpc] or "")
-            end
-        end)
-    end
+    local event_time_shardrpc = waringevent .. "_time_shardrpc"
+    local event_text_shardrpc = waringevent .. "_text_shardrpc"
 
     if data.gettimefn then
-        local event_time_shardrpc = waringevent .. "_time_shardrpc"
-        AddShardModRPCHandler("EventTimer", event_time_shardrpc, function(shardid, timedata)
+        AddShardModRPCHandler("EventTimer", event_time_shardrpc, function(shardid, timedata, worldtype)
             if not SyncTimer then return end -- 未开启同步功能，取消同步
 
             local waringtimer = TheWorld.net.components.waringtimer
             if timedata then
                 waringtimer[event_time_shardrpc] = timedata
                 waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(waringtimer[event_time_shardrpc] or 0)
+
+                local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
+                textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
+                waringtimer[event_text_shardrpc] = textdata
+                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(waringtimer[event_text_shardrpc] or "")
+            end
+        end)
+    end
+
+    if data.gettextfn then
+        AddShardModRPCHandler("EventTimer", event_text_shardrpc, function(shardid, textdata, worldtype)
+            if not SyncTimer then return end -- 未开启同步功能，取消同步
+
+            local waringtimer = TheWorld.net.components.waringtimer
+            if textdata then
+                textdata = textdata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata)
+                waringtimer[event_text_shardrpc] = textdata
+                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(waringtimer[event_text_shardrpc] or "")
             end
         end)
     end
