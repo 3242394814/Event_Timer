@@ -65,14 +65,23 @@ function WaringTips:Move()
     local pos = self:GetPosition()
     self:MoveTo(
         { x = pos.x, y = pos.y, z = 0 },
-        { x = self.target_x, y = self.target_y, z = 0},
+        { x = pos.x, y = self.target_y, z = 0},
         0.5,
         nil
     )
 end
 
 function WaringTips:OnUpdate(text)
-    self.text:SetString(text)
+    self.text:SetString(text) -- 刷新文字
+
+    local w, h = self.text:GetRegionSize() -- 获取文字区域大小
+    self.bg:SetSize( -- 刷新背景大小
+        math.abs(w + 5),
+        math.abs(h / 2 + 5)
+    )
+
+    local pos = self:GetPosition() -- 获取当前位置
+    self:SetPosition(w + 40, pos.y) -- 刷新当前横坐标
 end
 
 function WaringTips:OnWallUpdate(dt)

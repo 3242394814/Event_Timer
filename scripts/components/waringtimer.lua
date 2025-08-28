@@ -19,7 +19,7 @@ local function OnUpdate(self)
             local text = data.gettextfn()
             if SyncTimer and text and not data.DisableShardRPC then
                 for id in pairs(Shard_GetConnectedShards()) do
-                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_text"], id, text , GetWorldType())
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_text_shardrpc"], id, text , GetWorldType())
                 end
             end
 
@@ -29,14 +29,12 @@ local function OnUpdate(self)
             local time = data.gettimefn()
             if SyncTimer and time and time > 0 and not data.DisableShardRPC then
                 for id in pairs(Shard_GetConnectedShards()) do
-                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_time"], id, time)
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_time_shardrpc"], id, time)
                 end
             end
 
-            if time then
-                -- self.inst.replica.waringtimer[waringevent]:set_local(0)
-                self.inst.replica.waringtimer[waringevent .. "_time"]:set(time)
-            end
+            -- self.inst.replica.waringtimer[waringevent]:set_local(0)
+            self.inst.replica.waringtimer[waringevent .. "_time"]:set(time or 0)
         end
     end
 end

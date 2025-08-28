@@ -38,9 +38,8 @@ local function GetWorldSettingsTimeLeft(name, prefab)
             ent =  TimerPrefabs[prefab]
         end
         if ent and ent.components.worldsettingstimer then
-            return ent.components.worldsettingstimer:GetTimeLeft(name)
+            return (not ent.components.worldsettingstimer:IsPaused(name)) and ent.components.worldsettingstimer:GetTimeLeft(name)
         end
-        return false
     end
 end
 
@@ -666,6 +665,7 @@ WaringEvents = {
             build = "terrarium",
             animation = "idle",
         },
+        DisableShardRPC = true,
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.TerrariumCooldown_time
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.terrariumcooldown.cooldown), TimeToString(time))
@@ -755,44 +755,29 @@ end
 --跨世界同步计时
 for waringevent, data in pairs(WaringEvents) do
     if data.gettextfn then
-        local eventname = waringevent .. "_text"
-        AddShardModRPCHandler("EventTimer", eventname, function(shardid, timedata, worldtype)
+        local event_text_shardrpc = waringevent .. "_text_shardrpc"
+        AddShardModRPCHandler("EventTimer", event_text_shardrpc, function(shardid, timedata, worldtype)
             if not SyncTimer then return end -- 未开启同步功能，取消同步
 
             local waringtimer = TheWorld.net.components.waringtimer
             if timedata then
                 timedata = timedata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. timedata)
-                waringtimer[eventname] = timedata
-                waringtimer.inst.replica.waringtimer[eventname]:set(waringtimer[eventname] or "")
+                waringtimer[event_text_shardrpc] = timedata
+                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(waringtimer[event_text_shardrpc] or "")
             end
         end)
     end
 
     if data.gettimefn then
-        local eventname = waringevent .. "_time"
-        AddShardModRPCHandler("EventTimer", eventname, function(shardid, timedata)
+        local event_time_shardrpc = waringevent .. "_time_shardrpc"
+        AddShardModRPCHandler("EventTimer", event_time_shardrpc, function(shardid, timedata)
             if not SyncTimer then return end -- 未开启同步功能，取消同步
 
             local waringtimer = TheWorld.net.components.waringtimer
             if timedata then
-                waringtimer[eventname] = timedata
-                waringtimer.inst.replica.waringtimer[eventname]:set(waringtimer[eventname] or 0)
+                waringtimer[event_time_shardrpc] = timedata
+                waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(waringtimer[event_time_shardrpc] or 0)
             end
         end)
     end
 end
-
--- 客户端：宣告服务器发送的内容
-AddClientModRPCHandler("EventTimer", "announce", function(text)
-    TheNet:Say(text)
-end)
-
--- 获取宣告内容并宣告，在 WaringEventHUD.lua 使用
-AddModRPCHandler("EventTimer", "getannounce", function(player, EventName)
-    if WaringEvents[EventName] and WaringEvents[EventName].announcefn then
-        local text = WaringEvents[EventName].announcefn()
-        if text then
-            SendModRPCToClient(CLIENT_MOD_RPC["EventTimer"]["announce"], player, text)
-        end
-    end
-end)

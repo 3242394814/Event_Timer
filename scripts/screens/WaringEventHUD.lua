@@ -144,7 +144,7 @@ function WaringEventHUD:UpdateDestItem()
     for name, value in pairs(WaringEvents) do
         local datatext = eventsdata[name .. "_text"]
         local datatime = eventsdata[name .. "_time"]
-        if type(datatext) == "string" and datatext ~= "" then -- 字符串 或 大于0秒的倒计时
+        if type(datatext) == "string" and datatext ~= "" then
             value.text = datatext
             data_list[#data_list + 1] = value
         elseif type(datatime) == "number" and datatime > 0 then
