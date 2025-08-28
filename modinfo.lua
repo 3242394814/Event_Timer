@@ -4,7 +4,7 @@ local function en_zh(en, zh)
     return L ~= "zh" and L ~= "zhr" and L ~= "zht" and en or zh
 end
 
-name = "事件计时器" -- 模组名称
+name = "全局事件计时器" -- 模组名称
 description = en_zh([[
 
 ]],[[
@@ -27,35 +27,56 @@ all_clients_require_mod = true
 client_only_mod = false
 server_only_mod = false
 
-configuration_options = {}
 
 local options_enable = {
 	{description = en_zh("Disabled", "关闭"), data = false},
 	{description = en_zh("Enabled", "开启"), data = true},
 }
 
-local function AddOption(name, label_en, label_ch, options, default)
-    configuration_options[#configuration_options + 1] = {
-        name = name,
-		label = en_zh(label_en, label_ch),
-		options = options or options_enable,
-		default = default == nil and true or default,
-	}
-end
 
-AddOption("lang", "Language", "语言",{
-    {description = en_zh("Auto", "自动"), data = "auto", hover = en_zh("Automatically set according to the game language", "根据游戏语言自动设置")},
-    {description = en_zh("Chinese", "中文"), data = "zh", hover = ""},
-    {description = en_zh("English", "英文"), data = "en", hover = ""},
-}, "auto")
-
-AddOption("BossTimer", "BossTimer", "Boss计时格式",{
-    {description = en_zh("day:m:s", "天:分:秒"), data = 1, hover = en_zh("Game Time", "游戏时间,一天8分钟")},
-    {description = en_zh("h:m:s", "时:分:秒"), data = 2, hover = en_zh("Real Time", "现实时间")},
-    {description = en_zh("Disabled", "关闭"), data = false},
-}, 1)
-
-AddOption("SyncTimer", "Sync Timer", "跨世界同步计时",{
-    {description = en_zh("On", "开"), data = true, hover = ""},
-    {description = en_zh("Off", "关"), data = false, hover = ""},
-}, true)
+configuration_options = {
+    {
+        name = "lang",
+        label = en_zh("Language", "语言"),
+        hover = en_zh("Select the language you want to use", "选择你想要使用的语言"),
+        options =
+        {
+            {description = "English(英语)", data = "en", hover = ""},
+            {description = "中文(Chinese)", data = "zh", hover = ""},
+            {description = en_zh("Auto", "自动"), data = "auto", hover = en_zh("Automatically set according to the game language", "根据游戏语言自动设置")},
+        },
+        default = "auto",
+    },
+    {
+        name = "BossTimer",
+        label = en_zh("BossTimer", "Boss计时格式"),
+        options =
+        {
+            {description = en_zh("day:m:s", "天:分:秒"), data = 1, hover = en_zh("Game Time", "游戏时间,一天8分钟")},
+            {description = en_zh("h:m:s", "时:分:秒"), data = 2, hover = en_zh("Real Time", "现实时间")},
+        },
+        default = 1,
+    },
+    {
+        name = "ShowTips",
+        label = en_zh("Highlight Tips", "醒目提示"),
+        hover = en_zh("Show a noticeable alert when entering the game or when an event countdown is about to end", "当进入游戏时/事件倒计时即将结束时发出醒目提示"),
+        options =
+        {
+            {description = en_zh("On", "开"), data = true, hover = ""},
+            {description = en_zh("Off", "关"), data = false, hover = ""},
+        },
+        default = true,
+        client = true,
+    },
+    {
+        name = "SyncTimer",
+        label = en_zh("Sync Timer", "跨世界同步计时"),
+        options =
+        {
+            {description = en_zh("On", "开"), data = true, hover = ""},
+            {description = en_zh("Off", "关"), data = false, hover = ""},
+        },
+        default = true,
+    },
+}

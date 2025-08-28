@@ -1,8 +1,15 @@
--- 语言检测
+----------------------------------------加载资源---------------------------------------
 
-local lang = GetModConfigData("lang") or "auto"
-if lang == "auto" then
-    lang = GLOBAL.LanguageTranslator.defaultlang
+Assets = {
+	Asset("ATLAS", "images/dyc_panel_shadow.xml"), -- 来自单机饥荒模组【全能信息面板】
+	Asset("IMAGE", "images/dyc_panel_shadow.tex"), -- 来自单机饥荒模组【全能信息面板】
+}
+
+----------------------------------------语言检测---------------------------------------
+
+ModLanguage = GetModConfigData("lang") or "auto"
+if ModLanguage == "auto" then
+    ModLanguage = GLOBAL.LanguageTranslator.defaultlang
 end
 
 local _languages = {
@@ -27,11 +34,13 @@ local _languages = {
 	cht = "zh", --Chinese mod
 }
 
-if _languages[lang] ~= nil then
-    lang = _languages[lang]
+if _languages[ModLanguage] ~= nil then
+    ModLanguage = _languages[ModLanguage]
 else
-    lang = "en"
+    ModLanguage = "en"
 end
+
+----------------------------------------定义模组环境函数---------------------------------------
 
 local function Import(modulename)
 	local f = GLOBAL.kleiloadlua(modulename)
@@ -74,16 +83,18 @@ function RW_Data:LoadData()
 	return data or {}
 end
 
--- 模组环境映射到全局环境
+----------------------------------------模组环境映射到全局环境---------------------------------------
+
 GLOBAL.EventTimer = {}
 GLOBAL.EventTimer.env = env
-GLOBAL.EventTimer.language = lang
 
--- 加载模组
-modimport("Languages/" .. lang) -- 加载翻译
+----------------------------------------加载模组---------------------------------------
+
+modimport("Languages/" .. ModLanguage) -- 加载翻译
 
 
-GLOBAL.TimerMode = GetModConfigData("BossTimer") -- 倒计时格式
+GLOBAL.TimerMode = GetModConfigData("BossTimer", true) -- 倒计时格式
+GLOBAL.TimerTips = GetModConfigData("ShowTips", true) -- 醒目提示
 
 local IA_CONFIG = GLOBAL.rawget(GLOBAL, "IA_CONFIG")
 if IA_CONFIG then

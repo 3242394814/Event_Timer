@@ -23,9 +23,7 @@ local function OnUpdate(self)
                 end
             end
 
-            if text and text ~= 0 then
-                self.inst.replica.waringtimer[waringevent .. "_text"]:set(text)
-            end
+            self.inst.replica.waringtimer[waringevent .. "_text"]:set(text or "")
         end
         if data.gettimefn then
             local time = data.gettimefn()
