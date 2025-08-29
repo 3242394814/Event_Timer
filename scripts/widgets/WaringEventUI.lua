@@ -29,7 +29,7 @@ local WaringEventHUD = Class(Widget, function(self, owner)
         {
             text = "关闭",
             cb = function()
-                self.owner.HUD:CloseTarnsferPanel()
+                self.owner.EventTimerButton:CloseTarnsferPanel()
             end,
             offset = nil
         },

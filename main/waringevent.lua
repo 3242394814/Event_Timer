@@ -1,8 +1,7 @@
 local AddClassPostConstruct = AddClassPostConstruct
 local AddPrefabPostInit = AddPrefabPostInit
-local MODROOT = MODROOT
 local modimport = modimport
-local Import = Import
+local RW_Data = RW_Data
 GLOBAL.setfenv(1, GLOBAL)
 
 modimport("main/waringevents")
@@ -145,30 +144,84 @@ for i, world in ipairs(network_worlds) do
     end)
 end
 
-local TEMPLATES = require "widgets/redux/templates"
+---------------------------------------------------------------------------------------------------------------
+
 local TarnsferPanel = require("widgets/WaringEventUI")
-local function AddWaringEventsHUD(self)
+local UIAnim = require "widgets/uianim"
+local Button = require("widgets/button")
+local EventUIButton = Class(Button, function(self, owner)
+    Button._ctor(self)
+    self.owner = owner
+
+    self:SetVAnchor(ANCHOR_RIGHT)
+    self:SetHAnchor(ANCHOR_BOTTOM)
+
     -- 在屏幕顶部添加一个按钮，用来触发面板的显示与关闭
-    self.openbutton = self:AddChild(TEMPLATES.StandardButton(function() self:ShowTarnsferPanel() end , "打开", {100, 50}))
-    self.openbutton:SetPosition(0, -40, 0)
-    self.openbutton:SetVAnchor(ANCHOR_TOP)
-    self.openbutton:SetHAnchor(ANCHOR_MIDDLE)
-    self.openbutton:SetScaleMode(SCALEMODE_PROPORTIONAL)
-    self.openbutton:SetMaxPropUpscale(MAX_HUD_SCALE)
+    self.openbutton = self:AddChild(UIAnim())
 
-    -- 显示面板
-    self.ShowTarnsferPanel = function(_, attach)
-        self.transferpanel = self:AddChild(TarnsferPanel(self.owner))
-        return self.transferpanel
+    -- 设置位置
+    local save_data = RW_Data:LoadData()
+    if save_data.pos and save_data.pos.x and save_data.pos.y then
+        self.openbutton:SetPosition(save_data.pos.x, save_data.pos.y , 0)
+    else
+        self.openbutton:SetPosition(-75, 250 , 0)
     end
+    save_data = nil
 
-    -- 关闭面板
-    self.CloseTarnsferPanel = function(_)
-        if self.transferpanel then
-            self.transferpanel:Close()
-            self.transferpanel = nil
+    -- 动画
+    self.openbutton:GetAnimState():SetBuild("pocketwatch_marble")
+    self.openbutton:GetAnimState():SetBank("pocketwatch")
+    self.openbutton:GetAnimState():PlayAnimation("cooldown_long", true)
+    self.openbutton:GetAnimState():Pause() -- 默认暂停动画
+    self.openbutton:SetScale(0.45, 0.45) -- 设置缩放比
+    self.openbutton:SetHoverText("点击打开事件计时器\n右键拖拽", { offset_y = 50 })
+    self.openbutton.hovertext:SetScale(0.8,0.8) -- 重新设置提示大小
+
+    self:SetClickable(true)
+    self:SetOnClick(function()
+        self:ShowTarnsferPanel()
+    end)
+
+    -- 鼠标右键拖拽
+    self.openbutton.OnMouseButton = function(_self, button, down, x, y)
+        if button == MOUSEBUTTON_RIGHT and down then
+            _self:FollowMouse()
+        elseif button == MOUSEBUTTON_RIGHT then
+            _self:StopFollowMouse()
+            local pos = _self:GetPosition()
+            local save_data = RW_Data:LoadData()
+            save_data.pos = { x = pos.x, y = pos.y}
+            RW_Data:SaveData(save_data)
+            save_data = nil
         end
     end
+end)
+
+function EventUIButton:OnGainFocus() -- 鼠标对准时播放动画
+    self.openbutton:GetAnimState():Resume()
+end
+
+function EventUIButton:OnLoseFocus() -- 鼠标离开时暂停动画
+    self.openbutton:GetAnimState():Pause()
+end
+
+-- 显示面板
+function EventUIButton:ShowTarnsferPanel()
+    self.eventui = self.owner:AddChild(TarnsferPanel(self.owner))
+    self:SetClickable(false)
+end
+
+-- 关闭面板
+function EventUIButton:CloseTarnsferPanel()
+    if self.eventui then
+        self.eventui:Close()
+        self.eventui = nil
+    end
+    self:SetClickable(true)
+end
+
+local function AddWaringEventsHUD(self)
+    self.EventTimerButton = self:AddChild(EventUIButton(self))
 end
 
 AddClassPostConstruct("screens/playerhud", AddWaringEventsHUD)

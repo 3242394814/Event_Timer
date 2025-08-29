@@ -131,3 +131,55 @@ AddReplicableComponent("waringtimer")
 
 modimport("main/commands")
 modimport("main/waringevent") -- 事件计时功能
+
+----------------------------------------鼠标跟随补丁---------------------------------------
+
+local function ModFollowMouse(self)
+    local old_sva = self.SetVAnchor
+    self.SetVAnchor = function (_self, anchor)
+        self.v_anchor = anchor
+        return old_sva(_self, anchor)
+    end
+
+    local old_sha = self.SetHAnchor
+    self.SetHAnchor = function (_self, anchor)
+        self.h_anchor = anchor
+        return old_sha(_self, anchor)
+    end
+
+    local function GetMouseLocalPos(ui, mouse_pos)
+        local g_s = ui:GetScale()
+        local l_s = Vector3(0,0,0)
+        l_s.x, l_s.y, l_s.z = ui:GetLooseScale()
+        local scale = Vector3(g_s.x/l_s.x, g_s.y/l_s.y, g_s.z/l_s.z)
+
+        local ui_local_pos = ui:GetPosition()
+        ui_local_pos = Vector3(ui_local_pos.x * scale.x, ui_local_pos.y * scale.y, ui_local_pos.z * scale.z)
+        local ui_world_pos = ui:GetWorldPosition()
+        if not (not ui.v_anchor or ui.v_anchor == ANCHOR_BOTTOM) or not (not ui.h_anchor or ui.h_anchor == ANCHOR_LEFT) then
+            local screen_w, screen_h = TheSim:GetScreenSize()
+            if ui.v_anchor and ui.v_anchor ~= ANCHOR_BOTTOM then
+                ui_world_pos.y = ui.v_anchor == ANCHOR_MIDDLE and screen_h/2 + ui_world_pos.y or screen_h - ui_world_pos.y
+            end
+            if ui.h_anchor and ui.h_anchor ~= ANCHOR_LEFT then
+                ui_world_pos.x = ui.h_anchor == ANCHOR_MIDDLE and screen_w/2 + ui_world_pos.x or screen_w - ui_world_pos.x
+            end
+        end
+
+        local origin_point = ui_world_pos - ui_local_pos
+        mouse_pos = mouse_pos - origin_point
+
+        return Vector3(mouse_pos.x/ scale.x, mouse_pos.y/ scale.y, mouse_pos.z/ scale.z)
+    end
+
+    self.FollowMouse = function(_self)
+        if _self.followhandler == nil then
+            _self.followhandler = TheInput:AddMoveHandler(function(x, y)
+                local loc_pos = GetMouseLocalPos(_self, Vector3(x, y, 0))
+                _self:UpdatePosition(loc_pos.x, loc_pos.y)
+            end)
+            _self:SetPosition(GetMouseLocalPos(_self, TheInput:GetScreenPosition()))
+        end
+    end
+end
+AddClassPostConstruct("widgets/widget", ModFollowMouse)
