@@ -42,7 +42,36 @@ function TurnOffWaring(event)
 end
 
 
+local old_WaringEvents
+function ShowAllEvent()
+    if not old_WaringEvents then
+        old_WaringEvents = deepcopy(WaringEvents)
+    end
+
+    for _, tb in pairs(WaringEvents) do
+        tb.gettimefn = function(...)
+            return 666
+        end
+        tb.gettextfn = function(...)
+            return "测试测试(世界233)\n第一行长文字123\n第二行长文字长文字\n第三行最长最长最长最长的文字"
+        end
+    end
+end
+
+function DefaultEvent()
+    WaringEvents = old_WaringEvents
+
+    for waringevent in pairs(WaringEvents) do
+        local event_time = waringevent .. "_time"
+        local event_text = waringevent .. "_text"
+        local waringtimer = TheWorld.net.components.waringtimer
+        waringtimer.inst.replica.waringtimer[event_time]:set(0)
+        waringtimer.inst.replica.waringtimer[event_text]:set("")
+    end
+end
+
 -- for client
+
 function ShowAllWaring()
     if not ThePlayer then
         return
@@ -64,13 +93,6 @@ function HideAllWaring()
 end
 
 function DefaultWaring()
-    -- if not ThePlayer then
-    --     return
-    -- end
-
-    -- for event, _ in pairs(WaringEvents) do
-    --     ThePlayer.HUD[event].force = nil
-    -- end
     HideAllWaring()
 end
 
@@ -93,8 +115,6 @@ function HideWaring(event)
         ThePlayer.HUD[event].force = false
     end
 end
-
-
 
 function SetTimeMode(mode)
     if not ThePlayer then

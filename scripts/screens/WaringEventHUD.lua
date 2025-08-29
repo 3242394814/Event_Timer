@@ -2,6 +2,7 @@ local RW_Data = EventTimer.env.RW_Data
 local TimerMode = EventTimer.TimerMode
 local save_data = RW_Data:LoadData()
 
+local Image = require "widgets/image"
 local ImageButton = require "widgets/imagebutton"
 local Text = require "widgets/text"
 local Widget = require "widgets/widget"
@@ -24,7 +25,7 @@ local WaringEventHUD = Class(Screen, function(self, owner)
     -- bottom_buttons 底部按钮
     -- button_spacing 按钮间距
     -- body_text 面板的文本
-    self.panel = self:AddChild(TEMPLATES.RectangleWindow(500, 650, "事件计时器",
+    self.panel = self:AddChild(TEMPLATES.RectangleWindow(580, 600, "事件计时器",
     {
         {
             text = "关闭",
@@ -36,6 +37,7 @@ local WaringEventHUD = Class(Screen, function(self, owner)
     }))
 
     ------------------------------------scroll-----------------------------------------
+
     -- 初始化每一项的方法
     local function DestItemCtor(content, index)
         local widget = Widget("widget-"..index)
@@ -52,6 +54,10 @@ local WaringEventHUD = Class(Screen, function(self, owner)
     -- 给每一项赋值，添加事件的方法
     local function DestApply(context, widget, data, index)
         widget.destitem:Hide()
+
+        if widget.destitem.image then
+            widget.destitem.image:Kill()
+        end
         if widget.destitem.anim then
             widget.destitem.anim:Kill()
         end
@@ -65,13 +71,39 @@ local WaringEventHUD = Class(Screen, function(self, owner)
                 data.animchangefn(data)
             end
 
-            -- 设置动画
-            if data.anim then
-                widget.destitem.anim = widget.destitem:AddChild(UIAnim())
-                widget.destitem.anim:SetPosition(-150, -10, 0)
+            if data.nobackground and widget.destitem.background then
+                widget.destitem.background:Kill()
+            end
 
-                local scale = (data.anim.scale or 0.099)
-                widget.destitem.anim:SetScale(scale)
+            if data.image and data.image.atlas and data.image.tex then -- 设置图片
+                local pos = { -- 默认位置
+                    x = -200,
+                    y = 0
+                }
+                if data.image.offset then -- 偏移位置
+                    pos.x = pos.x + (data.image.offset.x or 0)
+                    pos.y = pos.y + (data.image.offset.y or 0)
+                end
+
+                widget.destitem.image = widget.destitem:AddChild(Image(
+                    data.image.atlas,
+                    data.image.tex
+                ))
+                widget.destitem.image:SetPosition(pos.x, pos.y, 0)
+                widget.destitem.image:SetScale(data.image.scale or 0.099)
+
+            elseif data.anim then -- 设置动画
+                local pos = { -- 默认位置
+                    x = -200,
+                    y = -15,
+                }
+                if data.anim.offset then -- 偏移位置
+                    pos.x = pos.x + (data.anim.offset.x or 0)
+                    pos.y = pos.y + (data.anim.offset.y or 0)
+                end
+                widget.destitem.anim = widget.destitem:AddChild(UIAnim())
+                widget.destitem.anim:SetPosition(pos.x, pos.y, 0)
+                widget.destitem.anim:SetScale(data.anim.scale or 0.099)
                 widget.destitem.anim:GetAnimState():SetBank(data.anim.bank)
                 widget.destitem.anim:GetAnimState():SetBuild(data.anim.build)
                 widget.destitem.anim:GetAnimState():PlayAnimation(data.anim.animation or "idle", data.anim.loop)
@@ -121,11 +153,11 @@ local WaringEventHUD = Class(Screen, function(self, owner)
     -- 将滚动条添加到self.panel里去
     self.scrollpanel = self.panel:AddChild(TEMPLATES.ScrollingGrid({}, {
         num_columns = 1,             -- 有几个滚动条
-        num_visible_rows = 5,        -- 滚动条内最多显示多少行
+        num_visible_rows = 4,        -- 滚动条内最多显示多少行
         item_ctor_fn = DestItemCtor, -- 每一项的构造方法
         apply_fn = DestApply,        -- 给每一项赋值，添加事件等
-        widget_width = 400,          -- 每一项的宽
-        widget_height = 100,          -- 每一项的高
+        widget_width = 550,          -- 每一项的宽
+        widget_height = 125,          -- 每一项的高
         end_offset = nil,
     }))
     -----------------------------------------------------------------------------------
@@ -185,9 +217,14 @@ end
 -- 定义每一项内的控件布局
 function WaringEventHUD:InitDestItem()
     local dest = Widget("destination")
-    local width, height = 400, 100
+    local width, height = 550, 125
     dest.backing = dest:AddChild(TEMPLATES.ListItemBackground(width, height, function() end))
     dest.backing.move_on_click = true -- 按下后有视觉反馈
+
+    -- 图片/动画背景
+    dest.background = dest:AddChild(Image("images/saveslot_portraits.xml", "background.tex"))
+    dest.background:SetPosition(-200, 0, 0)
+    dest.background:SetScale(0.6, 0.71)
 
     -- TEXT控件
     dest.describe = dest:AddChild(Text(BODYTEXTFONT, 30)) -- 添加TEXT控件 字体，大小，文字
@@ -195,7 +232,7 @@ function WaringEventHUD:InitDestItem()
     dest.describe:SetVAlign(ANCHOR_MIDDLE) -- 设置上下对齐
     dest.describe:SetHAlign(ANCHOR_MIDDLE) -- 设置左右对齐
     dest.describe:SetPosition(10, 0, 0) -- 设置坐标 X，Y，Z
-    dest.describe:SetRegionSize(300, 80) -- 设置文字区域大小
+    dest.describe:SetRegionSize(500, 120) -- 设置文字区域大小
 
     -- 复选框
     dest.checkbox = dest:AddChild(ImageButton(

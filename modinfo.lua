@@ -17,8 +17,7 @@ description = en_zh([[
 （多层世界专服玩家注意，如果你同时开了2个相同的世界，请关掉其中1个世界的同步功能，否则数据会冲突）
 ]])
 author = "冰冰羊"
-version = 1 -- 模组版本
-description = ""
+version = 0.1 -- 模组版本
 
 dst_compatible = true -- 兼容联机版
 dont_starve_compatible = false -- 不兼容单机版
@@ -61,22 +60,14 @@ configuration_options = {
         name = "ShowTips",
         label = en_zh("Highlight Tips", "醒目提示"),
         hover = en_zh("Show a noticeable alert when entering the game or when an event countdown is about to end", "当进入游戏时/事件倒计时即将结束时发出醒目提示"),
-        options =
-        {
-            {description = en_zh("On", "开"), data = true, hover = ""},
-            {description = en_zh("Off", "关"), data = false, hover = ""},
-        },
+        options = options_enable,
         default = true,
         client = true,
     },
     {
         name = "SyncTimer",
         label = en_zh("Sync Timer", "跨世界同步计时"),
-        options =
-        {
-            {description = en_zh("On", "开"), data = true, hover = ""},
-            {description = en_zh("Off", "关"), data = false, hover = ""},
-        },
+        options = options_enable,
         default = true,
     },
     {
@@ -103,11 +94,7 @@ configuration_options = {
         name = "ClientPrediction",
         label = en_zh("Client Predicted Countdown", "客户端预测倒计时"),
         hover = en_zh("If the server update interval is longer than 1 second, use client prediction to fill the gaps","如果服务器的数据更新频率在1秒以上，则使用客户端预测填补空缺的刷新周期"),
-        options =
-        {
-            {description = en_zh("Yes", "是"), data = true, hover = ""},
-            {description = en_zh("No", "否"), data = false, hover = ""},
-        },
+        options = options_enable,
         default = true,
         client = true,
     },

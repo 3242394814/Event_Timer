@@ -180,6 +180,10 @@ WaringEvents = {
             build = "knightboat_build",
             animation = "idle_loop",
             -- loop = "",
+            offset = {
+                x = 7,
+                y = -2,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.chessnavy_time
@@ -231,6 +235,11 @@ WaringEvents = {
 
             return description
         end,
+        image = {
+            atlas = "images/Twister.xml",
+            tex = "Twister.tex",
+            scale = 0.4,
+        },
         anim = {
             scale = 0.022,
             bank = "twister",
@@ -274,11 +283,15 @@ WaringEvents = {
             return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
         end,
         anim = {
-            scale = 0.033,
+            scale = 0.03,
             bank = "quacken",
             build = "quacken",
             animation = "idle_loop",
-            loop = true
+            loop = true,
+            offset = {
+                x = 0,
+                y = -6,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.krakener_time
@@ -323,7 +336,11 @@ WaringEvents = {
             bank = "tigershark",
             build = "tigershark_ground_build",
             animation = "taunt",
-            loop = true
+            loop = true,
+            offset = {
+                x = -6,
+                y = -6,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.tigersharker_time
@@ -358,12 +375,18 @@ WaringEvents = {
                 return data and data.timetoattack or nil
             end
         end,
+        image = {
+            atlas = "images/Hound.xml",
+		    tex = "Hound.tex",
+            scale = 0.4,
+        },
         animchangefn = ChangeanimByWorld,
         forestanim = {
             scale = 0.099,
             bank = "hound",
             build = "hound_ocean",
             animation = "idle",
+            loop = true,
         },
         islandanim = {
             scale = 0.099,
@@ -418,13 +441,21 @@ WaringEvents = {
             build = "deerclops_build",
             animation = "idle_loop",
             loop = true,
+            offset = {
+                x = 0,
+                y = -6,
+            },
         },
         winterfeastanim = {
-            scale = 0.044,
+            scale = 0.05,
             bank = "deerclops",
             build = "deerclops_yule",
             animation = "idle_loop",
             loop = true,
+            offset = {
+                x = -2,
+                y = -8,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.deerclopsspawner_time
@@ -460,7 +491,11 @@ WaringEvents = {
             bank = "deer",
             build = "deer_build",
             animation = "idle_loop",
-            loop = true
+            loop = true,
+            offset = {
+                x = -6,
+                y = -6,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.deerherdspawner_time
@@ -519,7 +554,11 @@ WaringEvents = {
             bank = "antlion",
             build = "antlion_build",
             animation = "idle",
-            loop = true
+            loop = true,
+            offset = {
+                x = 0,
+                y = -5,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.sinkholespawner_time
@@ -552,19 +591,27 @@ WaringEvents = {
         end,
         animchangefn = ChangeanimByWintersFeast,
         defaultanim = {
-            scale = 0.044,
+            scale = 0.04,
             bank = "bearger",
             build = "bearger_build",
             animation = "idle_loop",
             loop = true,
+            offset = {
+                x = 0,
+                y = -10,
+            },
         },
 
         winterfeastanim = {
-            scale = 0.033,
+            scale = 0.04,
             bank = "bearger",
             build = "bearger_yule",
             animation = "idle_loop",
             loop = true,
+            offset = {
+                x = 0,
+                y = -10,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.beargerspawner_time
@@ -605,6 +652,10 @@ WaringEvents = {
             build = "dragonfly_yule_build",
             animation = "idle",
             loop = true,
+            offset = {
+                x = 0,
+                y = -4,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.dragonfly_spawner_time
@@ -621,11 +672,15 @@ WaringEvents = {
     beequeenhive = {
         gettimefn = BeequeenhiveGrown,
         anim = {
-            scale = 0.044,
+            scale = 0.06,
             bank = "bee_queen",
             build = "bee_queen_build",
             animation = "idle_loop",
             loop = true,
+            offset = {
+                x = 0,
+                y = -10,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.beequeenhive_time
@@ -646,6 +701,10 @@ WaringEvents = {
             bank = "terrarium",
             build = "terrarium",
             animation = "idle",
+            offset = {
+                x = 0,
+                y = -4,
+            },
         },
         DisableShardRPC = true,
         announcefn = function()
@@ -668,6 +727,10 @@ WaringEvents = {
             build = "malbatross_build",
             animation = "idle_loop",
             loop = true,
+            offset = {
+                x = 5,
+                y = -10,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.malbatrossspawner_time
@@ -698,6 +761,10 @@ WaringEvents = {
             build = "toadstool_build",
             animation = "idle",
             loop = true,
+            offset = {
+                x = 0,
+                y = -5,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.toadstoolspawner_time
@@ -711,6 +778,10 @@ WaringEvents = {
             bank = "atrium_gate",
             build = "atrium_gate",
             animation = "idle",
+            offset = {
+                x = 0,
+                y = -5,
+            },
         },
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.atrium_gate_time
@@ -761,30 +832,26 @@ for waringevent, data in pairs(WaringEvents) do
     local event_time_shardrpc = waringevent .. "_time_shardrpc"
     local event_text_shardrpc = waringevent .. "_text_shardrpc"
 
-    if data.gettimefn then
-        AddShardModRPCHandler("EventTimer", event_time_shardrpc, function(shardid, timedata, worldtype)
-            if not SyncTimer then return end -- 未开启同步功能，取消同步
+    AddShardModRPCHandler("EventTimer", event_time_shardrpc, function(shardid, timedata, worldtype)
+        if not SyncTimer then return end -- 未开启同步功能，取消同步
 
-            local waringtimer = TheWorld.net.components.waringtimer
-            if timedata then
-                waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(timedata or 0)
+        local waringtimer = TheWorld.net.components.waringtimer
+        if timedata then
+            waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(timedata or 0)
 
-                local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
-                textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
-                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
-            end
-        end)
-    end
+            local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
+            textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
+            waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
+        end
+    end)
 
-    if data.gettextfn then
-        AddShardModRPCHandler("EventTimer", event_text_shardrpc, function(shardid, textdata, worldtype)
-            if not SyncTimer then return end -- 未开启同步功能，取消同步
+    AddShardModRPCHandler("EventTimer", event_text_shardrpc, function(shardid, textdata, worldtype)
+        if not SyncTimer then return end -- 未开启同步功能，取消同步
 
-            local waringtimer = TheWorld.net.components.waringtimer
-            if textdata then
-                textdata = textdata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata)
-                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
-            end
-        end)
-    end
+        local waringtimer = TheWorld.net.components.waringtimer
+        if textdata then
+            textdata = textdata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata)
+            waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
+        end
+    end)
 end
