@@ -1,4 +1,5 @@
-local SyncTimer = EventTimer.env.GetModConfigData("SyncTimer")
+local UpdateTime = EventTimer.UpdateTime
+local SyncTimer = EventTimer.SyncTimer
 local function GetWorldType()
     if TheWorld:HasTag("porkland") then
         return STRINGS.eventtimer.worldtype.porkland
@@ -24,8 +25,7 @@ local function OnUpdate(self)
                 end
             end
 
-            -- self.inst.replica.waringtimer[waringevent]:set_local(0)
-            self.inst.replica.waringtimer[waringevent .. "_time"]:set(time or 0)
+            self.inst.replica.waringtimer[waringevent .. "_time"]:set(time and time > 0 and time or 0)
         end
         if data.gettextfn then
             local text = data.gettextfn(time)
@@ -42,7 +42,7 @@ end
 
 local WaringTimer = Class(function(self, inst)
     self.inst = inst
-    self.inst:DoPeriodicTask(0.5, function() OnUpdate(self) end)
+    self.inst:DoPeriodicTask(UpdateTime , function() OnUpdate(self) end)
 end)
 
 return WaringTimer

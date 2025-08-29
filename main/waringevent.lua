@@ -1,6 +1,8 @@
 local AddClassPostConstruct = AddClassPostConstruct
 local AddPrefabPostInit = AddPrefabPostInit
+local MODROOT = MODROOT
 local modimport = modimport
+local Import = Import
 GLOBAL.setfenv(1, GLOBAL)
 
 modimport("main/waringevents")
@@ -9,7 +11,7 @@ local WaringTips = require("widgets/waringtips")
 local game_ready = false
 
 local function AddWaringEvents(self)
-    self.inst:DoTaskInTime(1,function()
+    self.inst:DoTaskInTime(2,function()
         game_ready = true
     end)
 
@@ -83,7 +85,7 @@ local function AddWaringEvents(self)
             end
 
             if data.gettimefn then
-                if not self[waringevent].force or (time <= 0 or self[waringevent].sametick >= 100) then
+                if not self[waringevent].force or ((time and time <= 0)or self[waringevent].sametick >= 100) then
                     if self[waringevent].shown then
                         self[waringevent]:Hide()
                     end
@@ -103,7 +105,7 @@ local function AddWaringEvents(self)
                 end
             end
 
-            if data.tipsfn and game_ready then
+            if time and data.tipsfn and game_ready then
                 local need_tips, tipstextfn, tipstime, delay = data.tipsfn()
                 self[waringevent].last_tips = self[waringevent].last_tips or false
                 if need_tips and not self[waringevent].last_tips then
@@ -121,7 +123,6 @@ local function AddWaringEvents(self)
             end
         end
     end
-
 end
 
 AddClassPostConstruct("screens/playerhud", AddWaringEvents)

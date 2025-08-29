@@ -79,4 +79,36 @@ configuration_options = {
         },
         default = true,
     },
+    {
+        name = "UpdateTime",
+        label = en_zh("Server Data Update Frequency", "服务器数据更新频率"),
+        hover = en_zh("How often the server updates the timer data","设置服务器多久更新一次计时器数据"),
+        options =
+        {
+            {description = "0.5s", data = 0.5},
+            {description = "1s", data = 1},
+            {description = "2s", data = 2},
+            {description = "3s", data = 3},
+            {description = "4s", data = 4},
+            {description = "5s", data = 5},
+            {description = "6s", data = 6},
+            {description = "7s", data = 7},
+            {description = "8s", data = 8},
+            {description = "9s", data = 9},
+            {description = "10s", data = 10},
+        },
+        default = 5,
+    },
+    {
+        name = "ClientPrediction",
+        label = en_zh("Client Predicted Countdown", "客户端预测倒计时"),
+        hover = en_zh("If the server update interval is longer than 1 second, use client prediction to fill the gaps","如果服务器的数据更新频率在1秒以上，则使用客户端预测填补空缺的刷新周期"),
+        options =
+        {
+            {description = en_zh("Yes", "是"), data = true, hover = ""},
+            {description = en_zh("No", "否"), data = false, hover = ""},
+        },
+        default = true,
+        client = true,
+    },
 }

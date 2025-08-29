@@ -3,17 +3,12 @@ local GetModConfigData = GetModConfigData
 local SyncTimer = GetModConfigData("SyncTimer")
 local Upvaluehelper = Upvaluehelper
 local ReplacePrefabName = ReplacePrefabName
+local Extract_by_format = Extract_by_format
+local GetWorldtypeStr = GetWorldtypeStr
 
 GLOBAL.setfenv(1, GLOBAL)
 local TimerMode = EventTimer.TimerMode
 modimport("main/timerprefab")
-
--- 反向提取信息
-local function extract_by_format(text, format_str)
-    local safe = format_str:gsub("%-", "%%%1")
-    local pattern = safe:gsub("%%s", "(.*)")
-    return text:match(pattern)
-end
 
 -- 格式化时间
 local function TimeToString(seconds)
@@ -124,17 +119,6 @@ local function ChangeanimByWorld(self)
     end
 end
 
-local function GetWorldtypeStr() -- 根据世界类型返回一段字符串
-    if TheWorld:HasTag("porkland") then
-        return "porkland"
-    elseif TheWorld:HasTag("island") then
-        return "shipwrecked"
-    elseif TheWorld:HasTag("cave") then
-        return "cave"
-    else
-        return "forest"
-    end
-end
 
 local function StringToFunction(str) -- 将字符串打包为一个返回该字符串的函数
     return function()
@@ -143,10 +127,12 @@ local function StringToFunction(str) -- 将字符串打包为一个返回该字�
 end
 
 local function JustEntered(event_time)
+    if type(event_time) ~= "number" then return end
     return GetTime() > 1 and GetTime() < 10 and event_time > 0
 end
 
 local function ready_attack(time)
+    if type(time) ~= "number" then return end
     if time < 2 and time > 0 then
         return true
     end
@@ -168,7 +154,7 @@ local function NightmareWildAnimChange(self)
 
     if not changeanim then
         changeanim = TheWorld:DoPeriodicTask(1, function()
-            if ThePlayer then
+            if ThePlayer and ThePlayer.HUD.NightmareWild then
                 self.anim.animation = STATES[TheWorld.state.nightmarephase]
                 ThePlayer.HUD.NightmareWild:SetEventAnim(self.anim)
             end
@@ -178,7 +164,7 @@ end
 
 WaringEvents = {
 ----------------------------------------island---------------------------------------
-    ChessnavySpawn = {
+    chessnavy = {
         gettimefn = function()
             if TheWorld.components.chessnavy then
                 return TheWorld.components.chessnavy.spawn_timer
@@ -186,7 +172,7 @@ WaringEvents = {
         end,
         gettextfn = function(time)
             if not TheWorld.components.chessnavy then return end
-            return time > 0 and TimeToString(time) or STRINGS.eventtimer.chessnavyspawn.readytext
+            return time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time)) or STRINGS.eventtimer.chessnavy.readytext
         end,
         anim = {
             scale = 0.095,
@@ -196,14 +182,14 @@ WaringEvents = {
             -- loop = "",
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.ChessnavySpawn_time
+            local time = ThePlayer.HUD.WaringEventTimeData.chessnavy_time
             if time and time > 0 then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavyspawn.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time))
             end
-            return ReplacePrefabName(STRINGS.eventtimer.chessnavyspawn.ready)
+            return ReplacePrefabName(STRINGS.eventtimer.chessnavy.ready)
         end
     },
-    VolcanoEruption = {
+    volcanomanager = {
         gettimefn = VolcanoEruption,
         anim = {
             scale = 0.0077,
@@ -213,24 +199,24 @@ WaringEvents = {
             -- loop = "",
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.VolcanoEruption_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.volcanoeruption.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.volcanomanager_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.volcanomanager.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.VolcanoEruption_time
+            local time = ThePlayer.HUD.WaringEventTimeData.volcanomanager_time or 0
             if JustEntered(time) and time <= 480 then
-                return true, WaringEvents.VolcanoEruption.announcefn, 10
+                return true, WaringEvents.volcanomanager.announcefn, 10
             elseif time == 120 then
-                return true, WaringEvents.VolcanoEruption.announcefn, 10
+                return true, WaringEvents.volcanomanager.announcefn, 10
             elseif time > 2 and time <= 60 then
-                return true, WaringEvents.VolcanoEruption.announcefn, time
+                return true, WaringEvents.volcanomanager.announcefn, time
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.volcanoeruption.attack)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.volcanomanager.attack)), 10, time
             end
             return false
         end
     },
-    TwisterAttack = {
+    twisterspawner = {
         gettimefn = GetWorldSettingsTimeLeft("twister_timetoattack"),
         gettextfn = function(time)
             local self = TheWorld.components.twisterspawner
@@ -238,9 +224,9 @@ WaringEvents = {
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
             if time and target and target.name then
-                description = string.format(STRINGS.eventtimer.twisterattack.targeted, target.name, TimeToString(time))
+                description = string.format(STRINGS.eventtimer.twisterspawner.targeted, target.name, TimeToString(time))
             elseif time then
-                description = string.format(ReplacePrefabName(STRINGS.eventtimer.twisterattack.cooldown), TimeToString(time))
+                description = string.format(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.cooldown), TimeToString(time))
             end
 
             return description
@@ -253,28 +239,28 @@ WaringEvents = {
             loop = true
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.TwisterAttack_time
-            local text = ThePlayer.HUD.WaringEventTimeData.TwisterAttack_text
-            local target, _ = extract_by_format(text, STRINGS.eventtimer.twisterattack.targeted)
+            local time = ThePlayer.HUD.WaringEventTimeData.twisterspawner_time
+            local text = ThePlayer.HUD.WaringEventTimeData.twisterspawner_text
+            local target, _ = Extract_by_format(text, STRINGS.eventtimer.twisterspawner.targeted)
             if target and time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.twisterattack.target), target, TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.target), target, TimeToString(time))
             elseif time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.twisterattack.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.cooldown), TimeToString(time))
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.TwisterAttack_time
+            local time = ThePlayer.HUD.WaringEventTimeData.twisterspawner_time or 0
             if time == 120 or JustEntered(time) then
-                return true, WaringEvents.TwisterAttack.announcefn, 10
+                return true, WaringEvents.twisterspawner.announcefn, 10
             elseif time > 2 and time <= 60 then
-                return true, WaringEvents.TwisterAttack.announcefn, time
+                return true, WaringEvents.twisterspawner.announcefn, time
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.twisterattack.attack)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.attack)), 10, time
             end
             return false
         end
     },
-    KrakenCooldown = {
+    krakener = {
         gettimefn = function()
             if TheWorld.components.krakener then
                 return TheWorld.components.krakener:TimeUntilCanSpawn()
@@ -283,9 +269,9 @@ WaringEvents = {
         gettextfn = function(time)
             if not TheWorld.components.krakener then return end
             if time > 0 then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.krakencooldown.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.krakener.cooldown), TimeToString(time))
             end
-            return ReplacePrefabName(STRINGS.eventtimer.krakencooldown.ready)
+            return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
         end,
         anim = {
             scale = 0.033,
@@ -295,21 +281,21 @@ WaringEvents = {
             loop = true
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.KrakenCooldown_time
+            local time = ThePlayer.HUD.WaringEventTimeData.krakener_time
             if time and time > 0 then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.krakencooldown.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.krakener.cooldown), TimeToString(time))
             end
-            return ReplacePrefabName(STRINGS.eventtimer.krakencooldown.ready)
+            return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.KrakenCooldown_time
+            local time = ThePlayer.HUD.WaringEventTimeData.krakener_time or 0
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.krakencooldown.tips)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.krakener.tips)), 10, time
             end
             return false
         end
     },
-    TigersharkCooldown = {
+    tigersharker = {
         gettimefn = function()
             if TheWorld.components.tigersharker then
                 local self = TheWorld.components.tigersharker
@@ -322,15 +308,15 @@ WaringEvents = {
             local self = TheWorld.components.tigersharker
             if not self then return end
             if self.shark then
-                return ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.exists)
+                return ReplacePrefabName(STRINGS.eventtimer.tigersharker.exists)
             elseif self:CanSpawn(true, true) then
                 if time > 0 then
-                    return string.format(ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.cooldown), TimeToString(time))
+                    return string.format(ReplacePrefabName(STRINGS.eventtimer.tigersharker.cooldown), TimeToString(time))
                 else
-                    return STRINGS.eventtimer.tigersharkcooldown.readytext
+                    return STRINGS.eventtimer.tigersharker.readytext
                 end
             end
-            return ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.nospawn)
+            return ReplacePrefabName(STRINGS.eventtimer.tigersharker.nospawn)
         end,
         anim = {
             scale = 0.033,
@@ -340,24 +326,24 @@ WaringEvents = {
             loop = true
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.TigersharkCooldown_time
-            local text = ThePlayer.HUD.WaringEventTimeData.TigersharkCooldown_text
-            local exists = string.find(text, ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.exists))
-            local nospawn = string.find(text, ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.nospawn))
+            local time = ThePlayer.HUD.WaringEventTimeData.tigersharker_time
+            local text = ThePlayer.HUD.WaringEventTimeData.tigersharker_text
+            local exists = string.find(text, ReplacePrefabName(STRINGS.eventtimer.tigersharker.exists))
+            local nospawn = string.find(text, ReplacePrefabName(STRINGS.eventtimer.tigersharker.nospawn))
             if exists then
-                return ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.exists)
+                return ReplacePrefabName(STRINGS.eventtimer.tigersharker.exists)
             elseif nospawn then
-                return ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.nospawn)
+                return ReplacePrefabName(STRINGS.eventtimer.tigersharker.nospawn)
             elseif time and time > 0 then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.tigersharker.cooldown), TimeToString(time))
             else
-                return ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.ready)
+                return ReplacePrefabName(STRINGS.eventtimer.tigersharker.ready)
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.TigersharkCooldown_time
+            local time = ThePlayer.HUD.WaringEventTimeData.tigersharker_time or 0
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.tigersharkcooldown.tips)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.tigersharker.tips)), 10, time
             end
             return false
         end
@@ -365,7 +351,7 @@ WaringEvents = {
 
 ----------------------------------------forest---------------------------------------
 
-    HoundAttack = {
+    hounded = {
         gettimefn = function()
             if TheWorld.components.hounded then
                 local data = TheWorld.components.hounded:OnSave()
@@ -395,22 +381,22 @@ WaringEvents = {
         },
         DisableShardRPC = true,
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.HoundAttack_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.houndattack.cooldown[GetWorldtypeStr()]), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.hounded_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.HoundAttack_time
+            local time = ThePlayer.HUD.WaringEventTimeData.hounded_time or 0
             if time == 120 or JustEntered(time) then
-                return true, WaringEvents.HoundAttack.announcefn, 10
+                return true, WaringEvents.hounded.announcefn, 10
             elseif time > 2 and time <= 60 then
-                return true, WaringEvents.HoundAttack.announcefn, time
+                return true, WaringEvents.hounded.announcefn, time
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.houndattack.attack[GetWorldtypeStr()])), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[GetWorldtypeStr()])), 10, time
             end
             return false
         end
     },
-    DeerclopsAttack = {
+    deerclopsspawner = {
         gettimefn = GetWorldSettingsTimeLeft("deerclops_timetoattack"),
         gettextfn = function(time)
             local self = TheWorld.components.deerclopsspawner
@@ -418,9 +404,9 @@ WaringEvents = {
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
             if time and target and target.name then
-                description = string.format(STRINGS.eventtimer.deerclopsattack.targeted, target.name, TimeToString(time))
+                description = string.format(STRINGS.eventtimer.deerclopsspawner.targeted, target.name, TimeToString(time))
             elseif time then
-                description = string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsattack.cooldown), TimeToString(time))
+                description = string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.cooldown), TimeToString(time))
             end
 
             return description
@@ -441,28 +427,28 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.DeerclopsAttack_time
-            local text = ThePlayer.HUD.WaringEventTimeData.DeerclopsAttack_text
-            local target, _ = extract_by_format(text, STRINGS.eventtimer.deerclopsattack.targeted)
+            local time = ThePlayer.HUD.WaringEventTimeData.deerclopsspawner_time
+            local text = ThePlayer.HUD.WaringEventTimeData.deerclopsspawner_text
+            local target, _ = Extract_by_format(text, STRINGS.eventtimer.deerclopsspawner.targeted)
             if target and time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsattack.target), target, TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.target), target, TimeToString(time))
             elseif time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsattack.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.cooldown), TimeToString(time))
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.DeerclopsAttack_time
+            local time = ThePlayer.HUD.WaringEventTimeData.deerclopsspawner_time or 0
             if time == 120 or JustEntered(time) then
-                return true, WaringEvents.DeerclopsAttack.announcefn, 10
+                return true, WaringEvents.deerclopsspawner.announcefn, 10
             elseif time > 2 and time <= 60 then
-                return true, WaringEvents.DeerclopsAttack.announcefn, time
+                return true, WaringEvents.deerclopsspawner.announcefn, time
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.deerclopsattack.attack)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.attack)), 10, time
             end
             return false
         end
     },
-    DeerherdSpawn = {
+    deerherdspawner = {
         gettimefn = function()
             if TheWorld.components.deerherdspawner then
                 local data = TheWorld.components.deerherdspawner:OnSave()
@@ -477,11 +463,11 @@ WaringEvents = {
             loop = true
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.DeerherdSpawn_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.deerheraspawn.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.deerherdspawner_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.deerherdspawner.cooldown), TimeToString(time))
         end
     },
-    KlaussackSpawn = {
+    klaussackspawner = {
         gettimefn = GetWorldSettingsTimeLeft("klaussack_spawntimer"),
         gettextfn = function(time)
             local function sack_can_despawn(inst)
@@ -497,9 +483,9 @@ WaringEvents = {
             if not self then return end
             local sack = Upvaluehelper.FindUpvalue(self.GetDebugString, "_sack")
             if sack and sack:IsValid() and sack.despawnday and sack_can_despawn(sack) then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.despawntext), sack.despawnday)
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.despawntext), sack.despawnday)
             else
-                return time and string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.cooldowntext), TimeToString(time))
+                return time and string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.cooldowntext), TimeToString(time))
             end
         end,
         anim = {
@@ -509,24 +495,24 @@ WaringEvents = {
             animation = "idle",
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.KlaussackSpawn_time
-            local text = ThePlayer.HUD.WaringEventTimeData.KlaussackSpawn_text
-            local despawnday = extract_by_format(text, STRINGS.eventtimer.klaussackspawn.despawntext)
+            local time = ThePlayer.HUD.WaringEventTimeData.klaussackspawner_time
+            local text = ThePlayer.HUD.WaringEventTimeData.klaussackspawner_text
+            local despawnday = Extract_by_format(text, STRINGS.eventtimer.klaussackspawner.despawntext)
             if despawnday then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.despawn), despawnday)
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.despawn), despawnday)
             elseif time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.cooldown), TimeToString(time))
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.KlaussackSpawn_time
+            local time = ThePlayer.HUD.WaringEventTimeData.klaussackspawner_time or 0
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.klaussackspawn.tips)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.tips)), 10, time
             end
             return false
         end
     },
-    AntlionAttack = {
+    sinkholespawner = {
         gettimefn = GetWorldSettingsTimeLeft("rage", "antlion"),
         anim = {
             scale = 0.055,
@@ -536,20 +522,20 @@ WaringEvents = {
             loop = true
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.AntlionAttack_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.antlionattack.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.sinkholespawner_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.AntlionAttack_time
+            local time = ThePlayer.HUD.WaringEventTimeData.sinkholespawner_time or 0
             if time > 2 and time <= 60 then
-                return true, WaringEvents.AntlionAttack.announcefn, math.min(20, time)
+                return true, WaringEvents.sinkholespawner.announcefn, math.min(20, time)
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.antlionattack.attack)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.attack)), 10, time
             end
             return false
         end
     },
-    BeargerSpawn = {
+    beargerspawner = {
         gettimefn = GetWorldSettingsTimeLeft("bearger_timetospawn"),
         gettextfn = function(time)
             local self = TheWorld.components.beargerspawn
@@ -557,9 +543,9 @@ WaringEvents = {
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
             if time and target and target.name then
-                description = string.format(STRINGS.eventtimer.beargerspawn.targeted, target.name, TimeToString(time))
+                description = string.format(STRINGS.eventtimer.beargerspawner.targeted, target.name, TimeToString(time))
             elseif time then
-                description = string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawn.cooldown), TimeToString(time))
+                description = string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.cooldown), TimeToString(time))
             end
 
             return description
@@ -581,28 +567,28 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.BeargerSpawn_time
-            local text = ThePlayer.HUD.WaringEventTimeData.BeargerSpawn_text
-            local target, _ = extract_by_format(text, STRINGS.eventtimer.beargerspawn.targeted)
+            local time = ThePlayer.HUD.WaringEventTimeData.beargerspawner_time
+            local text = ThePlayer.HUD.WaringEventTimeData.beargerspawner_text
+            local target, _ = Extract_by_format(text, STRINGS.eventtimer.beargerspawner.targeted)
             if target and time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawn.target), target, TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.target), target, TimeToString(time))
             elseif time then
-                return string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawn.cooldown), TimeToString(time))
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.cooldown), TimeToString(time))
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.BeargerSpawn_time
+            local time = ThePlayer.HUD.WaringEventTimeData.beargerspawner_time or 0
             if time == 120 or JustEntered(time) then
-                return true, WaringEvents.BeargerSpawn.announcefn, 10
+                return true, WaringEvents.beargerspawner.announcefn, 10
             elseif time > 2 and time <= 60 then
-                return true, WaringEvents.BeargerSpawn.announcefn, time
+                return true, WaringEvents.beargerspawner.announcefn, time
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beargerspawn.attack)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.attack)), 10, time
             end
             return false
         end,
     },
-    DragonflySpawn = {
+    dragonfly_spawner = {
         gettimefn = GetWorldSettingsTimeLeft("regen_dragonfly", "dragonfly_spawner"),
         animchangefn = ChangeanimByWintersFeast,
         defaultanim = {
@@ -621,18 +607,18 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.DragonflySpawn_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.dragonflyspawn.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.dragonfly_spawner_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.dragonfly_spawner.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.DragonflySpawn_time
+            local time = ThePlayer.HUD.WaringEventTimeData.dragonfly_spawner_time or 0
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.dragonflyspawn.tips)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.dragonfly_spawner.tips)), 10, time
             end
             return false
         end,
     },
-    BeequeenhiveGrown = {
+    beequeenhive = {
         gettimefn = BeequeenhiveGrown,
         anim = {
             scale = 0.044,
@@ -642,18 +628,18 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.BeequeenhiveGrown_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.beequeenhivegrown.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.beequeenhive_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.beequeenhive.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.BeequeenhiveGrown_time
+            local time = ThePlayer.HUD.WaringEventTimeData.beequeenhive_time or 0
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beequeenhivegrown.tips)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beequeenhive.tips)), 10, time
             end
             return false
         end,
     },
-    TerrariumCooldown = {
+    terrarium = {
         gettimefn = GetWorldSettingsTimeLeft("cooldown", "terrarium"),
         anim = {
             scale = 0.2,
@@ -663,18 +649,18 @@ WaringEvents = {
         },
         DisableShardRPC = true,
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.TerrariumCooldown_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.terrariumcooldown.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.terrarium_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.terrarium.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.TerrariumCooldown_time
+            local time = ThePlayer.HUD.WaringEventTimeData.terrarium_time or 0
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.terrariumcooldown.tips)), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.terrarium.tips)), 10, time
             end
             return false
         end,
     },
-    MalbatrossSpawn = {
+    malbatrossspawner = {
         gettimefn = GetWorldSettingsTimeLeft("malbatross_timetospawn"),
         anim = {
             scale = 0.04,
@@ -684,11 +670,11 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.MalbatrossSpawn_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.malbatrossspawn.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.malbatrossspawner_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.malbatrossspawner.cooldown), TimeToString(time))
         end
     },
-    CrabkingSpawn = {
+    crabkingspawner = {
         gettimefn = GetWorldSettingsTimeLeft("regen_crabking", "crabking_spawner"),
         anim = {
             scale = 0.022,
@@ -698,13 +684,13 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.CrabkingSpawn_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.crabkingspawn.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.crabkingspawner_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.crabkingspawner.cooldown), TimeToString(time))
         end
     },
 
 ----------------------------------------cave----------------------------------------
-    ToadstoolReSpawn = {
+    toadstoolspawner = {
         gettimefn = GetWorldSettingsTimeLeft("toadstool_respawntask"),
         anim = {
             scale = 0.033,
@@ -714,11 +700,11 @@ WaringEvents = {
             loop = true,
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.ToadstoolReSpawn_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.toadstoolrespawn.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.toadstoolspawner_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.toadstoolspawner.cooldown), TimeToString(time))
         end
     },
-    AtriumgateCooldown = {
+    atrium_gate = {
         gettimefn = GetWorldSettingsTimeLeft("cooldown", "atrium_gate"),
         anim = {
             scale = 0.06,
@@ -727,11 +713,11 @@ WaringEvents = {
             animation = "idle",
         },
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.AtriumgateCooldown_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.atriumgatecooldown.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WaringEventTimeData.atrium_gate_time
+            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.atrium_gate.cooldown), TimeToString(time))
         end
     },
-    NightmareWild = {
+    nightmareclock = {
         gettimefn = NightmareWild, -- 仅返回倒计时
         gettextfn = function(time) -- 仅锁定阶段返回
             local nightmareclock = TheWorld.net.components.nightmareclock
@@ -740,7 +726,7 @@ WaringEvents = {
             end
 
             local data = nightmareclock:OnSave()
-            return data.lockedphase and string.format(STRINGS.eventtimer.nightmarewild.phase_locked_text)
+            return data.lockedphase and string.format(STRINGS.eventtimer.nightmareclock.phase_locked_text)
         end,
         anim = {
             scale = 0.25,
@@ -751,16 +737,16 @@ WaringEvents = {
         },
         animchangefn = NightmareWildAnimChange,
         announcefn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.NightmareWild_time
-            local text = ThePlayer.HUD.WaringEventTimeData.NightmareWild_text
-            if text and string.find(text, STRINGS.eventtimer.nightmarewild.phase_locked_text) then
-                return STRINGS.eventtimer.nightmarewild.phase_locked
+            local time = ThePlayer.HUD.WaringEventTimeData.nightmareclock_time
+            local text = ThePlayer.HUD.WaringEventTimeData.nightmareclock_text
+            if text and string.find(text, STRINGS.eventtimer.nightmareclock.phase_locked_text) then
+                return STRINGS.eventtimer.nightmareclock.phase_locked
             end
             if TheWorld.state.nightmarephase == "none" then
-                return time and string.format(STRINGS.eventtimer.nightmarewild.cooldown_none, TimeToString(time))
+                return time and string.format(STRINGS.eventtimer.nightmareclock.cooldown_none, TimeToString(time))
             else
-                local phase = STRINGS.eventtimer.nightmarewild.phases[TheWorld.state.nightmarephase]
-                return time and phase and string.format(STRINGS.eventtimer.nightmarewild.cooldown, phase, TimeToString(time))
+                local phase = STRINGS.eventtimer.nightmareclock.phases[TheWorld.state.nightmarephase]
+                return time and phase and string.format(STRINGS.eventtimer.nightmareclock.cooldown, phase, TimeToString(time))
             end
         end
     }
@@ -781,13 +767,11 @@ for waringevent, data in pairs(WaringEvents) do
 
             local waringtimer = TheWorld.net.components.waringtimer
             if timedata then
-                waringtimer[event_time_shardrpc] = timedata
-                waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(waringtimer[event_time_shardrpc] or 0)
+                waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(timedata or 0)
 
                 local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
                 textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
-                waringtimer[event_text_shardrpc] = textdata
-                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(waringtimer[event_text_shardrpc] or "")
+                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
             end
         end)
     end
@@ -799,8 +783,7 @@ for waringevent, data in pairs(WaringEvents) do
             local waringtimer = TheWorld.net.components.waringtimer
             if textdata then
                 textdata = textdata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata)
-                waringtimer[event_text_shardrpc] = textdata
-                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(waringtimer[event_text_shardrpc] or "")
+                waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
             end
         end)
     end

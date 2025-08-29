@@ -42,7 +42,7 @@ end
 
 ----------------------------------------定义模组环境函数---------------------------------------
 
-local function Import(modulename)
+function Import(modulename)
 	local f = GLOBAL.kleiloadlua(modulename)
 	if f and type(f) == "function" then
         GLOBAL.setfenv(f, env.env)
@@ -53,12 +53,32 @@ end
 Upvaluehelper = Import(MODROOT .. "scripts/utils/bbgoat_upvaluehelper.lua")
 
 function ReplacePrefabName(str)
+	if type(str) ~= "string" then return end
     return str:gsub("<prefab=(.-)>", function(prefab)
         local key = prefab:upper()
         return GLOBAL.STRINGS.NAMES[key] or prefab
     end)
 end
 
+-- 反向提取信息
+function Extract_by_format(text, format_str)
+    if type(text) ~= "string" or type(format_str) ~= "string" then return end
+    local safe = string.gsub(format_str, "%-", "%%%1")
+    local pattern = safe:gsub("%%s", "(.*)")
+    return text:match(pattern)
+end
+
+function GetWorldtypeStr() -- 根据世界类型返回一段字符串
+    if GLOBAL.TheWorld:HasTag("porkland") then
+        return "porkland"
+    elseif GLOBAL.TheWorld:HasTag("island") then
+        return "shipwrecked"
+    elseif GLOBAL.TheWorld:HasTag("cave") then
+        return "cave"
+    else
+        return "forest"
+    end
+end
 
 -- 存取数据
 local DATA_FILE = 'mod_config_data/Events_Timer.json'
@@ -93,7 +113,10 @@ GLOBAL.EventTimer.env = env
 modimport("Languages/" .. ModLanguage) -- 加载翻译
 
 GLOBAL.EventTimer.TimerMode = GetModConfigData("BossTimer", true) -- 倒计时格式
+GLOBAL.EventTimer.SyncTimer = GetModConfigData("SyncTimer", false)
 GLOBAL.EventTimer.TimerTips = GetModConfigData("ShowTips", true) -- 醒目提示
+GLOBAL.EventTimer.UpdateTime = GetModConfigData("UpdateTime", false) -- 服务器数据更新频率
+GLOBAL.EventTimer.ClientPrediction = GetModConfigData("ClientPrediction", true) -- 客户端预测倒计时
 
 local IA_CONFIG = GLOBAL.rawget(GLOBAL, "IA_CONFIG")
 if IA_CONFIG then
