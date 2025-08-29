@@ -6,12 +6,11 @@ local Image = require "widgets/image"
 local ImageButton = require "widgets/imagebutton"
 local Text = require "widgets/text"
 local Widget = require "widgets/widget"
-local Screen = require "widgets/screen"
 local TEMPLATES = require "widgets/redux/templates"
 local UIAnim = require("widgets/uianim")
 
-local WaringEventHUD = Class(Screen, function(self, owner)
-    Screen._ctor(self, "WaringEventHUD")
+local WaringEventHUD = Class(Widget, function(self, owner)
+    Widget._ctor(self, "WaringEventHUD")
     self.owner = owner
     self.isopen = true
     self:SetPosition(0, 0, 0)

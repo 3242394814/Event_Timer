@@ -146,24 +146,19 @@ for i, world in ipairs(network_worlds) do
 end
 
 local TEMPLATES = require "widgets/redux/templates"
-local TarnsferPanel = require("screens/WaringEventHUD")
+local TarnsferPanel = require("widgets/WaringEventUI")
 local function AddWaringEventsHUD(self)
     -- 在屏幕顶部添加一个按钮，用来触发面板的显示与关闭
-    self.openbutton = self:AddChild(TEMPLATES.StandardButton(function() self:ChangeTransferPanelState() end , "打开", {100, 50}))
+    self.openbutton = self:AddChild(TEMPLATES.StandardButton(function() self:ShowTarnsferPanel() end , "打开", {100, 50}))
     self.openbutton:SetPosition(0, -40, 0)
     self.openbutton:SetVAnchor(ANCHOR_TOP)
     self.openbutton:SetHAnchor(ANCHOR_MIDDLE)
     self.openbutton:SetScaleMode(SCALEMODE_PROPORTIONAL)
     self.openbutton:SetMaxPropUpscale(MAX_HUD_SCALE)
 
-    function self:ChangeTransferPanelState()
-        self:ShowTarnsferPanel()
-    end
-
     -- 显示面板
     self.ShowTarnsferPanel = function(_, attach)
-        self.transferpanel = TarnsferPanel(self.owner)
-        self:OpenScreenUnderPause(self.transferpanel)
+        self.transferpanel = self:AddChild(TarnsferPanel(self.owner))
         return self.transferpanel
     end
 
