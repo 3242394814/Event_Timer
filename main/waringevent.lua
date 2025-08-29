@@ -174,12 +174,12 @@ local EventUIButton = Class(Button, function(self, owner)
     self.openbutton:GetAnimState():PlayAnimation("cooldown_long", true)
     self.openbutton:GetAnimState():Pause() -- 默认暂停动画
     self.openbutton:SetScale(0.45, 0.45) -- 设置缩放比
-    self.openbutton:SetHoverText("点击打开事件计时器\n右键拖拽", { offset_y = 50 })
-    self.openbutton.hovertext:SetScale(0.8,0.8) -- 重新设置提示大小
+    self.openbutton:SetHoverText("事件计时器\n右键拖拽", { offset_y = 50 })
+    self.openbutton.hovertext:SetScale(0.9,0.9) -- 重新设置提示大小
 
     self:SetClickable(true)
     self:SetOnClick(function()
-        self:ShowTarnsferPanel()
+        self:ToggleEventTimerUI()
     end)
 
     -- 鼠标右键拖拽
@@ -205,19 +205,14 @@ function EventUIButton:OnLoseFocus() -- 鼠标离开时暂停动画
     self.openbutton:GetAnimState():Pause()
 end
 
--- 显示面板
-function EventUIButton:ShowTarnsferPanel()
-    self.eventui = self.owner:AddChild(TarnsferPanel(self.owner))
-    self:SetClickable(false)
-end
-
--- 关闭面板
-function EventUIButton:CloseTarnsferPanel()
+-- 开关面板
+function EventUIButton:ToggleEventTimerUI()
     if self.eventui then
         self.eventui:Close()
         self.eventui = nil
+    else
+        self.eventui = self.owner:AddChild(TarnsferPanel(self.owner))
     end
-    self:SetClickable(true)
 end
 
 local function AddWaringEventsHUD(self)

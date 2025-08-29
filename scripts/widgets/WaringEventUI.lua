@@ -29,7 +29,7 @@ local WaringEventHUD = Class(Widget, function(self, owner)
         {
             text = "关闭",
             cb = function()
-                self.owner.EventTimerButton:CloseTarnsferPanel()
+                self.owner.EventTimerButton:ToggleEventTimerUI()
             end,
             offset = nil
         },
@@ -208,8 +208,6 @@ function WaringEventHUD:Close()
         self.isopen = false
         self.updatetask:Cancel()
         self.updatetask = nil
-
-        self.inst:DoTaskInTime(0, function() TheFrontEnd:PopScreen(self) end)
     end
 end
 
