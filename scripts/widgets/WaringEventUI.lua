@@ -70,6 +70,10 @@ local WaringEventHUD = Class(Widget, function(self, owner)
                 data.animchangefn(data)
             end
 
+            if data.imagechangefn then
+                data.imagechangefn(data)
+            end
+
             if data.nobackground and widget.destitem.background then
                 widget.destitem.background:Kill()
             end

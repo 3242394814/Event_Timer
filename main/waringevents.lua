@@ -106,6 +106,19 @@ local function ChangeanimByWintersFeast(self)
     end
 end
 
+-- 根据世界类型决定image
+local function ChangeimageByWorld(self)
+    if TheWorld:HasTag("porkland") then
+        self.image = self.porklandimage
+    elseif TheWorld:HasTag("island") then
+        self.image = self.islandimage
+    elseif TheWorld:HasTag("cave") then
+        self.image = self.caveimage
+    else
+        self.image = self.forestimage
+    end
+end
+
 -- 根据世界类型决定anim
 local function ChangeanimByWorld(self)
     if TheWorld:HasTag("porkland") then
@@ -375,10 +388,16 @@ WaringEvents = {
                 return data and data.timetoattack or nil
             end
         end,
-        image = {
+        imagechangefn = ChangeimageByWorld,
+        forestimage = {
             atlas = "images/Hound.xml",
 		    tex = "Hound.tex",
             scale = 0.4,
+        },
+        caveimage = {
+            atlas = "images/Depths_Worm.xml",
+            tex = "Depths_Worm.tex",
+            scale = 0.25,
         },
         animchangefn = ChangeanimByWorld,
         forestanim = {
@@ -839,8 +858,11 @@ for waringevent, data in pairs(WaringEvents) do
         if timedata then
             waringtimer.inst.replica.waringtimer[event_time_shardrpc]:set(timedata or 0)
 
-            local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
-            textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
+            local textdata
+            if timedata > 0 then
+                textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
+                textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
+            end
             waringtimer.inst.replica.waringtimer[event_text_shardrpc]:set(textdata or "")
         end
     end)

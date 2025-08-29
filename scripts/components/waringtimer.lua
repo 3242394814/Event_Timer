@@ -14,28 +14,82 @@ local function GetWorldType()
     end
 end
 
+ -- 记录数据是否有效、超过3次无效则清理
+local valid_data = {}
+for waringevent in pairs(WaringEvents) do
+    valid_data[waringevent] = {
+        time_valid = false,
+        text_valid = false,
+
+        time_notupdate = 0,
+        text_notupdate = 0,
+    }
+end
+
+local function MarkUnupdateData(waringevent, type)
+    if type == 1 then
+        if valid_data[waringevent].time_valid then
+            local num = valid_data[waringevent].time_notupdate
+            if num < 3 then
+                num = num + 1
+                valid_data[waringevent].time_notupdate = num
+            else
+                for id in pairs(Shard_GetConnectedShards()) do
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_time_shardrpc"], id, 0)
+                end
+                valid_data[waringevent].time_valid = false
+                valid_data[waringevent].time_notupdate = 0
+            end
+        end
+    elseif type == 2 then
+        if valid_data[waringevent].text_valid then
+            local num = valid_data[waringevent].text_notupdate
+            if num < 3 then
+                num = num + 1
+                valid_data[waringevent].text_notupdate = num
+            else
+                for id in pairs(Shard_GetConnectedShards()) do
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_text_shardrpc"], id, "")
+                end
+                valid_data[waringevent].text_valid = false
+                valid_data[waringevent].text_notupdate = 0
+            end
+        end
+    end
+end
+
 local function OnUpdate(self)
     for waringevent, data in pairs(WaringEvents) do
         local time
         if data.gettimefn then
             time = data.gettimefn()
             if SyncTimer and time and time > 0 and not data.DisableShardRPC then
+                valid_data[waringevent].time_valid = true
+
                 for id in pairs(Shard_GetConnectedShards()) do
                     SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_time_shardrpc"], id, time , GetWorldType())
                 end
             end
 
             self.inst.replica.waringtimer[waringevent .. "_time"]:set(time and time > 0 and time or 0)
+            if not time or time == 0 and not data.DisableShardRPC then
+                MarkUnupdateData(waringevent, 1) -- 标记并删除过期数据
+            end
         end
         if data.gettextfn then
             local text = data.gettextfn(time)
             if SyncTimer and text and not data.DisableShardRPC then
+                valid_data[waringevent].text_valid = true
+
                 for id in pairs(Shard_GetConnectedShards()) do
                     SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][waringevent .. "_text_shardrpc"], id, text , GetWorldType())
                 end
             end
 
             self.inst.replica.waringtimer[waringevent .. "_text"]:set(text or "")
+            if not text and not data.DisableShardRPC then
+                MarkUnupdateData(waringevent, 2) -- 标记并删除过期数据
+            end
         end
     end
 end

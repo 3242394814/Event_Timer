@@ -42,7 +42,7 @@ STRINGS.eventtimer = {
 
 ----------------------------------------森林----------------------------------------
 
-    hounded = { -- 猎犬/鳄狗/吸血蝙蝠
+    hounded = { -- 猎犬/洞穴蠕虫/鳄狗/吸血蝙蝠
         cooldowns = {
             forest = "<prefab=hound>将在%s后攻击",
             cave = "<prefab=worm>将在%s后攻击",

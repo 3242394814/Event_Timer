@@ -3,8 +3,12 @@
 Assets = {
 	Asset("ATLAS", "images/Hound.xml"),
 	Asset("IMAGE", "images/Hound.tex"),
+    Asset("ATLAS", "images/Depths_Worm.xml"),
+	Asset("IMAGE", "images/Depths_Worm.tex"),
 	Asset("ATLAS", "images/Twister.xml"),
 	Asset("IMAGE", "images/Twister.tex"),
+    Asset("ATLAS", "images/saveslot_portraits.xml"),
+	Asset("IMAGE", "images/saveslot_portraits.tex"),
 	Asset("ATLAS", "images/dyc_panel_shadow.xml"), -- 来自单机饥荒模组【全能信息面板】
 	Asset("IMAGE", "images/dyc_panel_shadow.tex"), -- 来自单机饥荒模组【全能信息面板】
 }

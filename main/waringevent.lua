@@ -14,14 +14,6 @@ local function AddWaringEvents(self)
         game_ready = true
     end)
 
-    self.WaringEventTimeData = {}
-
-    for waringevent, data in pairs(WaringEvents) do
-        self[waringevent] = self:AddChild(WaringEvent(data.anim))
-        self[waringevent]:Hide()
-        self[waringevent].force = EventTimer.env.RW_Data:LoadData()[waringevent] -- 读取存储的数据来决定是否显示计时器在屏幕左上角
-    end
-
     -- 屏幕左上角提示（出现时伴随提示音）
     local waringtips_messages = {}
     local msgnum = 0
@@ -63,6 +55,14 @@ local function AddWaringEvents(self)
     ---------------------------------------------------------------------------------------------------------------
 
     -- 屏幕左上角倒计时
+    self.WaringEventTimeData = {}
+    local save_data = EventTimer.env.RW_Data:LoadData()
+    for waringevent, data in pairs(WaringEvents) do
+        self[waringevent] = self:AddChild(WaringEvent(data.anim))
+        self[waringevent]:Hide()
+        self[waringevent].force = save_data[waringevent] -- 读取存储的数据来决定是否显示计时器在屏幕左上角
+    end
+
     function self:UpdateWaringEvents()
         local eventsdata = self.WaringEventTimeData
         local i = 0
@@ -166,7 +166,6 @@ local EventUIButton = Class(Button, function(self, owner)
     else
         self.openbutton:SetPosition(-75, 250 , 0)
     end
-    save_data = nil
 
     -- 动画
     self.openbutton:GetAnimState():SetBuild("pocketwatch_marble")
@@ -174,7 +173,7 @@ local EventUIButton = Class(Button, function(self, owner)
     self.openbutton:GetAnimState():PlayAnimation("cooldown_long", true)
     self.openbutton:GetAnimState():Pause() -- 默认暂停动画
     self.openbutton:SetScale(0.45, 0.45) -- 设置缩放比
-    self.openbutton:SetHoverText("事件计时器\n右键拖拽", { offset_y = 50 })
+    self.openbutton:SetHoverText("事件计时器\n右键拖拽", { offset_y = 70 })
     self.openbutton.hovertext:SetScale(0.9,0.9) -- 重新设置提示大小
 
     self:SetClickable(true)
@@ -186,10 +185,18 @@ local EventUIButton = Class(Button, function(self, owner)
     self.openbutton.OnMouseButton = function(_self, button, down, x, y)
         if button == MOUSEBUTTON_RIGHT and down then
             _self:FollowMouse()
+            _self.hovertext_root:Hide()
+            _self.hovertext:Hide()
         elseif button == MOUSEBUTTON_RIGHT then
             _self:StopFollowMouse()
             local pos = _self:GetPosition()
-            local save_data = RW_Data:LoadData()
+            local world_pos = _self:GetWorldPosition()
+
+            _self.hovertext_root:Show()
+            _self.hovertext_root:SetPosition(world_pos.x, world_pos.y + 70)
+            _self.hovertext:Show()
+
+            save_data = RW_Data:LoadData()
             save_data.pos = { x = pos.x, y = pos.y}
             RW_Data:SaveData(save_data)
             save_data = nil
