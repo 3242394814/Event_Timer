@@ -8,11 +8,62 @@
 <!-- · 支持识别【已暂停】的倒计时 -->
 <!-- · 修改【遗迹当前阶段】计时 -->
 <!-- · 修改面板UI <- -->
+<!-- · 自动清理过期的从世界计时数据 -->
 
-· 自动清理过期的从世界计时数据
 · 检测到与其他计时模组一起开时，提示玩家关掉其它计时模组。与Insight一起开时，关Insight或者关自己
 · 进行功能验收/BUG测试
 · 添加猪镇、永不妥协计时器
-· 添加月后BOSS计时器、下雨计时器？
+· 添加月后BOSS计时器、月相计时、海盗袭击计时
 · 模组英语翻译
+· 兼容【模组设置】，游戏内可实时开关预测倒计时功能
+
+
 · 模组API说明
+gettimefn
+gettextfn
+
+image = {
+    atlas = "images/Hound.xml",
+    tex = "Hound.tex",
+    scale = 0.4,
+    offset = {
+        x = 5, -- 左减右加
+        y = -10, -- 上加下减
+    },
+},
+imagechangefn
+forestimage
+caveimage
+islandimage
+porklandimage
+ChangeimageByWorld
+
+anim = {
+    bank = "malbatross",
+    build = "malbatross_build",
+    animation = "idle_loop",
+    loop = true,
+    scale = 0.04,
+    offset = {
+        x = 5,
+        y = -10,
+    },
+},
+animchangefn
+forestanim
+caveanim
+islandanim
+porklandanim
+ChangeanimByWorld
+
+winterfeastanim
+defaultanim
+ChangeanimByWintersFeast
+
+announcefn
+tipsfn
+
+
+
+
+· 进行功能验收/BUG测试

@@ -110,7 +110,7 @@ end
 local function ChangeimageByWorld(self)
     if TheWorld:HasTag("porkland") then
         self.image = self.porklandimage
-    elseif TheWorld:HasTag("island") then
+    elseif TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
         self.image = self.islandimage
     elseif TheWorld:HasTag("cave") then
         self.image = self.caveimage
@@ -123,7 +123,7 @@ end
 local function ChangeanimByWorld(self)
     if TheWorld:HasTag("porkland") then
         self.anim = self.porklandanim
-    elseif TheWorld:HasTag("island") then
+    elseif TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
         self.anim = self.islandanim
     elseif TheWorld:HasTag("cave") then
         self.anim = self.caveanim
@@ -408,11 +408,15 @@ WaringEvents = {
             loop = true,
         },
         islandanim = {
-            scale = 0.099,
+            scale = 0.09,
             bank = "crocodog",
             build = "crocodog_poison",
             animation = "idle",
             loop = true,
+            offset = {
+                x = 6,
+                y = 0,
+            },
         },
         caveanim = {
             scale = 0.066,
