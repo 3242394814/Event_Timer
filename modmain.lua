@@ -113,31 +113,30 @@ end
 
 ----------------------------------------模组环境映射到全局环境---------------------------------------
 
-GLOBAL.EventTimer = {}
-GLOBAL.EventTimer.env = env
+local env = env
+GLOBAL.EventTimer = {
+    env = env,
+    UpdateTime = GetModConfigData("UpdateTime", false), -- 服务器数据更新频率
+    ClientPrediction = GetModConfigData("ClientPrediction", true), -- 客户端预测倒计时
+    TimerMode = GetModConfigData("BossTimer", true), -- 倒计时格式
+    TimerTips = GetModConfigData("ShowTips", true), -- 醒目提示
+    SyncTimer = GetModConfigData("SyncTimer", false), -- 跨世界同步计时
+}
 
 ----------------------------------------加载模组---------------------------------------
 
 modimport("Languages/" .. ModLanguage) -- 加载翻译
 
-GLOBAL.EventTimer.TimerMode = GetModConfigData("BossTimer", true) -- 倒计时格式
-GLOBAL.EventTimer.SyncTimer = GetModConfigData("SyncTimer", false)
-GLOBAL.EventTimer.TimerTips = GetModConfigData("ShowTips", true) -- 醒目提示
-GLOBAL.EventTimer.UpdateTime = GetModConfigData("UpdateTime", false) -- 服务器数据更新频率
-GLOBAL.EventTimer.ClientPrediction = GetModConfigData("ClientPrediction", true) -- 客户端预测倒计时
-
-local IA_CONFIG = GLOBAL.rawget(GLOBAL, "IA_CONFIG")
-if IA_CONFIG then
-	IA_CONFIG.pondfishable = false
-end
-
 AddReplicableComponent("waringtimer")
 
-modimport("main/commands")
+modimport("main/commands") -- 调试指令
 modimport("main/waringevent") -- 事件计时功能
-
+if GLOBAL.TheNet:GetIsServer() then
+    modimport("main/modcompat") -- 检测其它相同功能的模组
+end
 ----------------------------------------鼠标跟随补丁---------------------------------------
 
+GLOBAL.setfenv(1, GLOBAL)
 local function ModFollowMouse(self)
     local old_sva = self.SetVAnchor
     self.SetVAnchor = function (_self, anchor)
@@ -186,4 +185,4 @@ local function ModFollowMouse(self)
         end
     end
 end
-AddClassPostConstruct("widgets/widget", ModFollowMouse)
+env.AddClassPostConstruct("widgets/widget", ModFollowMouse)
