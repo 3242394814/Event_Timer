@@ -18,6 +18,7 @@ description = en_zh([[
 ]])
 author = "冰冰羊"
 version = 0.1 -- 模组版本
+api_version = 10
 
 dst_compatible = true -- 兼容联机版
 dont_starve_compatible = false -- 不兼容单机版
@@ -88,7 +89,7 @@ configuration_options = {
             {description = "9s", data = 9},
             {description = "10s", data = 10},
         },
-        default = 5,
+        default = 0.5,
     },
     {
         name = "ClientPrediction",
