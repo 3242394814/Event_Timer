@@ -4,22 +4,42 @@ local function en_zh(en, zh)
     return L ~= "zh" and L ~= "zhr" and L ~= "zht" and en or zh
 end
 
-name = "全局事件计时器" -- 模组名称
+name = en_zh("Global Events Timer","全局事件计时器") -- 模组名称
 description = en_zh([[
+Adds a widget in-game that opens an event timer panel.
+The panel displays countdowns for various events and BOSS respawns.
+You can tick the checkbox on the right side of the panel to keep the timer always visible in the top-left corner of the screen.
+]],
+--[[
+Features:  
+Sync Timer: When enabled, event timer data from this world will be shared with other worlds.  
+(For multi shard dedicated servers: if you run two identical worlds at the same time, make sure to disable synchronization in one of them, otherwise the data will conflict.)  
 
-]],[[
+Server Data Update Frequency: Defines how many seconds the server refreshes the event countdown data.  
+If your server lags, you may increase this value.  
+(Based on my tests, each refresh only takes about one millisecond.)  
+
+Client Predicted Countdown: When the server update interval is greater than one second,  
+the client uses prediction to fill the gaps between updates, making the countdown appear smooth.
+]]
+[[
 在游戏内添加一个小部件，点开后显示事件计时器面板。
 面板内显示各事件和BOSS刷新倒计时
 勾选面板右侧的复选框可使计时始终显示在屏幕左上角
 
 功能说明：
-【跨世界同步计时】：开启后该世界的事件计时数据会与其它世界共享
+跨世界同步计时：开启后该世界的事件计时数据会与其它世界共享
 （多层世界专服玩家注意，如果你同时开了2个相同的世界，请关掉其中1个世界的同步功能，否则数据会冲突）
+
+服务器数据更新频率：设定服务器多少秒刷新一次事件倒计时数据，如果服务器卡顿，可以尝试调高该值
+(虽然我测出来的结果是每次刷新数据仅需一毫秒)
+
+客户端预测倒计时：当服务器数据更新频率大于一秒时，客户端使用预测功能填补空缺的刷新周期，使倒计时看起来顺畅
 ]])
 author = "冰冰羊"
 version = 0.1 -- 模组版本
 api_version = 10
-
+priority = 0 -- 模组加载优先级
 dst_compatible = true -- 兼容联机版
 dont_starve_compatible = false -- 不兼容单机版
 
@@ -48,30 +68,6 @@ configuration_options = {
         default = "auto",
     },
     {
-        name = "BossTimer",
-        label = en_zh("BossTimer", "Boss计时格式"),
-        options =
-        {
-            {description = en_zh("day:m:s", "天:分:秒"), data = 1, hover = en_zh("Game Time", "游戏时间,一天8分钟")},
-            {description = en_zh("h:m:s", "时:分:秒"), data = 2, hover = en_zh("Real Time", "现实时间")},
-        },
-        default = 1,
-    },
-    {
-        name = "ShowTips",
-        label = en_zh("Highlight Tips", "醒目提示"),
-        hover = en_zh("Show a noticeable alert when entering the game or when an event countdown is about to end", "当进入游戏时/事件倒计时即将结束时发出醒目提示"),
-        options = options_enable,
-        default = true,
-        client = true,
-    },
-    {
-        name = "SyncTimer",
-        label = en_zh("Sync Timer", "跨世界同步计时"),
-        options = options_enable,
-        default = true,
-    },
-    {
         name = "UpdateTime",
         label = en_zh("Server Data Update Frequency", "服务器数据更新频率"),
         hover = en_zh("How often the server updates the timer data","设置服务器多久更新一次计时器数据"),
@@ -98,5 +94,29 @@ configuration_options = {
         options = options_enable,
         default = true,
         client = true,
+    },
+    {
+        name = "BossTimer",
+        label = en_zh("Boss Timing Format", "Boss计时格式"),
+        options =
+        {
+            {description = en_zh("day:m:s", "天:分:秒"), data = 1, hover = en_zh("Game Time", "游戏时间,一天8分钟")},
+            {description = en_zh("h:m:s", "时:分:秒"), data = 2, hover = en_zh("Real Time", "现实时间")},
+        },
+        default = 1,
+    },
+    {
+        name = "ShowTips",
+        label = en_zh("Highlight Tips", "醒目提示"),
+        hover = en_zh("Show a noticeable alert when entering the game or when an event countdown is about to end", "当进入游戏时/事件倒计时即将结束时发出醒目提示"),
+        options = options_enable,
+        default = true,
+        client = true,
+    },
+    {
+        name = "SyncTimer",
+        label = en_zh("Sync Timer", "跨世界同步计时"),
+        options = options_enable,
+        default = true,
     },
 }

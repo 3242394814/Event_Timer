@@ -1,8 +1,9 @@
 local Widget = require("widgets/widget")
 local Text = require("widgets/text")
+local Image = require("widgets/image")
 local UIAnim = require("widgets/uianim")
 
-local WaringEvent = Class(Widget, function(self, anim_data)
+local WaringEvent = Class(Widget, function(self, anim_data, image_data)
     Widget._ctor(self, "WaringEvent")
 
     self:SetScale(TheFrontEnd:GetHUDScale())
@@ -15,8 +16,12 @@ local WaringEvent = Class(Widget, function(self, anim_data)
     self.anim = self:AddChild(UIAnim())
     self.anim:SetPosition(-45, -25)
 
+    self.image = self:AddChild(Image())
+    self.image:SetPosition(-45, -25)
     if anim_data then
         self:SetEventAnim(anim_data)
+    elseif image_data then
+        self:SetEventImage(image_data)
     end
 end)
 
@@ -52,8 +57,17 @@ function WaringEvent:SetEventAnim(data)
     self.anim:GetAnimState():SetBuild(data.build)
     self.anim:GetAnimState():PlayAnimation(data.animation or "idle", data.loop)
 
-    if data.pos then
-        self.anim:SetPosition(data.pos[1], data.pos[2])
+    if data.offset then
+        self.anim:SetPosition(-45 + data.offset.x, -25 + data.offset.y)
+    end
+end
+
+function WaringEvent:SetEventImage(data)
+    local scale = (data.scale or 0.099)
+    self.image:SetScale(scale)
+    self.image:SetTexture(data.atlas, data.tex)
+    if data.offset then
+        self.image:SetPosition(-45 + data.offset.x, -25 + data.offset.y)
     end
 end
 

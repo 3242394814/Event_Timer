@@ -58,7 +58,7 @@ local function AddWaringEvents(self)
     self.WaringEventTimeData = {}
     local save_data = EventTimer.env.RW_Data:LoadData()
     for waringevent, data in pairs(WaringEvents) do
-        self[waringevent] = self:AddChild(WaringEvent(data.anim))
+        self[waringevent] = self:AddChild(WaringEvent(data.anim, data.image))
         self[waringevent]:Hide()
         self[waringevent].force = save_data[waringevent] -- 读取存储的数据来决定是否显示计时器在屏幕左上角
     end
@@ -93,6 +93,9 @@ local function AddWaringEvents(self)
                         if data.animchangefn then
                             data:animchangefn()
                             self[waringevent]:SetEventAnim(data.anim)
+                        elseif data.imagechangefn then
+                            data:imagechangefn()
+                            self[waringevent]:SetEventImage(data.image)
                         end
                         self[waringevent]:Show()
                     end

@@ -100,11 +100,9 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
 
         ----------------------------------------text---------------------------------------
 
-        local strings_key, strings_value -- 当前使用的strings键，当前使用的strings值
-        local Playername_ExtractTimeText, ExtractTimeText -- 玩家名或时间，时间
+        local results, new_text, shard_new_text
 
-        local datatext           = self[waringevent .. "_text"]:value() -- 本世界text
-        local time_text -- 本世界time_text
+        local datatext = self[waringevent .. "_text"]:value() -- 本世界text
 
         local datatext_shardrpc  = self[waringevent .. "_text_shardrpc"]:value() -- 其它世界text
         local time_text_shardrpc -- 其它世界的time_text
@@ -112,85 +110,69 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
 
         if datatext ~= "" then
             for k,v in pairs(STRINGS.eventtimer[waringevent]) do -- 遍历所有字符串，尝试找出当前计时使用的那一个
-                Playername_ExtractTimeText, ExtractTimeText = Extract_by_format(datatext, ReplacePrefabName(v))
-                if Playername_ExtractTimeText then
-                    strings_key = k
-                    strings_value = ReplacePrefabName(v)
+                results = { Extract_by_format(datatext, ReplacePrefabName(v)) }
+                if results[1] then
+                    for k1, v1 in pairs(results) do
+                        if string.find(v1,"分(.*)秒") then
+                            v1 = StringToTime(v1) -- 尝试将字符串转为数字
+                            if type(v1) == "number" then
+                                v1 = v1 - 1
+                                if v1 < 0 then
+                                    v1 = 0 -- 小于0时停止计算
+                                else
+                                    results[k1] = TimeToString(v1) -- 减一后转换为字符串保存到results对应的值里
+                                end
+                            end
+                        end
+                    end
+                    new_text = string.format(ReplacePrefabName(v), unpack(results))
                     break
                 end
             end
 
-            if time >= 0 then -- 直接引用上方time的值
-                time_text = TimeToString(time)
-            else
-                time_text = nil
+            -- 如果上方的匹配失败了，说明是纯倒计时？直接使用上上方的time
+            if not new_text then
+                if time >= 0 then
+                    new_text = TimeToString(time)
+                end
             end
-
-            -- time_text = StringToTime(time_text) -- 将字符串转为数字
-            -- if type(time_text) == "number" then
-            --     time_text = time_text - 1
-            --     if time_text < 0 then
-            --         time_text = nil -- 小于0时停止计算
-            --     else
-            --         time_text = TimeToString(time_text) -- 减一后转换为字符串
-            --     end
-            -- else
-            --     time_text = nil
-            -- end
         elseif datatext_shardrpc ~= "" then
             time_text_fromShard, time_text_shardrpc = string.match(datatext_shardrpc, "([^\n]*)\n(.*)" ) -- 提取出来自哪个世界，具体信息
             if time_text_fromShard and time_text_shardrpc then
                 for k,v in pairs(STRINGS.eventtimer[waringevent]) do -- 遍历所有字符串，尝试找出当前计时使用的那一个
-                    Playername_ExtractTimeText, ExtractTimeText = Extract_by_format(time_text_shardrpc, ReplacePrefabName(v))
-                    if Playername_ExtractTimeText then
-                        strings_key = k
-                        strings_value = ReplacePrefabName(v)
+                    results = { Extract_by_format(time_text_shardrpc, ReplacePrefabName(v)) }
+                    if results[1] then
+                        for k1, v1 in pairs(results) do
+                            if string.find(v1,"分(.*)秒") then
+                                v1 = StringToTime(v1) -- 尝试将字符串转为数字
+                                if type(v1) == "number" then
+                                    v1 = v1 - 1
+                                    if v1 < 0 then
+                                        v1 = 0 -- 小于0时停止计算
+                                    else
+                                        results[k1] = TimeToString(v1) -- 减一后转换为字符串保存到results对应的值里
+                                    end
+                                end
+                            end
+                        end
+                        shard_new_text = time_text_fromShard .. "\n" .. string.format(ReplacePrefabName(v), unpack(results))
                         break
                     end
                 end
 
-                if time_shardrpc >= 0 then -- 直接引用上方time_shardrpc值
-                    time_text_shardrpc = TimeToString(time_shardrpc)
-                else
-                    time_text_shardrpc = nil
+                if not shard_new_text then
+                    if time_shardrpc >= 0 and time_text_fromShard then -- 如果上方的匹配失败了，说明是纯倒计时？直接使用上上方的time_shardrpc
+                        shard_new_text = time_text_fromShard .. "\n" .. TimeToString(time_shardrpc)
+                    end
                 end
-                -- time_text_shardrpc = StringToTime(time_text_shardrpc) -- 将字符串转为数字
-                -- if type(time_text_shardrpc) == "number" then
-                --     time_text_shardrpc = time_text_shardrpc - 1
-                --     if time_text_shardrpc < 0 then -- 小于0时停止计算
-                --         time_text_shardrpc = nil
-                --     else
-                --         time_text_shardrpc = TimeToString(time_text_shardrpc) -- 减一后转换为字符串
-                --     end
-                -- else
-                --     time_text_shardrpc = nil
-                -- end
-            else
-                time_text_shardrpc = nil
             end
         end
 
-        if time_text then
-            local new_text
-            if ExtractTimeText then
-                new_text = string.format(strings_value, Playername_ExtractTimeText , time_text)
-            elseif Playername_ExtractTimeText then
-                new_text = string.format(strings_value, time_text)
-            else
-                new_text = time_text
-            end
-
+        if new_text then
             self[waringevent .. "_text"]:set_local(new_text) -- 更新text
             Dirty = true
-        elseif time_text_shardrpc then
-            if ExtractTimeText then
-                time_text_shardrpc = string.format(strings_value, Playername_ExtractTimeText , time_text_shardrpc)
-            elseif Playername_ExtractTimeText then
-                time_text_shardrpc = string.format(strings_value, time_text_shardrpc)
-            end
-
-            local new_text = time_text_fromShard .. "\n" .. time_text_shardrpc
-            self[waringevent .. "_text_shardrpc"]:set_local(new_text) -- 更新text
+        elseif shard_new_text then
+            self[waringevent .. "_text_shardrpc"]:set_local(shard_new_text) -- 更新text
             Dirty = true
         end
     end

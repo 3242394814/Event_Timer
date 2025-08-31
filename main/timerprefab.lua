@@ -9,7 +9,8 @@ local TimerPrefabList = {
     "terrarium",
     "crabking_spawner",
     "crabking_spawner",
-    "atrium_gate"
+    "atrium_gate",
+    "pugalisk_fountain" -- 猪镇：不老泉
 }
 
 TimerPrefabs = {}

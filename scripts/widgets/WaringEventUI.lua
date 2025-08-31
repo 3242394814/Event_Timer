@@ -7,7 +7,7 @@ local ImageButton = require "widgets/imagebutton"
 local Text = require "widgets/text"
 local Widget = require "widgets/widget"
 local TEMPLATES = require "widgets/redux/templates"
-local UIAnim = require("widgets/uianim")
+local UIAnim = require "widgets/uianim"
 
 local WaringEventHUD = Class(Widget, function(self, owner)
     Widget._ctor(self, "WaringEventHUD")
@@ -67,11 +67,11 @@ local WaringEventHUD = Class(Widget, function(self, owner)
             widget.destitem.describe:SetString(text)
 
             if data.animchangefn then
-                data.animchangefn(data)
+                data:animchangefn()
             end
 
             if data.imagechangefn then
-                data.imagechangefn(data)
+                data:imagechangefn()
             end
 
             if data.nobackground and widget.destitem.background then
@@ -80,12 +80,12 @@ local WaringEventHUD = Class(Widget, function(self, owner)
 
             if data.image and data.image.atlas and data.image.tex then -- 设置图片
                 local pos = { -- 默认位置
-                    x = -200,
+                    x = -220,
                     y = 0
                 }
-                if data.image.offset then -- 偏移位置
-                    pos.x = pos.x + (data.image.offset.x or 0)
-                    pos.y = pos.y + (data.image.offset.y or 0)
+                if data.image.uioffset then -- 偏移位置
+                    pos.x = pos.x + (data.image.uioffset.x or 0)
+                    pos.y = pos.y + (data.image.uioffset.y or 0)
                 end
 
                 widget.destitem.image = widget.destitem:AddChild(Image(
@@ -94,15 +94,14 @@ local WaringEventHUD = Class(Widget, function(self, owner)
                 ))
                 widget.destitem.image:SetPosition(pos.x, pos.y, 0)
                 widget.destitem.image:SetScale(data.image.scale or 0.099)
-
             elseif data.anim then -- 设置动画
                 local pos = { -- 默认位置
-                    x = -200,
+                    x = -220,
                     y = -15,
                 }
-                if data.anim.offset then -- 偏移位置
-                    pos.x = pos.x + (data.anim.offset.x or 0)
-                    pos.y = pos.y + (data.anim.offset.y or 0)
+                if data.anim.uioffset then -- 偏移位置
+                    pos.x = pos.x + (data.anim.uioffset.x or 0)
+                    pos.y = pos.y + (data.anim.uioffset.y or 0)
                 end
                 widget.destitem.anim = widget.destitem:AddChild(UIAnim())
                 widget.destitem.anim:SetPosition(pos.x, pos.y, 0)
@@ -195,7 +194,7 @@ function WaringEventHUD:TimeToString(seconds)
     local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
     local d = math.floor(seconds / daytime)
     local min = math.floor(seconds % daytime / 60)
-    local s = seconds % daytime % 60
+    local s = math.floor(seconds % daytime % 60)
 
     if TimerMode == 2 then
         return d .. "时" .. min .. "分" .. s .. "秒"
@@ -224,7 +223,7 @@ function WaringEventHUD:InitDestItem()
 
     -- 图片/动画背景
     dest.background = dest:AddChild(Image("images/saveslot_portraits.xml", "background.tex"))
-    dest.background:SetPosition(-200, 0, 0)
+    dest.background:SetPosition(-220, 0, 0)
     dest.background:SetScale(0.6, 0.71)
 
     -- TEXT控件
@@ -239,7 +238,7 @@ function WaringEventHUD:InitDestItem()
     dest.checkbox = dest:AddChild(ImageButton(
         "images/global_redux.xml","checkbox_normal.tex", "checkbox_focus.tex", "checkbox_focus_check.tex", nil, nil, {1,1}, {0,0}
     ))
-    dest.checkbox:SetPosition(160, 0)
+    dest.checkbox:SetPosition(230, 0)
     dest.checkbox:SetScale(1)
 
     -- 将定义好的组件返回

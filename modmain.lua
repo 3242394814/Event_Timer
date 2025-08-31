@@ -1,16 +1,26 @@
 ----------------------------------------加载资源---------------------------------------
 
 Assets = {
-	Asset("ATLAS", "images/Hound.xml"),
+	Asset("ATLAS", "images/Hound.xml"), -- 猎犬
 	Asset("IMAGE", "images/Hound.tex"),
-    Asset("ATLAS", "images/Depths_Worm.xml"),
+    Asset("ATLAS", "images/Depths_Worm.xml"), -- 洞穴蠕虫
 	Asset("IMAGE", "images/Depths_Worm.tex"),
-	Asset("ATLAS", "images/Twister.xml"),
+	Asset("ATLAS", "images/Twister.xml"), -- 豹卷风
 	Asset("IMAGE", "images/Twister.tex"),
-    Asset("ATLAS", "images/saveslot_portraits.xml"),
+    Asset("ATLAS", "images/saveslot_portraits.xml"), -- 图标背景
 	Asset("IMAGE", "images/saveslot_portraits.tex"),
-	Asset("ATLAS", "images/dyc_panel_shadow.xml"), -- 来自单机饥荒模组【全能信息面板】
-	Asset("IMAGE", "images/dyc_panel_shadow.tex"), -- 来自单机饥荒模组【全能信息面板】
+    Asset("ATLAS", "images/lifeplant.xml"), -- 不老泉
+    Asset("IMAGE", "images/lifeplant.tex"),
+    Asset("ATLAS", "images/pig_bandit.xml"), -- 蒙面猪人
+    Asset("IMAGE", "images/pig_bandit.tex"),
+    Asset("ATLAS", "images/Aporkalypse_Clock.xml"), -- 灾变日历
+    Asset("IMAGE", "images/Aporkalypse_Clock.tex"),
+    Asset("ATLAS", "images/Ancient_Herald.xml"), -- 远古先驱
+    Asset("IMAGE", "images/Ancient_Herald.tex"),
+    Asset("ATLAS", "images/Roc.xml"), -- 友善的大鹏
+    Asset("IMAGE", "images/Roc.tex"),
+	Asset("ATLAS", "images/dyc_panel_shadow.xml"), -- Tips部件背景，来自单机饥荒模组【全能信息面板】，感谢DYC
+	Asset("IMAGE", "images/dyc_panel_shadow.tex"),
 }
 
 ----------------------------------------语言检测---------------------------------------
@@ -60,8 +70,10 @@ end
 
 Upvaluehelper = Import(MODROOT .. "scripts/utils/bbgoat_upvaluehelper.lua")
 
+--- @param str string
+--- @return string
 function ReplacePrefabName(str)
-	if type(str) ~= "string" then return end
+	if type(str) ~= "string" then return str end
     return str:gsub("<prefab=(.-)>", function(prefab)
         local key = prefab:upper()
         return GLOBAL.STRINGS.NAMES[key] or prefab
@@ -71,8 +83,8 @@ end
 -- 反向提取信息
 function Extract_by_format(text, format_str)
     if type(text) ~= "string" or type(format_str) ~= "string" then return end
-    local safe = string.gsub(format_str, "%-", "%%%1")
-    local pattern = safe:gsub("%%s", "(.*)")
+    local safe = format_str:gsub("([%%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
+    local pattern = safe:gsub("%%%%s", "(.*)")
     return text:match(pattern)
 end
 

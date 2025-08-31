@@ -13,7 +13,7 @@
 <!-- · 检测到与其他计时模组一起开时，提示玩家关掉其它计时模组。与Insight一起开时，什么也不做（兼容不来） -->
 
 · 添加猪镇、永不妥协计时器
-· 添加月后BOSS计时器、月相计时、海盗袭击计时
+· 添加月后BOSS计时器、月相计时、海盗袭击计时、巨大蠕虫概率
 · 模组英语翻译
 · 兼容【模组设置】，游戏内可实时开关预测倒计时功能
 
@@ -26,10 +26,14 @@ image = {
     atlas = "images/Hound.xml",
     tex = "Hound.tex",
     scale = 0.4,
-    offset = {
-        x = 5, -- 左减右加
-        y = -10, -- 上加下减
+    uioffset = { -- 决定在UI的偏移量
+        x = 0, -- 左减右加
+        y = 0, -- 上加下减
     },
+    offset = { -- 决定在屏幕左上角的位置
+        x = 0, -- 左减右加
+        y = 0, -- 上加下减
+    }
 },
 imagechangefn
 forestimage
@@ -44,10 +48,14 @@ anim = {
     animation = "idle_loop",
     loop = true,
     scale = 0.04,
-    offset = {
-        x = 5,
-        y = -10,
+    uioffset = { -- 决定在UI的偏移量
+        x = 0, -- 左减右加
+        y = 0, -- 上加下减
     },
+    offset = { -- 决定在屏幕左上角的位置
+        x = 0, -- 左减右加
+        y = 0, -- 上加下减
+    }
 },
 animchangefn
 forestanim
@@ -61,7 +69,7 @@ defaultanim
 ChangeanimByWintersFeast
 
 announcefn
-tipsfn
+tipsfn -- 返回参数为 need_tips, tipstextfn, tipstime, delay
 
 
 
