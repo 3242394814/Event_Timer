@@ -109,10 +109,33 @@ local WaringEventHUD = Class(Widget, function(self, owner)
                 widget.destitem.anim:GetAnimState():SetBank(data.anim.bank)
                 widget.destitem.anim:GetAnimState():SetBuild(data.anim.build)
                 widget.destitem.anim:GetAnimState():PlayAnimation(data.anim.animation or "idle", data.anim.loop)
+                if data.anim.hidesymbol then
+                    for _, s in ipairs(data.anim.hidesymbol) do
+                        widget.destitem.anim:GetAnimState():HideSymbol(s)
+                    end
+                end
+                if data.anim.overridesymbol then
+                    for _, v in pairs(data.anim.overridesymbol) do
+                        widget.destitem.anim:GetAnimState():OverrideSymbol(v[1], v[2], v[3])
+                    end
+                end
+                if data.anim.overridebuild then
+                    for _, b in pairs(data.anim.overridebuild) do
+                        widget.destitem.anim:GetAnimState():AddOverrideBuild(b)
+                    end
+                end
                 widget.destitem.anim:GetAnimState():Pause()
             end
 
             if data.gettimefn then
+                if not widget.destitem.checkbox then
+                    widget.destitem.checkbox = widget.destitem:AddChild(ImageButton(
+                        "images/global_redux.xml","checkbox_normal.tex", "checkbox_focus.tex", "checkbox_focus_check.tex", nil, nil, {1,1}, {0,0}
+                    ))
+                    widget.destitem.checkbox:SetPosition(230, 0)
+                    widget.destitem.checkbox:SetScale(1)
+                end
+
                 -- 更新复选框状态
                 if ThePlayer.HUD[data.name].force then
                     widget.destitem.checkbox:SetTextures( "images/global_redux.xml", "checkbox_normal_check.tex", "checkbox_focus_check.tex", "checkbox_focus.tex" )

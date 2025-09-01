@@ -56,6 +56,21 @@ function WaringEvent:SetEventAnim(data)
     self.anim:GetAnimState():SetBank(data.bank)
     self.anim:GetAnimState():SetBuild(data.build)
     self.anim:GetAnimState():PlayAnimation(data.animation or "idle", data.loop)
+    if data.hidesymbol then
+        for _, s in ipairs(data.hidesymbol) do
+            self.anim:GetAnimState():HideSymbol(s)
+        end
+    end
+    if data.overridesymbol then
+        for _, v in pairs(data.overridesymbol) do
+            self.anim:GetAnimState():OverrideSymbol(v[1], v[2], v[3])
+        end
+    end
+    if data.overridebuild then
+        for _, b in pairs(data.overridebuild) do
+            self.anim:GetAnimState():AddOverrideBuild(b)
+        end
+    end
 
     if data.offset then
         self.anim:SetPosition(-45 + data.offset.x, -25 + data.offset.y)

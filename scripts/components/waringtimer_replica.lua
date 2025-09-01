@@ -27,15 +27,44 @@ local function StringToTime(string)
     local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
     local format = TimerMode == 2 and "(.*)时(.*)分(.*)秒" or "(.*)天(.*)分(.*)秒"
     local d,m,s = string.match(string, format)
+    d = tonumber(d)
+    m = tonumber(m)
+    s = tonumber(s)
     if d and m and s then
-        d = tonumber(d)
-        m = tonumber(m)
-        s = tonumber(s)
-
         time = time + d * daytime
         time = time + m * 60
         time = time + s
         return time
+    end
+end
+
+local function Getformat(text)
+    local format = TimerMode == 2 and "(%d+)时(%d+)分(%d+)秒" or "(%d+)天(%d+)分(%d+)秒"
+    return string.gsub(text, format, "%%s")
+end
+
+local function get_new_text(v, datatext)
+    local results = { Extract_by_format(datatext, v) }
+    if results[1] then
+        for k1, v1 in pairs(results) do
+            if string.find(v1,"分(.*)秒") then
+                v1 = StringToTime(v1) -- 尝试将字符串转为数字
+                if type(v1) == "number" then
+                    v1 = v1 - 1
+                    if v1 < 0 then
+                        results[k1] = TimeToString(0) -- 小于0时停止计算
+                    else
+                        results[k1] = TimeToString(v1) -- 减一后转换为字符串保存到results对应的值里
+                    end
+                end
+            end
+        end
+        v = v:gsub("([%%])", "%%%1")
+        v = v:gsub("%%%%s", "%%s")
+        local new_text = string.format(ReplacePrefabName(v), unpack(results))
+        return new_text
+    else
+        return
     end
 end
 
@@ -100,7 +129,7 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
 
         ----------------------------------------text---------------------------------------
 
-        local results, new_text, shard_new_text
+        local new_text, shard_new_text
 
         local datatext = self[waringevent .. "_text"]:value() -- 本世界text
 
@@ -109,28 +138,9 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
         local time_text_fromShard -- 来自哪个世界
 
         if datatext ~= "" then
-            for k,v in pairs(STRINGS.eventtimer[waringevent]) do -- 遍历所有字符串，尝试找出当前计时使用的那一个
-                results = { Extract_by_format(datatext, ReplacePrefabName(v)) }
-                if results[1] then
-                    for k1, v1 in pairs(results) do
-                        if string.find(v1,"分(.*)秒") then
-                            v1 = StringToTime(v1) -- 尝试将字符串转为数字
-                            if type(v1) == "number" then
-                                v1 = v1 - 1
-                                if v1 < 0 then
-                                    v1 = 0 -- 小于0时停止计算
-                                else
-                                    results[k1] = TimeToString(v1) -- 减一后转换为字符串保存到results对应的值里
-                                end
-                            end
-                        end
-                    end
-                    new_text = string.format(ReplacePrefabName(v), unpack(results))
-                    break
-                end
-            end
+            new_text = get_new_text(Getformat(datatext), datatext)
 
-            -- 如果上方的匹配失败了，说明是纯倒计时？直接使用上上方的time
+            -- 如果上方的匹配失败了，直接使用上上方的time
             if not new_text then
                 if time >= 0 then
                     new_text = TimeToString(time)
@@ -139,31 +149,14 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
         elseif datatext_shardrpc ~= "" then
             time_text_fromShard, time_text_shardrpc = string.match(datatext_shardrpc, "([^\n]*)\n(.*)" ) -- 提取出来自哪个世界，具体信息
             if time_text_fromShard and time_text_shardrpc then
-                for k,v in pairs(STRINGS.eventtimer[waringevent]) do -- 遍历所有字符串，尝试找出当前计时使用的那一个
-                    results = { Extract_by_format(time_text_shardrpc, ReplacePrefabName(v)) }
-                    if results[1] then
-                        for k1, v1 in pairs(results) do
-                            if string.find(v1,"分(.*)秒") then
-                                v1 = StringToTime(v1) -- 尝试将字符串转为数字
-                                if type(v1) == "number" then
-                                    v1 = v1 - 1
-                                    if v1 < 0 then
-                                        v1 = 0 -- 小于0时停止计算
-                                    else
-                                        results[k1] = TimeToString(v1) -- 减一后转换为字符串保存到results对应的值里
-                                    end
-                                end
-                            end
-                        end
-                        shard_new_text = time_text_fromShard .. "\n" .. string.format(ReplacePrefabName(v), unpack(results))
-                        break
-                    end
-                end
+                shard_new_text = get_new_text(Getformat(time_text_shardrpc), time_text_shardrpc)
 
                 if not shard_new_text then
-                    if time_shardrpc >= 0 and time_text_fromShard then -- 如果上方的匹配失败了，说明是纯倒计时？直接使用上上方的time_shardrpc
+                    if time_shardrpc >= 0 and time_text_fromShard then -- 如果上方的匹配失败了，直接使用上上方的time_shardrpc
                         shard_new_text = time_text_fromShard .. "\n" .. TimeToString(time_shardrpc)
                     end
+                else
+                    shard_new_text = time_text_fromShard .. "\n" .. shard_new_text
                 end
             end
         end

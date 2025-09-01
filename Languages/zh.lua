@@ -15,6 +15,7 @@ STRINGS.eventtimer = {
         cooldowns = {
             forest = "<prefab=hound>将在%s后攻击",
             cave = "<prefab=worm>将在%s后攻击",
+            worm_boss = "<prefab=worm_boss>将在%s后攻击",
             shipwrecked = "<prefab=crocodog>将在%s后攻击",
             volcano =  "<prefab=crocodog>将在%s后攻击",
             porkland = "<prefab=vampirebat>将在%s后攻击",
@@ -22,10 +23,12 @@ STRINGS.eventtimer = {
         attack = {
             forest = "警告：<prefab=hound>攻击开始！！！",
             cave = "警告：<prefab=worm>攻击开始！！！",
+            worm_boss = "警告：<prefab=worm_boss>攻击开始！！！",
             shipwrecked = "警告：<prefab=crocodog>攻击开始！！！",
             volcano =  "警告：<prefab=crocodog>攻击开始！！！",
             porkland = "警告：<prefab=vampirebat>攻击开始！！！",
         },
+        worm_boss_chance = "<prefab=worm>会在%s后攻击\n<prefab=worm_boss> 概率: %s%%",
     },
     deerclopsspawner = { -- 独眼巨鹿
         cooldown = "<prefab=deerclops>会在%s后生成",
@@ -71,9 +74,56 @@ STRINGS.eventtimer = {
     crabkingspawner = { -- 帝王蟹
         cooldown = "<prefab=crabking>会重生于%s后",
     },
+    moon = { -- 月相
+        moon_full = "距离月圆还剩%s天",
+        moon_new = "距离月黑还剩%s天",
+        str_full = "月圆",
+        moon_full_ready = "今晚月圆！",
+        moon_new_ready = "今晚月黑！",
+    },
+    farming_manager = { -- 果蝇王
+        cooldown = "<prefab=lordfruitfly>就绪于%s后",
+        ready = "<prefab=lordfruitfly>已刷新！",
+        tips = "警告：<prefab=lordfruitfly>已刷新！"
+    },
+    piratespawner = { -- 海盗袭击，暂时不做
+        -- TODO
+    },
+    forestdaywalkerspawner = { -- 拾荒疯猪
+        cooldown = "<prefab=daywalker2>会重生于%s后",
+        tips = "<prefab=daywalker2>已刷新！",
+    },
+    riftspawner = {
+        cooldown = "一个<prefab=lunarrift_portal>将生成于%s后",
+        stage = "阶段: %s / %s",
+    },
+	lunarthrall_plantspawner = {
+		infested_count = "已寄生%s株",
+		spawn = "%s后开始寄生",
+		next_wave = "%s后开始下一波",
+		remain_waves = "剩余%s波",
+	},
+    rift_portal = { -- 月亮裂隙
+		next_stage = "%s后进入下一阶段",
+		crystals = "<prefab=lunarrift_crystal_big>: %s可用 / %s总共 / %s最大",
+		next_crystal = "下一波<prefab=lunarrift_crystal_big>生成于%s后",
+	},
+    shadowrift_portal = { -- 暗影裂隙
+        close = "<prefab=shadowrift_portal>将关闭于%s后",
+    },
 
     ----------------------------------------洞穴----------------------------------------
 
+    daywalkerspawner = { -- 梦魇疯猪
+        cooldown = "<prefab=daywalker>会重生于%s后",
+        tips = "<prefab=daywalker>已刷新！",
+    },
+    shadowthrallmanager = { -- 梦魇裂隙/墨荒
+		fissure_cooldown = "%s后可控制下一裂隙",
+		waiting_for_players = "等待一个玩家接近",
+		thralls_alive = "活着的奴隶 (%s): %s",
+		dreadstone_regen = "<prefab=dreadstone>会再生于%s后",
+	},
     toadstoolspawner = { -- 毒菌蟾蜍
 		cooldown = "<prefab=toadstool>会重生于%s后",
     },
@@ -91,6 +141,9 @@ STRINGS.eventtimer = {
         },
         cooldown = "远古遗迹现在在%s期 (还剩%s)",
         cooldown_none = "远古遗迹当前阶段还剩%s",
+    },
+    quaker = { -- 地震
+        cooldown = "洞穴将在%s后地震"
     },
 
     ----------------------------------------海难----------------------------------------

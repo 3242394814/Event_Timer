@@ -5,10 +5,41 @@ local ReplacePrefabName = ReplacePrefabName
 local Extract_by_format = Extract_by_format
 local GetWorldtypeStr = GetWorldtypeStr
 local AddPrefabPostInit = AddPrefabPostInit
+local AddComponentPostInit = AddComponentPostInit
 
 GLOBAL.setfenv(1, GLOBAL)
 local TimerMode = EventTimer.TimerMode
 modimport("main/timerprefab")
+
+local CalcTimeOfDay -- 今天还剩多少时间
+AddComponentPostInit("clock", function(self)
+    CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay")
+end)
+
+local lunarthrall_plant_table = {} -- 储存致命亮茄数量
+-- 对致命亮茄的HOOK（存储世界上亮茄的数量）
+AddPrefabPostInit("lunarthrall_plant", function(inst)
+    if not TheWorld.ismastersim then
+        return
+    end
+
+    table.insert(lunarthrall_plant_table, inst)
+	inst:ListenForEvent("onremove", function(inst)
+		local index = table.reverselookup(lunarthrall_plant_table, inst)
+		if index then
+			table.remove(lunarthrall_plant_table, index)
+		end
+	end)
+end)
+
+-- 对果蝇王的HOOK（方便Tips）
+local lordfruitfly_spawned
+AddPrefabPostInit("lordfruitfly", function(inst)
+    lordfruitfly_spawned = true
+    inst:ListenForEvent("onremove", function(inst)
+        lordfruitfly_spawned = false
+    end)
+end)
 
 -- 判断某个模组是否加载
 local function Ismodloaded(name)
@@ -41,6 +72,22 @@ local function GetWorldSettingsTimeLeft(name, prefab)
             return (not ent.components.worldsettingstimer:IsPaused(name)) and ent.components.worldsettingstimer:GetTimeLeft(name)
         end
     end
+end
+
+-- 合并字符串
+local function CombineLines(...)
+    local lines, argnum = nil, select("#",...)
+
+    for i = 1, argnum do
+        local v = select(i, ...)
+
+        if v ~= nil then
+            lines = lines or {}
+            lines[#lines+1] = tostring(v)
+        end
+    end
+
+    return (lines and table.concat(lines, "\n")) or nil
 end
 
 -- 火山爆发倒计时
@@ -204,7 +251,35 @@ WaringEvents = {
                 return data and data.timetoattack
             end
         end,
-        imagechangefn = ChangeimageByWorld,
+        gettextfn = function(time)
+            if not TheWorld:HasTag("cave") or not time then return end
+            local self = TheWorld.components.hounded
+            if not self then return end
+
+            local next_wave_is_wormboss = Upvaluehelper.FindUpvalue(self.DoWarningSpeech, "_wave_pre_upgraded")
+            local _wave_override_chance = self:OnSave().wave_override_chance
+
+            if next_wave_is_wormboss then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss), TimeToString(time))
+            elseif type(_wave_override_chance) == "number" then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.worm_boss_chance), TimeToString(time), _wave_override_chance * 100)
+            end
+        end,
+        imagechangefn = function(self)
+            local text = ThePlayer.HUD.WaringEventTimeData.hounded_text
+            local is_worm_boss = text and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
+            if TheWorld:HasTag("porkland") then
+                self.image = self.porklandimage
+            elseif TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
+                self.image = self.islandimage
+            elseif is_worm_boss then
+                self.image = self.wormbossimage
+            elseif TheWorld:HasTag("cave") then
+                self.image = self.caveimage
+            else
+                self.image = self.forestimage
+            end
+        end,
         forestimage = {
             atlas = "images/Hound.xml",
 		    tex = "Hound.tex",
@@ -213,6 +288,11 @@ WaringEvents = {
         caveimage = {
             atlas = "images/Depths_Worm.xml",
             tex = "Depths_Worm.tex",
+            scale = 0.25,
+        },
+        wormbossimage = {
+            atlas = "images/Worm_boss.xml",
+            tex = "Worm_boss.tex",
             scale = 0.25,
         },
         animchangefn = ChangeanimByWorld,
@@ -244,16 +324,20 @@ WaringEvents = {
         DisableShardRPC = true,
         announcefn = function()
             local time = ThePlayer.HUD.WaringEventTimeData.hounded_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time))
+            local text = ThePlayer.HUD.WaringEventTimeData.hounded_text
+            return text ~= "" and text or time and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.hounded_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.hounded_time
+            local text = ThePlayer.HUD.WaringEventTimeData.hounded_text
+            local is_worm_boss = text ~= "" and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
+
             if time == 120 or JustEntered(time) then
                 return true, WaringEvents.hounded.announcefn, 10
             elseif time > 2 and time <= 60 then
                 return true, WaringEvents.hounded.announcefn, time
             elseif ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[GetWorldtypeStr()])), 10, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[is_worm_boss and "worm_boss" or GetWorldtypeStr()])), 10, time
             end
             return false
         end
@@ -307,7 +391,7 @@ WaringEvents = {
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.deerclopsspawner_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.deerclopsspawner_time
             if time == 120 or JustEntered(time) then
                 return true, WaringEvents.deerclopsspawner.announcefn, 10
             elseif time > 2 and time <= 60 then
@@ -379,7 +463,7 @@ WaringEvents = {
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.klaussackspawner_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.klaussackspawner_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.tips)), 10, time
             end
@@ -404,7 +488,7 @@ WaringEvents = {
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.sinkholespawner_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.sinkholespawner_time
             if time > 2 and time <= 60 then
                 return true, WaringEvents.sinkholespawner.announcefn, math.min(20, time)
             elseif ready_attack(time) then
@@ -463,7 +547,7 @@ WaringEvents = {
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.beargerspawner_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.beargerspawner_time
             if time == 120 or JustEntered(time) then
                 return true, WaringEvents.beargerspawner.announcefn, 10
             elseif time > 2 and time <= 60 then
@@ -501,7 +585,7 @@ WaringEvents = {
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.dragonfly_spawner.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.dragonfly_spawner_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.dragonfly_spawner_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.dragonfly_spawner.tips)), 10, time
             end
@@ -526,7 +610,7 @@ WaringEvents = {
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.beequeenhive.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.beequeenhive_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.beequeenhive_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beequeenhive.tips)), 10, time
             end
@@ -551,7 +635,7 @@ WaringEvents = {
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.terrarium.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.terrarium_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.terrarium_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.terrarium.tips)), 10, time
             end
@@ -590,9 +674,432 @@ WaringEvents = {
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.crabkingspawner.cooldown), TimeToString(time))
         end
     },
+    moon = {
+        gettextfn = function()
+            local self = TheWorld.net.components.clock
+            if not self then return end
+            local MOON_PHASE_CYCLES = Upvaluehelper.FindUpvalue(self.OnUpdate, "MOON_PHASE_CYCLES", nil, nil, nil, "scripts/components/clock.lua", nil)
+            local _mooniswaxing = Upvaluehelper.FindUpvalue(self.OnUpdate, "_mooniswaxing", nil, nil, nil, "scripts/components/clock.lua", nil)
+            local _mooomphasecycle = Upvaluehelper.FindUpvalue(self.OnUpdate, "_mooomphasecycle", nil, nil, nil, "scripts/components/clock.lua", nil)
+            if not (MOON_PHASE_CYCLES and _mooniswaxing and _mooomphasecycle) then
+                return
+            end
+            if _mooniswaxing:value() then -- 月黑 → 月圆
+                return string.format(STRINGS.eventtimer.moon.moon_full, math.floor(#MOON_PHASE_CYCLES / 2 + 1 - _mooomphasecycle))
+            else -- 月圆 → 月黑
+                return string.format(STRINGS.eventtimer.moon.moon_new, math.floor(#MOON_PHASE_CYCLES + 1 - _mooomphasecycle))
+            end
+        end,
+        imagechangefn = function(self)
+            local text = ThePlayer.HUD.WaringEventTimeData.moon_text
+            if not text then return end
+            if string.find(text, STRINGS.eventtimer.moon.str_full) then
+                self.image = self.fullimage
+            else
+                self.image = self.newimage
+            end
+        end,
+        fullimage = {
+            scale = 1.2,
+            atlas = "images/moon_full.xml",
+            tex = "moon_full.tex",
+        },
+        newimage = {
+            scale = 1.2,
+            atlas = "images/moon_new.xml",
+            tex = "moon_new.tex",
+        },
+        DisableShardRPC = true,
+        announcefn = function()
+            local text = ThePlayer.HUD.WaringEventTimeData.moon_text
+            if not text then return end
+            if string.find(text, STRINGS.eventtimer.moon.str_full) then
+                local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_full)
+                if tonumber(day) == 10 then
+                    return STRINGS.eventtimer.moon.moon_new_ready .. text
+                end
+                return text
+            else
+                local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_new)
+                if tonumber(day) == 10 then
+                    return STRINGS.eventtimer.moon.moon_full_ready .. text
+                end
+                return text
+            end
+        end,
+        tipsfn = function()
+            local text = ThePlayer.HUD.WaringEventTimeData.moon_text
+            if not text then return end
+            if string.find(text, STRINGS.eventtimer.moon.str_full) then
+                local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_full)
+                if tonumber(day) == 10 then
+                    return true, StringToFunction(STRINGS.eventtimer.moon.moon_new_ready), 10
+                end
+            else
+                local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_new)
+                if tonumber(day) == 10 then
+                    return true, StringToFunction(STRINGS.eventtimer.moon.moon_full_ready), 10
+                end
+            end
+            return false
+        end
+    },
+    farming_manager = { -- 果蝇王
+        gettimefn = GetWorldSettingsTimeLeft("lordfruitfly_spawntime"),
+        gettextfn = function(time)
+            if lordfruitfly_spawned then
+                return ReplacePrefabName(STRINGS.eventtimer.farming_manager.ready)
+            end
+        end,
+        anim = {
+            scale = 0.2,
+            build = "fruitfly_evil",
+            bank = "fruitfly",
+            animation = "idle",
+            offset = {
+                x = 0,
+                y = -20
+            },
+            uioffset = {
+                x = -2,
+                y = -20
+            },
+            loop = true,
+        },
+        DisableShardRPC = true,
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.farming_manager_time
+            if time and time > 0 then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.farming_manager.cooldown), TimeToString(time))
+            end
+        end,
+        tipsfn = function()
+            local text = ThePlayer.HUD.WaringEventTimeData.farming_manager_text
+            local ready = text == ReplacePrefabName(STRINGS.eventtimer.farming_manager.ready)
+            if ready then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.farming_manager.tips)), 5
+            end
+            return false
+        end
+    },
+    piratespawner = nil, -- 海盗袭击，无法准确预判？不做
+    forestdaywalkerspawner = { -- 拾荒疯猪
+        gettimefn = function()
+            local self = TheWorld.components.forestdaywalkerspawner
+            if not self then return end
+            local shard_daywalkerspawner = TheWorld.shard.components.shard_daywalkerspawner
+            if shard_daywalkerspawner ~= nil and shard_daywalkerspawner:GetLocationName() ~= "forestjunkpile" or self.daywalker ~= nil or self.bigjunk ~= nil or not self.days_to_spawn or not CalcTimeOfDay then
+                return
+            end
+            return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
+        end,
+        anim = {
+            scale = 0.06,
+            build = "daywalker_build",
+            bank = "daywalker",
+            animation = "idle_creepy_loop",
+            overridebuild = { "daywalker_phase3" },
+            uioffset = {
+                x = -2,
+                y = -12
+            },
+            loop = true,
+        },
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.forestdaywalkerspawner_time
+            if time and time > 0 then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.cooldown), TimeToString(time))
+            end
+        end,
+        tipsfn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.forestdaywalkerspawner_time
+            if ready_attack(time) then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.tips)), 10, time
+            end
+            return false
+        end
+    },
+    lunarthrall_plantspawner = { -- 致命亮茄信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
+        gettextfn = function()
+            local self = TheWorld.components.lunarthrall_plantspawner
+            if not self then return end
+            local count = #lunarthrall_plant_table
+            if count == 0 and not self.waves_to_release then
+                return
+            end
+            local description = string.format(STRINGS.eventtimer.lunarthrall_plantspawner.infested_count, count)
+            if self._nextspawn then
+                description = description .. "\n" .. string.format(STRINGS.eventtimer.lunarthrall_plantspawner.spawn, TimeToString(GetTaskRemaining(self._nextspawn)))
+            elseif self._spawntask then
+                description = description .. "\n" .. string.format(STRINGS.eventtimer.lunarthrall_plantspawner.next_wave, TimeToString(GetTaskRemaining(self._spawntask)))
+            end
+            if self.waves_to_release and self.waves_to_release > 0 then
+                description = description .. "\n" .. string.format(STRINGS.eventtimer.lunarthrall_plantspawner.remain_waves, self.waves_to_release)
+            end
+            return description
+        end,
+        image = {
+			atlas = "minimap/minimap_data.xml",
+			tex = "lunarthrall_plant.png",
+            scale = 1,
+        },
+        announcefn = function()
+            local text = ThePlayer.HUD.WaringEventTimeData.lunarthrall_plantspawner_text
+            if text then
+                text = string.gsub(text,"\n",", ")
+                return STRINGS.NAMES.LUNARTHRALL_PLANT .. ": " .. text
+            end
+        end,
+    },
+    riftspawner = { -- 裂隙生成倒计时
+        gettimefn = function() -- 当裂隙出现时，不显示
+            if TheWorld and (TheWorld.net.components.waringtimer.inst.replica.waringtimer.rift_portal_text:value() or TheWorld.net.components.waringtimer.inst.replica.waringtimer.shadowrift_portal_text:value() == "") then
+                return GetWorldSettingsTimeLeft("rift_spawn_timer")()
+            end
+        end,
+        image = {
+            atlas = "images/Rift_Split.xml",
+            tex = "Rift_Split.tex",
+            scale = 1,
+            offset = {
+                x = 0,
+                y = 13,
+            },
+        },
+        DisableShardRPC = true,
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.riftspawner_time
+            return time and time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.riftspawner.cooldown), TimeToString(time))
+        end,
+    },
+    rift_portal = { -- 月亮裂隙信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616 (爱死你了)
+        gettextfn = function()
+            local STAGE_GROWTH_TIMER = "trynextstage"
+            local inst = TimerPrefabs["lunarrift_portal"]
+            if not inst then return end
+
+            -- 裂隙阶段信息
+            local stage_info = string.format(STRINGS.eventtimer.riftspawner.stage, inst._stage, TUNING.RIFT_LUNAR1_MAXSTAGE) -- 阶段信息，内容类似：阶段 1 / 3
+            if inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) and not (inst._stage == TUNING.RIFT_LUNAR1_MAXSTAGE) then
+                stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.rift_portal.next_stage, TimeToString(inst.components.timer:GetTimeLeft(STAGE_GROWTH_TIMER))) -- 补充信息：%s后进入下一阶段
+            end
+
+            -- 裂隙晶体信息
+            local crystal_count_info -- 可用晶体的信息。内容类似：裂隙晶体：1可用 / 4总共 / 4最大
+            local crystal_spawn_info -- 下一波晶体生成时间。内容类似：下一波裂隙晶体生成于0时3分3秒后
+
+            local MAX_CRYSTAL_RING_COUNT_BY_STAGE = Upvaluehelper.FindUpvalue(_G.Prefabs.lunarrift_portal.fn, "MAX_CRYSTAL_RING_COUNT_BY_STAGE") -- {0, 1, 3}
+            local CRYSTALS_PER_RING = Upvaluehelper.FindUpvalue(_G.Prefabs.lunarrift_portal.fn, "CRYSTALS_PER_RING") -- 4
+            local MIN_CRYSTAL_DISTANCE = Upvaluehelper.FindUpvalue(_G.Prefabs.lunarrift_portal.fn, "MIN_CRYSTAL_DISTANCE") -- 3
+            local TERRAFORM_DELAY = Upvaluehelper.FindUpvalue(_G.Prefabs.lunarrift_portal.fn, "TERRAFORM_DELAY")
+            local MAX_CRYSTAL_DISTANCE_BY_STAGE = Upvaluehelper.FindUpvalue(_G.Prefabs.lunarrift_portal.fn, "MAX_CRYSTAL_DISTANCE_BY_STAGE") -- TUNING.RIFT_LUNAR1_STAGEUP_BASE_TIME / 3
+
+            local max_crystals = MAX_CRYSTAL_RING_COUNT_BY_STAGE[inst._stage] * CRYSTALS_PER_RING -- 最大晶体数量
+            local current_crystals = 0 -- 当前晶体数量
+            local available_crystals = 0 -- 可用晶体数量
+            local quickest_time_to_available_crystal -- 下波晶体生成时间
+
+            for crystal in pairs(inst._crystals) do
+                current_crystals = current_crystals + 1
+                if not crystal:IsInLimbo() then
+                    available_crystals = available_crystals + 1
+                else
+                    if crystal.components.timer:TimerExists("finish_spawnin") then
+                        local time = crystal.components.timer:GetTimeLeft("finish_spawnin")
+                        if quickest_time_to_available_crystal == nil or time < quickest_time_to_available_crystal then
+                            quickest_time_to_available_crystal = time
+                        end
+                    end
+                end
+            end
+
+            -- 显示可用晶体的数量
+            if available_crystals > 0 then
+                crystal_count_info = string.format(ReplacePrefabName(STRINGS.eventtimer.rift_portal.crystals), available_crystals, current_crystals, max_crystals)
+            end
+
+            -- 显示晶体再生时间
+            local crystals_can_spawn = (max_crystals - current_crystals) >= CRYSTALS_PER_RING
+
+            if (crystals_can_spawn or available_crystals < current_crystals) then
+                local time
+
+                if quickest_time_to_available_crystal  then
+                    time = quickest_time_to_available_crystal
+                elseif crystals_can_spawn then
+                    -- 我们将展示一个近似的时间，因为它有一些随机性，但数量微不足道。
+                    if inst.components.timer:TimerExists("try_crystals") then
+                        -- math复制自lunarrift_portal，并进行了一些调整。
+                        local offset = MIN_CRYSTAL_DISTANCE + math.sqrt(1)*(MAX_CRYSTAL_DISTANCE_BY_STAGE[inst._stage] - MIN_CRYSTAL_DISTANCE)
+                        local previous_max_crystal_distance = MAX_CRYSTAL_DISTANCE_BY_STAGE[inst._stage - 1] or 0
+                        local time_delay = math.max(0, ((offset - previous_max_crystal_distance) / TILE_SCALE) * TERRAFORM_DELAY)
+
+                        time = inst.components.timer:GetTimeLeft("try_crystals") + (time_delay + (2*1))
+                    end
+                end
+
+                if time then
+                    crystal_spawn_info = string.format(ReplacePrefabName(STRINGS.eventtimer.rift_portal.next_crystal), TimeToString(time))
+                end
+            end
+
+            -- 合并信息
+            local description = CombineLines(stage_info, crystal_count_info, crystal_spawn_info)
+            return description
+        end,
+        image = {
+            atlas = "minimap/minimap_data.xml",
+			tex = "lunarrift_portal.png",
+            scale = 1,
+        },
+    },
 
     ---------------------------------------- Cave ----------------------------------------
 
+    shadowrift_portal = { -- 暗影裂隙信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
+        gettimefn = nil, -- gettimefn有必要吗？也许没必要
+        gettextfn = function()
+            local inst = TimerPrefabs["shadowrift_portal"]
+            if not inst then return end
+            local STAGE_GROWTH_TIMER = "trynextstage"
+            local RIFT_CLOSE_TIMER = "close"
+            local stage_info = string.format(ReplacePrefabName(STRINGS.eventtimer.riftspawner.stage), inst._stage, TUNING.RIFT_SHADOW1_MAXSTAGE)
+            local rift_close_time
+
+            if inst.components.timer:TimerExists(RIFT_CLOSE_TIMER) then
+                rift_close_time = inst.components.timer:GetTimeLeft(RIFT_CLOSE_TIMER)
+            end
+
+            if rift_close_time and inst._stage == TUNING.RIFT_SHADOW1_MAXSTAGE then
+                stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.shadowrift_portal.close, TimeToString(rift_close_time))
+            elseif inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) then
+                stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.rift_portal.next_stage, TimeToString(inst.components.timer:GetTimeLeft(STAGE_GROWTH_TIMER)))
+            end
+
+            local description = stage_info
+            return description
+        end,
+        image = {
+			atlas = "minimap/minimap_data.xml",
+			tex = "shadowrift_portal.png",
+            scale = 1,
+        },
+    },
+    daywalkerspawner = { -- 梦魇疯猪
+        gettimefn = function()
+            local self = TheWorld.components.daywalkerspawner
+            if not self then return end
+            local shard_daywalkerspawner = TheWorld.shard.components.shard_daywalkerspawner
+            if shard_daywalkerspawner ~= nil and shard_daywalkerspawner:GetLocationName() ~= "cavejail" or self.daywalker ~= nil or not self.days_to_spawn or not CalcTimeOfDay then
+                return
+            end
+            return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
+        end,
+        anim = {
+            scale = 0.06,
+            build = "daywalker_build",
+            bank = "daywalker",
+            animation = "idle_creepy_loop",
+            uioffset = {
+                x = -2,
+                y = -12
+            },
+            loop = true,
+        },
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.daywalkerspawner_time
+            if time and time > 0 then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.cooldown), TimeToString(time))
+            end
+        end,
+        tipsfn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.daywalkerspawner_time
+            if ready_attack(time) then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.tips)), 10, time
+            end
+            return false
+        end
+    },
+    shadowthrallmanager = { -- 梦魇裂隙/墨荒信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
+        gettextfn = function()
+            local self = TheWorld.components.shadowthrallmanager
+            if not self then return end
+            local THRALL_NAMES = setmetatable({
+                shadowthrall_hands = STRINGS.NAMES.SHADOWTHRALL_HANDS_ALLEGIANCE,
+                shadowthrall_horns = STRINGS.NAMES.SHADOWTHRALL_HORNS_ALLEGIANCE,
+                shadowthrall_wings = STRINGS.NAMES.SHADOWTHRALL_WINGS_ALLEGIANCE,
+                shadowthrall_mouth = STRINGS.NAMES.SHADOWTHRALL_MOUTH_ALLEGIANCE,
+            }, {
+                __index = function(self, index)
+                    rawset(self, index, "???")
+                    return rawget(self, index)
+                end
+            })
+            local thrall_string -- 奴隶
+            local fissure_string -- 裂隙
+
+            local data = self:OnSave()
+            local fissure = self:GetControlledFissure()
+
+            -- 检查是否有裂缝（和奴隶）
+            if fissure then
+                local thralls_alive = {}
+                local thralls_alive_string = {}
+
+                if data.thrall_hands ~= nil then
+                    local ent = Ents[data.thrall_hands]
+                    thralls_alive[#thralls_alive+1] = ent
+                    if ent then
+                        thralls_alive_string[#thralls_alive_string+1] = THRALL_NAMES[ent.prefab]
+                    end
+                end
+                if data.thrall_horns ~= nil then
+                    local ent = Ents[data.thrall_horns]
+                    thralls_alive[#thralls_alive+1] = ent
+                    if ent then
+                        thralls_alive_string[#thralls_alive_string+1] = THRALL_NAMES[ent.prefab]
+                    end
+                end
+                if data.thrall_wings ~= nil then
+                    local ent = Ents[data.thrall_wings]
+                    thralls_alive[#thralls_alive+1] = ent
+                    if ent then
+                        thralls_alive_string[#thralls_alive_string+1] = THRALL_NAMES[ent.prefab]
+                    end
+                end
+
+                thralls_alive_string = table.concat(thralls_alive_string, ", ")
+
+                -- 裂缝可以“靠近”玩家，但如果玩家离得不够近，就不会产生墨荒。
+                if #thralls_alive == 0 and data.spawnthrallstime then
+                    thrall_string = STRINGS.eventtimer.shadowthrallmanager.waiting_for_players
+                else
+                    thrall_string = string.format(STRINGS.eventtimer.shadowthrallmanager.thralls_alive, #thralls_alive, thralls_alive_string)
+                end
+
+                if data.dreadstonecooldown then
+                    fissure_string = string.format(ReplacePrefabName(STRINGS.eventtimer.shadowthrallmanager.dreadstone_regen), TimeToString(data.dreadstonecooldown))
+                end
+            elseif data.cooldown then
+                fissure_string = string.format(STRINGS.eventtimer.shadowthrallmanager.fissure_cooldown, TimeToString(data.cooldown))
+            end
+
+            local description = CombineLines(thrall_string, fissure_string)
+            return description
+        end,
+        image = {
+			atlas = "images/Dreadstone_Outcrop.xml",
+			tex = "Dreadstone_Outcrop.tex",
+            scale = 1,
+        },
+        announcefn = function()
+            local text = ThePlayer.HUD.WaringEventTimeData.shadowthrallmanager_text
+            if text then
+                text = string.gsub(text,"\n",", ")
+                return STRINGS.NAMES.SHADOWTHRALL_MOUTH .. ": " .. text
+            end
+        end,
+    },
     toadstoolspawner = {
         gettimefn = GetWorldSettingsTimeLeft("toadstool_respawntask"),
         anim = {
@@ -637,7 +1144,7 @@ WaringEvents = {
             end
 
             local data = nightmareclock:OnSave()
-            return data.lockedphase and string.format(STRINGS.eventtimer.nightmareclock.phase_locked_text)
+            return data.lockedphase and STRINGS.eventtimer.nightmareclock.phase_locked_text
         end,
         anim = {
             scale = 0.25,
@@ -663,6 +1170,27 @@ WaringEvents = {
                 return time and phase and string.format(STRINGS.eventtimer.nightmareclock.cooldown, phase, TimeToString(time))
             end
         end
+    },
+    quaker = {
+        gettimefn = function()
+            local self = TheWorld.net.components.quaker
+            if not self then return end
+            local _task = Upvaluehelper.GetUpvalue(self.GetDebugString, "_task")
+            if _task and GetTaskRemaining(_task) then
+                return GetTaskRemaining(_task)
+            end
+        end,
+        image = {
+            atlas = "images/inventoryimages.xml",
+            tex = "rocks.tex",
+            scale = 1,
+        },
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.quaker_time
+            if time and time > 0 then
+                return string.format(STRINGS.eventtimer.quaker.cooldown, TimeToString(time))
+            end
+        end,
     },
 
     ---------------------------------------- IA-SW ---------------------------------------
@@ -710,7 +1238,7 @@ WaringEvents = {
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.volcanomanager.cooldown), TimeToString(time))
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.volcanomanager_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.volcanomanager_time
             if JustEntered(time) and time <= 480 then
                 return true, WaringEvents.volcanomanager.announcefn, 10
             elseif time == 120 then
@@ -761,7 +1289,7 @@ WaringEvents = {
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.twisterspawner_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.twisterspawner_time
             if time == 120 or JustEntered(time) then
                 return true, WaringEvents.twisterspawner.announcefn, 10
             elseif time > 2 and time <= 60 then
@@ -804,7 +1332,7 @@ WaringEvents = {
             return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.krakener_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.krakener_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.krakener.tips)), 10, time
             end
@@ -860,7 +1388,7 @@ WaringEvents = {
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.tigersharker_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.tigersharker_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.tigersharker.tips)), 10, time
             end
@@ -904,7 +1432,7 @@ or Ismodloaded("workshop-3322803908") and
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.pugalisk_fountain_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.pugalisk_fountain_time
             if ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.pugalisk_fountain_time.ready)), 5, time
             end
@@ -953,7 +1481,7 @@ or Ismodloaded("workshop-3322803908") and
             end
         end,
         tipsfn = function()
-            local text = ThePlayer.HUD.WaringEventTimeData.banditmanager_text or ""
+            local text = ThePlayer.HUD.WaringEventTimeData.banditmanager_text
             local ready = Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.banditmanager.readytext))
             if ready then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.banditmanager.tips)), 5
@@ -982,7 +1510,7 @@ or Ismodloaded("workshop-3322803908") and
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WaringEventTimeData.aporkalypse_time or 0
+            local time = ThePlayer.HUD.WaringEventTimeData.aporkalypse_time
             if time == 120 or JustEntered(time) then
                 local function res_time()
                     return string.format(STRINGS.eventtimer.aporkalypse.tips, TimeToString(ThePlayer.HUD.WaringEventTimeData.aporkalypse_time))

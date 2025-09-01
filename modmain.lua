@@ -5,6 +5,18 @@ Assets = {
 	Asset("IMAGE", "images/Hound.tex"),
     Asset("ATLAS", "images/Depths_Worm.xml"), -- 洞穴蠕虫
 	Asset("IMAGE", "images/Depths_Worm.tex"),
+    Asset("ATLAS", "images/Worm_boss.xml"), -- 巨大洞穴蠕虫
+	Asset("IMAGE", "images/Worm_boss.tex"),
+    Asset("ATLAS", "images/Daywalker.xml"), -- 梦魇疯猪
+	Asset("IMAGE", "images/Daywalker.tex"),
+    Asset("ATLAS", "images/Rift_Split.xml"), -- 双裂隙
+	Asset("IMAGE", "images/Rift_Split.tex"),
+    Asset("ATLAS", "images/Dreadstone_Outcrop.xml"), -- 梦魇裂隙
+	Asset("IMAGE", "images/Dreadstone_Outcrop.tex"),
+    Asset("ATLAS", "images/moon_full.xml"), -- 月圆
+	Asset("IMAGE", "images/moon_full.tex"),
+    Asset("ATLAS", "images/moon_new.xml"), -- 月黑
+	Asset("IMAGE", "images/moon_new.tex"),
 	Asset("ATLAS", "images/Twister.xml"), -- 豹卷风
 	Asset("IMAGE", "images/Twister.tex"),
     Asset("ATLAS", "images/saveslot_portraits.xml"), -- 图标背景
@@ -71,7 +83,7 @@ end
 Upvaluehelper = Import(MODROOT .. "scripts/utils/bbgoat_upvaluehelper.lua")
 
 --- @param str string
---- @return string
+--- @return string, number
 function ReplacePrefabName(str)
 	if type(str) ~= "string" then return str end
     return str:gsub("<prefab=(.-)>", function(prefab)
