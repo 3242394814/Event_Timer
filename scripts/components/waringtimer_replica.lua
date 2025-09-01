@@ -1,7 +1,5 @@
-local GetWorldtypeStr = EventTimer.env.GetWorldtypeStr
 local Extract_by_format = EventTimer.env.Extract_by_format
 local ReplacePrefabName = EventTimer.env.ReplacePrefabName
-local ClientPrediction = EventTimer.ClientPrediction
 local TimerMode = EventTimer.TimerMode
 local UpdateTime = EventTimer.UpdateTime
 
@@ -100,13 +98,14 @@ function WaringTimer:OnWaringEventDirty(inst)
     end
     ThePlayer.HUD.WaringEventTimeData = eventstime
     ThePlayer.HUD:UpdateWaringEvents()
-    if not update_task and ClientPrediction and UpdateTime > 1 then
+    if not update_task and UpdateTime > 1 then
         print("[全局世界计时器] 开启客户端预测功能！")
         update_task = inst:DoPeriodicTask(1, function() self:OnUpdate(inst) end)
     end
 end
 
 function WaringTimer:OnUpdate(inst) -- 每秒运行一次
+    if not EventTimer.ClientPrediction then return end
     local Dirty = false
     for waringevent in pairs(WaringEvents) do
 
