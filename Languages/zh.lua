@@ -208,4 +208,19 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=roc_head>会在%s后到来。",
         attack = "<prefab=roc_head>已刷新！"
     },
+
+    ----------------------------------------永不妥协----------------------------------------
+
+    gmoosespawner = { -- 麋鹿鹅
+        cooldown = "<prefab=moose1>会在%s后生成",
+        target = "<prefab=moose1>会生成在%s周围于%s后",
+        targeted = "目标：%s -> %s",
+        attack = "警告：<prefab=moose1>已刷新！！！",
+    },
+    mock_dragonflyspawner = { -- 龙蝇
+        cooldown = "<prefab=dragonfly>会在%s后生成",
+        target = "<prefab=dragonfly>会生成在%s周围于%s后",
+        targeted = "目标：%s -> %s",
+        attack = "警告：<prefab=dragonfly>已刷新！！！",
+    },
 }

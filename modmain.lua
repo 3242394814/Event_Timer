@@ -17,6 +17,10 @@ Assets = {
 	Asset("IMAGE", "images/moon_full.tex"),
     Asset("ATLAS", "images/moon_new.xml"), -- 月黑
 	Asset("IMAGE", "images/moon_new.tex"),
+    Asset("ATLAS", "images/Moose.xml"), -- 麋鹿鹅
+	Asset("IMAGE", "images/Moose.tex"),
+    Asset("ATLAS", "images/Dragonfly.xml"), -- 龙蝇
+	Asset("IMAGE", "images/Dragonfly.tex"),
 	Asset("ATLAS", "images/Twister.xml"), -- 豹卷风
 	Asset("IMAGE", "images/Twister.tex"),
     Asset("ATLAS", "images/saveslot_portraits.xml"), -- 图标背景

@@ -1662,6 +1662,122 @@ for k, v in pairs(HamletEvents) do
     WaringEvents[k] = v
 end
 
+local UMEvents = Ismodloaded("workshop-2039181790") and
+{
+    gmoosespawner = {
+        gettimefn = GetWorldSettingsTimeLeft("mothergoose_timetoattack"),
+        gettextfn = function(time)
+            local self = TheWorld.components.gmoosespawner
+            if not self then return end
+            local description
+            local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
+            if time and target and target.name then
+                description = string.format(STRINGS.eventtimer.gmoosespawner.targeted, target.name, TimeToString(time))
+            elseif time then
+                description = string.format(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.cooldown), TimeToString(time))
+            end
+
+            return description
+        end,
+        image = {
+			atlas = "images/Moose.xml",
+			tex = "Moose.tex",
+            scale = 0.25,
+            offset = {
+                x = 0,
+                y = 15,
+            }
+        },
+        anim = {
+            scale = 0.044,
+            bank = "goosemoose",
+            build = "goosemoose_build",
+            animation = "idle",
+            loop = true,
+        },
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.gmoosespawner_time
+            local text = ThePlayer.HUD.WaringEventTimeData.gmoosespawner_text
+            local target, _ = Extract_by_format(text, STRINGS.eventtimer.gmoosespawner.targeted)
+            if target and time then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.target), target, TimeToString(time))
+            elseif time then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.cooldown), TimeToString(time))
+            end
+        end,
+        tipsfn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.gmoosespawner_time
+            if time == 120 or JustEntered(time) then
+                return true, WaringEvents.gmoosespawner.announcefn, 10
+            elseif time > 2 and time <= 60 then
+                return true, WaringEvents.gmoosespawner.announcefn, time
+            elseif ready_attack(time) then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.attack)), 10, time
+            end
+            return false
+        end
+    },
+    mock_dragonflyspawner = {
+        gettimefn = GetWorldSettingsTimeLeft("mockfly_timetoattack"),
+        gettextfn = function(time)
+            local self = TheWorld.components.mock_dragonflyspawner
+            if not self then return end
+            local description
+            local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
+            if time and target and target.name then
+                description = string.format(STRINGS.eventtimer.mock_dragonflyspawner.targeted, target.name, TimeToString(time))
+            elseif time then
+                description = string.format(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.cooldown), TimeToString(time))
+            end
+
+            return description
+        end,
+        image = {
+			atlas = "images/Dragonfly.xml",
+			tex = "Dragonfly.tex",
+            scale = 0.25,
+            offset = {
+                x = 0,
+                y = 15,
+            }
+        },
+        anim = {
+            scale = 0.044,
+            bank = "dragonfly",
+            build = "dragonfly_build",
+            animation = "idle",
+            loop = true,
+        },
+        announcefn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.mock_dragonflyspawner_time
+            local text = ThePlayer.HUD.WaringEventTimeData.mock_dragonflyspawner_text
+            local target, _ = Extract_by_format(text, STRINGS.eventtimer.mock_dragonflyspawner.targeted)
+            if target and time then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.target), target, TimeToString(time))
+            elseif time then
+                return string.format(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.cooldown), TimeToString(time))
+            end
+        end,
+        tipsfn = function()
+            local time = ThePlayer.HUD.WaringEventTimeData.mock_dragonflyspawner_time
+            if time == 120 or JustEntered(time) then
+                return true, WaringEvents.mock_dragonflyspawner.announcefn, 10
+            elseif time > 2 and time <= 60 then
+                return true, WaringEvents.mock_dragonflyspawner.announcefn, time
+            elseif ready_attack(time) then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.attack)), 10, time
+            end
+            return false
+        end
+    },
+    -- 巨鹿和原版的一样，不需要加
+} or {}
+
+-- 将永不妥协计时添加到WaringEvents
+for k, v in pairs(UMEvents) do
+    WaringEvents[k] = v
+end
+
 for event in pairs(WaringEvents) do
     WaringEvents[event].name = event -- 给 WaringEventUI.lua 使用
 end
