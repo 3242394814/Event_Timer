@@ -4,28 +4,17 @@ local function en_zh(en, zh)
     return L ~= "zh" and L ~= "zhr" and L ~= "zht" and en or zh
 end
 
-name = en_zh("Global Events Timer","全局事件计时器") -- 模组名称
+name = en_zh("Global Events Timer", "全局事件计时器") -- 模组名称
 description = en_zh([[
 Adds a widget in-game that opens an event timer panel.
 The panel displays countdowns for various events and BOSS respawns.
 You can tick the checkbox on the right side of the panel to keep the timer always visible in the top-left corner of the screen.
 ]],
---[[
-Features:  
-Sync Timer: When enabled, event timer data from this world will be shared with other worlds.  
-(For multi shard dedicated servers: if you run two identical worlds at the same time, make sure to disable synchronization in one of them, otherwise the data will conflict.)  
-
-Server Data Update Frequency: Defines how many seconds the server refreshes the event countdown data.  
-If your server lags, you may increase this value.  
-(Based on my tests, each refresh only takes about one millisecond.)  
-
-Client Predicted Countdown: When the server update interval is greater than one second,  
-the client uses prediction to fill the gaps between updates, making the countdown appear smooth.
-]]
 [[
 在游戏内添加一个小部件，点开后显示事件计时器面板。
 面板内显示各事件和BOSS刷新倒计时
 勾选面板右侧的复选框可使计时始终显示在屏幕左上角
+点击事件可宣告其信息
 
 功能说明：
 跨世界同步计时：开启后该世界的事件计时数据会与其它世界共享
@@ -36,7 +25,7 @@ the client uses prediction to fill the gaps between updates, making the countdow
 
 客户端预测倒计时：当服务器数据更新频率大于一秒时，客户端使用预测功能填补空缺的刷新周期，使倒计时看起来顺畅
 ]])
-author = "冰冰羊"
+author = "冰冰羊，Jerry"
 version = 0.1 -- 模组版本
 api_version = 10
 priority = 0 -- 模组加载优先级
