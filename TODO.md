@@ -28,67 +28,7 @@
 <!-- · 兼容【模组设置】，游戏内可实时开关预测倒计时功能 -->
 
 <!-- · 模组英语翻译 -->
-· 在modmain写上模组API说明
-
-
-gettimefn
-gettextfn
-
-image = {
-    atlas = "images/Hound.xml",
-    tex = "Hound.tex",
-    scale = 0.4,
-    uioffset = { -- 决定在UI的偏移量
-        x = 0, -- 左减右加
-        y = 0, -- 上加下减
-    },
-    offset = { -- 决定在屏幕左上角的位置
-        x = 0, -- 左减右加
-        y = 0, -- 上加下减
-    }
-},
-imagechangefn
-forestimage
-caveimage
-islandimage
-porklandimage
-ChangeimageByWorld
-
-anim = {
-    bank = "malbatross",
-    build = "malbatross_build",
-    animation = "idle_loop",
-    loop = true,
-    scale = 0.04,
-    uioffset = { -- 决定在UI的偏移量
-        x = 0, -- 左减右加
-        y = 0, -- 上加下减
-    },
-    offset = { -- 决定在屏幕左上角的位置
-        x = 0, -- 左减右加
-        y = 0, -- 上加下减
-    },
-    
-    可选参数
-    overridebuild：类型是数组表，为事件的额外材质(必须搭配动画使用，表内依次填入build名称即可) 参数等同AddOverrideBuild
-    overridesymbol：类型是键值表，替换事件的symbol(必须搭配动画使用，表内依次填入包含原有symbol与目标build和目标symbol组成的表) 参数等同OverrideSymbol
-    hidesymbol：类型是数组表，隐藏事件的symbol(必须搭配动画使用，表内依次填入symbol名称) 参数等同HideSymbol
-    anim和image格式至少要选一个
-},
-animchangefn
-forestanim
-caveanim
-islandanim
-porklandanim
-ChangeanimByWorld
-
-winterfeastanim
-defaultanim
-ChangeanimByWintersFeast
-
-announcefn
-tipsfn -- 返回参数为 need_tips, tipstextfn, tipstime, delay
-
+<!-- · 在README写上模组API说明 -->
 
 · 模组图标/动态图标
 · 进行功能验收/BUG测试
