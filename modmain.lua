@@ -267,6 +267,15 @@ if HasMOD_util and MOD_util:CanAddSetting() then
                     EventTimer.ClientPrediction = MOD_util:GetMOption("ClientPrediction", true)
                 end
             },
+            {
+                description = "醒目提示", -- 名称
+                key = "ShowTips", -- 对应设置项
+                default = true, -- 默认选项
+                options = enabledisableoption, -- 选项列表
+                onapplyfn = function()
+                    EventTimer.TimerTips = MOD_util:GetMOption("ShowTips", true)
+                end
+            },
         }
     }
     )
