@@ -86,14 +86,33 @@ end
 
 Upvaluehelper = Import(MODROOT .. "scripts/utils/bbgoat_upvaluehelper.lua")
 
+local STRINGS = GLOBAL.STRINGS
+local TimerMode = GetModConfigData("BossTimer", true)
+
+-- 填充Prefab名字
 --- @param str string
 --- @return string, number
 function ReplacePrefabName(str)
 	if type(str) ~= "string" then return str end
     return str:gsub("<prefab=(.-)>", function(prefab)
         local key = prefab:upper()
-        return GLOBAL.STRINGS.NAMES[key] or prefab
+        return STRINGS.NAMES[key] or prefab
     end)
+end
+
+-- 格式化时间
+function TimeToString(seconds)
+    if type(seconds) ~= "number" then return seconds end
+    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
+    local d = math.floor(seconds / daytime)
+    local min = math.floor(seconds % daytime / 60)
+    local s = math.floor(seconds % daytime % 60)
+
+    if TimerMode == 2 then
+        return d .. STRINGS.eventtimer.time.hour .. min .. STRINGS.eventtimer.time.minutes .. s .. STRINGS.eventtimer.time.seconds
+    else
+        return d .. STRINGS.eventtimer.time.day .. min .. STRINGS.eventtimer.time.minutes .. s .. STRINGS.eventtimer.time.seconds
+    end
 end
 
 -- 反向提取信息
@@ -104,7 +123,8 @@ function Extract_by_format(text, format_str)
     return text:match(pattern)
 end
 
-function GetWorldtypeStr() -- 根据世界类型返回一段字符串
+-- 根据世界类型返回一段字符串
+function GetWorldtypeStr()
     if GLOBAL.TheWorld:HasTag("porkland") then
         return "porkland"
     elseif GLOBAL.TheWorld:HasTag("island") then

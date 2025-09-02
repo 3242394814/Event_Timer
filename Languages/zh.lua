@@ -1,5 +1,7 @@
 local STRINGS = GLOBAL.STRINGS
 STRINGS.eventtimer = {
+    ui_title = "事件计时器",
+    ui_desc = "事件计时器\n右键拖拽",
     worldid = "世界%s", -- 跨世界同步计时，文字添加前缀
     worldtype = {
         forest = "森林",
@@ -7,6 +9,12 @@ STRINGS.eventtimer = {
         shipwrecked = "海难",
         volcano = "火山",
         porkland = "猪镇",
+    },
+    time = {
+        hour = "小时",
+        day = "天",
+        minutes = "分",
+        seconds = "秒"
     },
 
     ----------------------------------------森林----------------------------------------
@@ -186,9 +194,9 @@ STRINGS.eventtimer = {
     banditmanager = { -- 蒙面猪人
         cooldown = "尝试刷新于: %s后\n[被盗的呼噜币数量: %s，当前盗贼出没: %s]",
         announce_cooldown = "<prefab=pigbandit>将于%s后尝试刷新。当前已盗走%s个呼噜币。",
-        ready = "<prefab=pigbandit>已刷新。当前盗走的呼噜币数量: %s",
-        readytext = "<prefab=pigbandit>已刷新。\n当前盗走的呼噜币数量: %s",
-        tips = "警告：<prefab=pigbandit>已刷新！！！",
+        ready = "<prefab=pigbandit>正在出没。当前盗走的呼噜币数量: %s",
+        readytext = "<prefab=pigbandit>正在出没。\n当前盗走的呼噜币数量: %s",
+        tips = "警告：<prefab=pigbandit>正在出没！！！",
     },
     aporkalypse = { -- 大灾变
         cooldown = "大灾变将在%s后到来。",
@@ -196,8 +204,8 @@ STRINGS.eventtimer = {
         announce_attack = "下一次<prefab=vampirebat>袭击: %s后    下一次<prefab=ancient_herald>袭击: %s后",
         tips = "警告：大灾变将在%s后到来！！！",
         tips_ready = "血月降临！",
-        tips_attack = "警告：<prefab=ancient_herald>会在%s后生成。",
-        tips_attack_ready = "警告：<prefab=ancient_herald>已刷新！！！",
+        tips_attack = "警告：<prefab=ancient_herald>会在%s后生成。", -- 未使用
+        tips_attack_ready = "警告：<prefab=ancient_herald>已刷新！！！", -- 未使用
     },
     batted = { -- 吸血蝙蝠
         cooldown = "<prefab=vampirebat>会在%s后攻击。",
@@ -206,7 +214,8 @@ STRINGS.eventtimer = {
     },
     rocmanager = { -- 友善的大鹏
         cooldown = "<prefab=roc_head>会在%s后到来。",
-        attack = "<prefab=roc_head>已刷新！"
+        exists = "<prefab=roc_head>正在出没",
+        tips = "警告：<prefab=roc_head>已刷新！"
     },
 
     ----------------------------------------永不妥协----------------------------------------

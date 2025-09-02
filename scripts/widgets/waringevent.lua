@@ -26,12 +26,14 @@ local WaringEvent = Class(Widget, function(self, anim_data, image_data)
 end)
 
 local function TimeToString(t)
+    local daytime = EventTimer.TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
+
     if t < 60 then
-        return math.floor(t) .. STRINGS.SCRAPBOOK.DATA_SECONDS -- 秒
+        return math.floor(t) .. STRINGS.eventtimer.time.seconds -- 秒
     elseif t < 480 then
-        return math.floor(t / 60 * 10) / 10 .. STRINGS.SCRAPBOOK.DATA_MINUTE -- 分
+        return math.floor(t / 60 * 10) / 10 .. STRINGS.eventtimer.time.minutes -- 分
     else
-        return math.floor(t / TUNING.TOTAL_DAY_TIME * 10) / 10 .. STRINGS.SCRAPBOOK.DATA_DAY -- 天
+        return math.floor(t / daytime * 10) / 10 .. (EventTimer.TimerMode == 2 and STRINGS.eventtimer.time.hour --[[小时]] or STRINGS.eventtimer.time.day) -- 天
     end
 end
 

@@ -1,4 +1,5 @@
 local modimport = modimport
+local TimeToString = TimeToString
 local SyncTimer = GetModConfigData("SyncTimer")
 local Upvaluehelper = Upvaluehelper
 local ReplacePrefabName = ReplacePrefabName
@@ -8,7 +9,7 @@ local AddPrefabPostInit = AddPrefabPostInit
 local AddComponentPostInit = AddComponentPostInit
 
 GLOBAL.setfenv(1, GLOBAL)
-local TimerMode = EventTimer.TimerMode
+
 modimport("main/timerprefab")
 
 local CalcTimeOfDay -- 今天还剩多少时间
@@ -44,21 +45,6 @@ end)
 -- 判断某个模组是否加载
 local function Ismodloaded(name)
 	return KnownModIndex:IsModEnabledAny(name)
-end
-
--- 格式化时间
-local function TimeToString(seconds)
-    if type(seconds) ~= "number" then return seconds end
-    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
-    local d = math.floor(seconds / daytime)
-    local min = math.floor(seconds % daytime / 60)
-    local s = math.floor(seconds % daytime % 60)
-
-    if TimerMode == 2 then
-        return d .. "时" .. min .. "分" .. s .. "秒"
-    else
-        return d .. "天" .. min .. "分" .. s .. "秒"
-    end
 end
 
 -- 从worldsettingstimer或TimerPrefabs获取倒计时
@@ -1617,7 +1603,7 @@ or Ismodloaded("workshop-3322803908") and
             if not self then return end
             local data = self:OnSave()
             if data.roc then
-                return  ReplacePrefabName(STRINGS.eventtimer.rocmanager.attack)
+                return  ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)
             end
             if time and time > 0 then
                 return TimeToString(time)
@@ -1649,8 +1635,8 @@ or Ismodloaded("workshop-3322803908") and
             local text = ThePlayer.HUD.WaringEventTimeData.rocmanager_text
             if time == 120 or (JustEntered(time) and time > 30) then
                 return true, WaringEvents.rocmanager.announcefn, 10
-            elseif text == ReplacePrefabName(STRINGS.eventtimer.rocmanager.attack) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.rocmanager.attack)), 10
+            elseif text == ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists) then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.rocmanager.tips)), 10
             end
             return false
         end
@@ -1662,7 +1648,7 @@ for k, v in pairs(HamletEvents) do
     WaringEvents[k] = v
 end
 
-local UMEvents = Ismodloaded("workshop-2039181790") and
+local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
 {
     gmoosespawner = {
         gettimefn = GetWorldSettingsTimeLeft("mothergoose_timetoattack"),
@@ -1774,7 +1760,7 @@ local UMEvents = Ismodloaded("workshop-2039181790") and
 } or {}
 
 -- 将永不妥协计时添加到WaringEvents
-for k, v in pairs(UMEvents) do
+for k, v in pairs(UncompromisingEvents) do
     WaringEvents[k] = v
 end
 

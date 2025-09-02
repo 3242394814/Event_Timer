@@ -2,28 +2,25 @@ local Extract_by_format = EventTimer.env.Extract_by_format
 local ReplacePrefabName = EventTimer.env.ReplacePrefabName
 local TimerMode = EventTimer.TimerMode
 local UpdateTime = EventTimer.UpdateTime
+local TimeToString = EventTimer.env.TimeToString
 
--- 格式化时间
-local function TimeToString(seconds)
-    if type(seconds) ~= "number" then return seconds end
-    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
-    local d = math.floor(seconds / daytime)
-    local min = math.floor(seconds % daytime / 60)
-    local s = math.floor(seconds % daytime % 60)
+local day_str = STRINGS.eventtimer.time.day
+local hour_str = STRINGS.eventtimer.time.hour
+local min_str = STRINGS.eventtimer.time.minutes
+local sec_str = STRINGS.eventtimer.time.seconds
 
-    if TimerMode == 2 then
-        return d .. "时" .. min .. "分" .. s .. "秒"
-    else
-        return d .. "天" .. min .. "分" .. s .. "秒"
-    end
-end
+local StringToTime_format_1 = "(.*)".. day_str .. "(.*)" .. min_str .. "(.*)" .. sec_str
+local StringToTime_format_2 = "(.*)" .. hour_str .. "(.*)" .. min_str .. "(.*)" .. sec_str
+
+local Getformat_format_1 = "(%d+)".. day_str .. "(%d+)" .. min_str .. "(%d+)" .. sec_str
+local Getformat_format_2 = "(%d+)" .. hour_str .. "(%d+)" .. min_str .. "(%d+)" .. sec_str
 
 -- 反向格式化时间
 local function StringToTime(string)
     if type(string) ~= "string" then return end
     local time = 0
     local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
-    local format = TimerMode == 2 and "(.*)时(.*)分(.*)秒" or "(.*)天(.*)分(.*)秒"
+    local format = TimerMode == 2 and StringToTime_format_2 or StringToTime_format_1
     local d,m,s = string.match(string, format)
     d = tonumber(d)
     m = tonumber(m)
@@ -37,7 +34,7 @@ local function StringToTime(string)
 end
 
 local function Getformat(text)
-    local format = TimerMode == 2 and "(%d+)时(%d+)分(%d+)秒" or "(%d+)天(%d+)分(%d+)秒"
+    local format = TimerMode == 2 and Getformat_format_2 or Getformat_format_1
     return string.gsub(text, format, "%%s")
 end
 
@@ -45,7 +42,7 @@ local function get_new_text(v, datatext)
     local results = { Extract_by_format(datatext, v) }
     if results[1] then
         for k1, v1 in pairs(results) do
-            if string.find(v1,"分(.*)秒") then
+            if string.find(v1, min_str .. "(.*)" .. sec_str) then
                 v1 = StringToTime(v1) -- 尝试将字符串转为数字
                 if type(v1) == "number" then
                     v1 = v1 - 1
@@ -57,7 +54,7 @@ local function get_new_text(v, datatext)
                 end
             end
         end
-        v = v:gsub("([%%])", "%%%1")
+        v = v:gsub("([%%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
         v = v:gsub("%%%%s", "%%s")
         local new_text = string.format(ReplacePrefabName(v), unpack(results))
         return new_text

@@ -1,5 +1,5 @@
 local RW_Data = EventTimer.env.RW_Data
-local TimerMode = EventTimer.TimerMode
+local TimeToString = EventTimer.env.TimeToString
 local save_data = RW_Data:LoadData()
 
 local Image = require "widgets/image"
@@ -24,10 +24,10 @@ local WaringEventHUD = Class(Widget, function(self, owner)
     -- bottom_buttons 底部按钮
     -- button_spacing 按钮间距
     -- body_text 面板的文本
-    self.panel = self:AddChild(TEMPLATES.RectangleWindow(580, 600, "事件计时器",
+    self.panel = self:AddChild(TEMPLATES.RectangleWindow(580, 600, STRINGS.eventtimer.ui_title,
     {
         {
-            text = "关闭",
+            text = STRINGS.UI.OPTIONS.CLOSE,
             cb = function()
                 self.owner.EventTimerButton:ToggleEventTimerUI()
             end,
@@ -205,25 +205,11 @@ function WaringEventHUD:UpdateDestItem()
             value.text = datatext
             data_list[#data_list + 1] = value
         elseif type(datatime) == "number" and datatime > 0 then
-            value.text = self:TimeToString(datatime)
+            value.text = TimeToString(datatime)
             data_list[#data_list + 1] = value
         end
     end
     self.scrollpanel:SetItemsData(data_list)
-end
-
--- 格式化时间
-function WaringEventHUD:TimeToString(seconds)
-    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
-    local d = math.floor(seconds / daytime)
-    local min = math.floor(seconds % daytime / 60)
-    local s = math.floor(seconds % daytime % 60)
-
-    if TimerMode == 2 then
-        return d .. "时" .. min .. "分" .. s .. "秒"
-    else
-        return d .. "天" .. min .. "分" .. s .. "秒"
-    end
 end
 
 -- 关闭面板
