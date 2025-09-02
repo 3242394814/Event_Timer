@@ -3,8 +3,8 @@ local Widget = require("widgets/widget")
 local Text = require("widgets/text")
 local UIAnim = require("widgets/uianim")
 
-local WaringTips = Class(Widget, function(self, owner, text, msgnum)
-    Widget._ctor(self, "WaringTips")
+local WarningTips = Class(Widget, function(self, owner, text, msgnum)
+    Widget._ctor(self, "WarningTips")
     self:SetScale(2, 2)
     self.Alpha = 0
     self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", WEBCOLOURS["ORANGE"]))
@@ -60,7 +60,7 @@ local WaringTips = Class(Widget, function(self, owner, text, msgnum)
 
 end)
 
-function WaringTips:Move()
+function WarningTips:Move()
     self.target_y = self.target_y + 75
     local pos = self:GetPosition()
     self:MoveTo(
@@ -71,7 +71,7 @@ function WaringTips:Move()
     )
 end
 
-function WaringTips:OnUpdate(text)
+function WarningTips:OnUpdate(text)
     self.text:SetString(text) -- 刷新文字
 
     local w, h = self.text:GetRegionSize() -- 获取文字区域大小
@@ -84,7 +84,7 @@ function WaringTips:OnUpdate(text)
     self:SetPosition(w + 40, pos.y) -- 刷新当前横坐标
 end
 
-function WaringTips:OnWallUpdate(dt)
+function WarningTips:OnWallUpdate(dt)
     if self.AlphaMode then -- 淡入
         self.Alpha = self.Alpha + 0.02
     else -- 淡出
@@ -101,4 +101,4 @@ function WaringTips:OnWallUpdate(dt)
     self.bg:SetTint(1,1,1,self.Alpha)
 end
 
-return WaringTips
+return WarningTips

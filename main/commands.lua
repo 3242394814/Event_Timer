@@ -2,53 +2,53 @@ GLOBAL.setfenv(1, GLOBAL)
 local TimerMode = EventTimer.TimerMode
 
 -- for master
-function TurnOnAllWaring()
+function TurnOnAllWarning()
     if not TheWorld.ismastersim then
         return
     end
 
-    for event, _ in pairs(WaringEvents) do
-        WaringEvents[event].turn_on = true
+    for event, _ in pairs(WarningEvents) do
+        WarningEvents[event].turn_on = true
     end
 end
 
-function TurnOffAllWaring()
+function TurnOffAllWarning()
     if not TheWorld.ismastersim then
         return
     end
 
-    for event, _ in pairs(WaringEvents) do
-        WaringEvents[event].turn_on = false
+    for event, _ in pairs(WarningEvents) do
+        WarningEvents[event].turn_on = false
     end
 end
 
-function TurnOnWaring(event)
+function TurnOnWarning(event)
     if not TheWorld.ismastersim then
         return
     end
 
-    if event and WaringEvents[event] then
-        WaringEvents[event].turn_on = true
+    if event and WarningEvents[event] then
+        WarningEvents[event].turn_on = true
     end
 end
 
-function TurnOffWaring(event)
+function TurnOffWarning(event)
     if not TheWorld.ismastersim then
         return
     end
-    if event and WaringEvents[event] then
-        WaringEvents[event].turn_on = false
+    if event and WarningEvents[event] then
+        WarningEvents[event].turn_on = false
     end
 end
 
 
-local old_WaringEvents
+local old_WarningEvents
 function ShowAllEvent()
-    if not old_WaringEvents then
-        old_WaringEvents = deepcopy(WaringEvents)
+    if not old_WarningEvents then
+        old_WarningEvents = deepcopy(WarningEvents)
     end
 
-    for _, tb in pairs(WaringEvents) do
+    for _, tb in pairs(WarningEvents) do
         tb.gettimefn = function(...)
             return 666
         end
@@ -59,44 +59,44 @@ function ShowAllEvent()
 end
 
 function DefaultEvent()
-    WaringEvents = deepcopy(old_WaringEvents)
+    WarningEvents = deepcopy(old_WarningEvents)
 
-    for waringevent in pairs(WaringEvents) do
-        local event_time = waringevent .. "_time"
-        local event_text = waringevent .. "_text"
-        local waringtimer = TheWorld.net.components.waringtimer
-        waringtimer.inst.replica.waringtimer[event_time]:set(0)
-        waringtimer.inst.replica.waringtimer[event_text]:set("")
+    for warningevent in pairs(WarningEvents) do
+        local event_time = warningevent .. "_time"
+        local event_text = warningevent .. "_text"
+        local warningtimer = TheWorld.net.components.warningtimer
+        warningtimer.inst.replica.warningtimer[event_time]:set(0)
+        warningtimer.inst.replica.warningtimer[event_text]:set("")
     end
 end
 
 -- for client
 
-function ShowAllWaring()
+function ShowAllWarning()
     if not ThePlayer then
         return
     end
 
-    for event, _ in pairs(WaringEvents) do
+    for event, _ in pairs(WarningEvents) do
         ThePlayer.HUD[event].force = true
     end
 end
 
-function HideAllWaring()
+function HideAllWarning()
     if not ThePlayer then
         return
     end
 
-    for event, _ in pairs(WaringEvents) do
+    for event, _ in pairs(WarningEvents) do
         ThePlayer.HUD[event].force = false
     end
 end
 
-function DefaultWaring()
-    HideAllWaring()
+function DefaultWarning()
+    HideAllWarning()
 end
 
-function ShowWaring(event)
+function ShowWarning(event)
     if not ThePlayer then
         return
     end
@@ -106,7 +106,7 @@ function ShowWaring(event)
     end
 end
 
-function HideWaring(event)
+function HideWarning(event)
     if not ThePlayer then
         return
     end

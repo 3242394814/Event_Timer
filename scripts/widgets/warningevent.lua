@@ -3,8 +3,8 @@ local Text = require("widgets/text")
 local Image = require("widgets/image")
 local UIAnim = require("widgets/uianim")
 
-local WaringEvent = Class(Widget, function(self, anim_data, image_data)
-    Widget._ctor(self, "WaringEvent")
+local WarningEvent = Class(Widget, function(self, anim_data, image_data)
+    Widget._ctor(self, "WarningEvent")
 
     self:SetScale(TheFrontEnd:GetHUDScale())
     self:SetHAnchor(1) -- 设置原点x坐标位置，0、1、2分别对应屏幕中、左、右
@@ -48,11 +48,11 @@ local function ConversionTime(data)
     end
 end
 
-function WaringEvent:OnUpdate(data)
+function WarningEvent:OnUpdate(data)
     self.timer:SetString(ConversionTime(data))
 end
 
-function WaringEvent:SetEventAnim(data)
+function WarningEvent:SetEventAnim(data)
     local scale = (data.scale or 0.099)
     self.anim:SetScale(scale)
     self.anim:GetAnimState():SetBank(data.bank)
@@ -79,7 +79,7 @@ function WaringEvent:SetEventAnim(data)
     end
 end
 
-function WaringEvent:SetEventImage(data)
+function WarningEvent:SetEventImage(data)
     local scale = (data.scale or 0.099)
     self.image:SetScale(scale)
     self.image:SetTexture(data.atlas, data.tex)
@@ -88,4 +88,4 @@ function WaringEvent:SetEventImage(data)
     end
 end
 
-return WaringEvent
+return WarningEvent

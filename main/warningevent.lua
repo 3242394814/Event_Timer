@@ -4,28 +4,28 @@ local modimport = modimport
 local RW_Data = RW_Data
 GLOBAL.setfenv(1, GLOBAL)
 
-modimport("main/waringevents")
-local WaringEvent = require("widgets/waringevent")
-local WaringTips = require("widgets/waringtips")
+modimport("main/warningevents")
+local WarningEvent = require("widgets/warningevent")
+local WarningTips = require("widgets/warningtips")
 local game_ready = false
 
-local function AddWaringEvents(self)
+local function AddWarningEvents(self)
     self.inst:DoTaskInTime(2,function()
         game_ready = true
     end)
 
     -- 屏幕左上角提示（出现时伴随提示音）
-    local waringtips_messages = {}
+    local warningtips_messages = {}
     local msgnum = 0
 
     function self:ShowTips(timefn, second)
         if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
         if type(timefn) ~= "function" then return end
         -- 创建新的 widget
-        local message = self:AddChild(WaringTips(self.owner, timefn(), msgnum))
+        local message = self:AddChild(WarningTips(self.owner, timefn(), msgnum))
 
         -- 插入到旧消息列表
-        table.insert(waringtips_messages, message)
+        table.insert(warningtips_messages, message)
 
         -- 启动定时器
         message.inst:DoPeriodicTask(0.5, function() -- 更新倒计时时间
@@ -38,10 +38,10 @@ local function AddWaringEvents(self)
 
         message.inst:DoTaskInTime(second or 10, function() -- 定时销毁
             message:Kill()
-            for i = #waringtips_messages, 1, -1 do
-                local msg = waringtips_messages[i]
+            for i = #warningtips_messages, 1, -1 do
+                local msg = warningtips_messages[i]
                 if msg == message then
-                    table.remove(waringtips_messages, i)
+                    table.remove(warningtips_messages, i)
                 elseif msg and msg.Move then
                     msg:Move()
                 end
@@ -55,53 +55,53 @@ local function AddWaringEvents(self)
     ---------------------------------------------------------------------------------------------------------------
 
     -- 屏幕左上角倒计时
-    self.WaringEventTimeData = {}
+    self.WarningEventTimeData = {}
     local save_data = EventTimer.env.RW_Data:LoadData()
-    for waringevent, data in pairs(WaringEvents) do
-        self[waringevent] = self:AddChild(WaringEvent(data.anim, data.image))
-        self[waringevent]:Hide()
-        self[waringevent].force = save_data[waringevent] -- 读取存储的数据来决定是否显示计时器在屏幕左上角
+    for warningevent, data in pairs(WarningEvents) do
+        self[warningevent] = self:AddChild(WarningEvent(data.anim, data.image))
+        self[warningevent]:Hide()
+        self[warningevent].force = save_data[warningevent] -- 读取存储的数据来决定是否显示计时器在屏幕左上角
     end
 
-    function self:UpdateWaringEvents()
-        local eventsdata = self.WaringEventTimeData
+    function self:UpdateWarningEvents()
+        local eventsdata = self.WarningEventTimeData
         local i = 0
         local line_num = 2
         local scale = TheFrontEnd:GetHUDScale()
-        for waringevent, data in pairs(WaringEvents) do
+        for warningevent, data in pairs(WarningEvents) do
             local row = math.floor(i/line_num)
             local line = i - row * line_num
             local x = (row * 150 + 80) * scale
             local y = (-line * 70 - 30) * scale
 
-            self[waringevent]:SetPosition(x, y, 0)
-            local time = eventsdata[waringevent .. "_time"] -- 屏幕左上角倒计时只显示time，不显示text，因为text内容太多
+            self[warningevent]:SetPosition(x, y, 0)
+            local time = eventsdata[warningevent .. "_time"] -- 屏幕左上角倒计时只显示time，不显示text，因为text内容太多
 
-            if self[waringevent].last_time == time then
-                self[waringevent].sametick = (self[waringevent].sametick or 0) + 1
+            if self[warningevent].last_time == time then
+                self[warningevent].sametick = (self[warningevent].sametick or 0) + 1
             else
-                self[waringevent].sametick = 0
+                self[warningevent].sametick = 0
             end
 
             if data.gettimefn then
-                if not self[waringevent].force or ((time and time <= 0)or self[waringevent].sametick >= 100) then
-                    if self[waringevent].shown then
-                        self[waringevent]:Hide()
+                if not self[warningevent].force or ((time and time <= 0)or self[warningevent].sametick >= 100) then
+                    if self[warningevent].shown then
+                        self[warningevent]:Hide()
                     end
                 else
-                    if not self[waringevent].shown then
+                    if not self[warningevent].shown then
                         if data.animchangefn then
                             data:animchangefn()
-                            self[waringevent]:SetEventAnim(data.anim)
+                            self[warningevent]:SetEventAnim(data.anim)
                         elseif data.imagechangefn then
                             data:imagechangefn()
-                            self[waringevent]:SetEventImage(data.image)
+                            self[warningevent]:SetEventImage(data.image)
                         end
-                        self[waringevent]:Show()
+                        self[warningevent]:Show()
                     end
-                    self[waringevent].last_time = time
+                    self[warningevent].last_time = time
 
-                    self[waringevent]:OnUpdate(time)
+                    self[warningevent]:OnUpdate(time)
 
                     i = i + 1
                 end
@@ -109,9 +109,9 @@ local function AddWaringEvents(self)
 
             if time and data.tipsfn and game_ready then
                 local need_tips, tipstextfn, tipstime, delay = data.tipsfn()
-                self[waringevent].last_tips = self[waringevent].last_tips or false
-                if need_tips and not self[waringevent].last_tips then
-                    self[waringevent].last_tips = true
+                self[warningevent].last_tips = self[warningevent].last_tips or false
+                if need_tips and not self[warningevent].last_tips then
+                    self[warningevent].last_tips = true
                     if delay and TheWorld then
                         TheWorld:DoTaskInTime(delay, function() -- 延迟提示
                             self:ShowTips(tipstextfn, tipstime)
@@ -120,14 +120,14 @@ local function AddWaringEvents(self)
                         self:ShowTips(tipstextfn, tipstime)
                     end
                 elseif not need_tips then
-                    self[waringevent].last_tips = false
+                    self[warningevent].last_tips = false
                 end
             end
         end
     end
 end
 
-AddClassPostConstruct("screens/playerhud", AddWaringEvents)
+AddClassPostConstruct("screens/playerhud", AddWarningEvents)
 
 local network_worlds = {
     "forest",
@@ -143,13 +143,13 @@ for i, world in ipairs(network_worlds) do
             return
         end
 
-        inst:AddComponent("waringtimer")
+        inst:AddComponent("warningtimer")
     end)
 end
 
 ---------------------------------------------------------------------------------------------------------------
 
-local TarnsferPanel = require("widgets/WaringEventUI")
+local TarnsferPanel = require("widgets/WarningEventUI")
 local UIAnim = require "widgets/uianim"
 local Button = require("widgets/button")
 local EventUIButton = Class(Button, function(self, owner)
@@ -225,8 +225,8 @@ function EventUIButton:ToggleEventTimerUI()
     end
 end
 
-local function AddWaringEventsHUD(self)
+local function AddWarningEventsHUD(self)
     self.EventTimerButton = self:AddChild(EventUIButton(self))
 end
 
-AddClassPostConstruct("screens/playerhud", AddWaringEventsHUD)
+AddClassPostConstruct("screens/playerhud", AddWarningEventsHUD)

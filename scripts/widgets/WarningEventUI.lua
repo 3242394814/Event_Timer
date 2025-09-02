@@ -9,8 +9,8 @@ local Widget = require "widgets/widget"
 local TEMPLATES = require "widgets/redux/templates"
 local UIAnim = require "widgets/uianim"
 
-local WaringEventHUD = Class(Widget, function(self, owner)
-    Widget._ctor(self, "WaringEventHUD")
+local WarningEventHUD = Class(Widget, function(self, owner)
+    Widget._ctor(self, "WarningEventHUD")
     self.owner = owner
     self.isopen = true
     self:SetPosition(0, 0, 0)
@@ -195,10 +195,10 @@ local WaringEventHUD = Class(Widget, function(self, owner)
 end)
 
 -- 更新数据
-function WaringEventHUD:UpdateDestItem()
+function WarningEventHUD:UpdateDestItem()
     local data_list = {}
-    local eventsdata = ThePlayer.HUD.WaringEventTimeData
-    for name, value in pairs(WaringEvents) do
+    local eventsdata = ThePlayer.HUD.WarningEventTimeData
+    for name, value in pairs(WarningEvents) do
         local datatext = eventsdata[name .. "_text"]
         local datatime = eventsdata[name .. "_time"]
         if type(datatext) == "string" and datatext ~= "" then
@@ -213,7 +213,7 @@ function WaringEventHUD:UpdateDestItem()
 end
 
 -- 关闭面板
-function WaringEventHUD:Close()
+function WarningEventHUD:Close()
     if self.isopen then
         self.attach = nil
         self.panel:Kill()
@@ -224,7 +224,7 @@ function WaringEventHUD:Close()
 end
 
 -- 定义每一项内的控件布局
-function WaringEventHUD:InitDestItem()
+function WarningEventHUD:InitDestItem()
     local dest = Widget("destination")
     local width, height = 550, 125
     dest.backing = dest:AddChild(TEMPLATES.ListItemBackground(width, height, function() end))
@@ -254,4 +254,4 @@ function WaringEventHUD:InitDestItem()
     return dest
 end
 
-return WaringEventHUD
+return WarningEventHUD

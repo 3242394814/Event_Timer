@@ -63,63 +63,63 @@ local function get_new_text(v, datatext)
     end
 end
 
-local WaringTimer = Class(function(self, inst)
+local WarningTimer = Class(function(self, inst)
 	self.inst = inst
 
-    for waringevent in pairs(WaringEvents) do
-        self[waringevent .. "_time"] = net_shortint(inst.GUID, waringevent .. "_time", "waringevent_dirty")
-        self[waringevent .. "_time_shardrpc"] = net_shortint(inst.GUID, waringevent .. "_time_shardrpc", "waringevent_dirty")
-        self[waringevent .. "_text"] = net_string(inst.GUID, waringevent .. "_text", "waringevent_dirty")
-        self[waringevent .. "_text_shardrpc"] = net_string(inst.GUID, waringevent .. "_text_shardrpc", "waringevent_dirty")
+    for warningevent in pairs(WarningEvents) do
+        self[warningevent .. "_time"] = net_shortint(inst.GUID, warningevent .. "_time", "warningevent_dirty")
+        self[warningevent .. "_time_shardrpc"] = net_shortint(inst.GUID, warningevent .. "_time_shardrpc", "warningevent_dirty")
+        self[warningevent .. "_text"] = net_string(inst.GUID, warningevent .. "_text", "warningevent_dirty")
+        self[warningevent .. "_text_shardrpc"] = net_string(inst.GUID, warningevent .. "_text_shardrpc", "warningevent_dirty")
 
         if not TheNet:IsDedicated() then
-            inst:ListenForEvent("waringevent_dirty", function(inst) self:OnWaringEventDirty(inst) end)
+            inst:ListenForEvent("warningevent_dirty", function(inst) self:OnWarningEventDirty(inst) end)
         end
     end
 end)
 
 local update_task
-function WaringTimer:OnWaringEventDirty(inst)
+function WarningTimer:OnWarningEventDirty(inst)
     if not ThePlayer or not ThePlayer.HUD then
         return
     end
     local eventstime = {}
-    for waringevent in pairs(WaringEvents) do
-        eventstime[waringevent .. "_text"] = inst.replica.waringtimer[waringevent .. "_text"]:value() ~= "" and inst.replica.waringtimer[waringevent .. "_text"]:value()
-                                            or inst.replica.waringtimer[waringevent .. "_text_shardrpc"]:value() ~= "" and inst.replica.waringtimer[waringevent .. "_text_shardrpc"]:value()
+    for warningevent in pairs(WarningEvents) do
+        eventstime[warningevent .. "_text"] = inst.replica.warningtimer[warningevent .. "_text"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text"]:value()
+                                            or inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value()
                                             or ""
 
-        eventstime[waringevent .. "_time"] = inst.replica.waringtimer[waringevent .. "_time"]:value() > 0 and inst.replica.waringtimer[waringevent .. "_time"]:value()
-                                            or inst.replica.waringtimer[waringevent .. "_time_shardrpc"]:value() ~= 0 and inst.replica.waringtimer[waringevent .. "_time_shardrpc"]:value()
+        eventstime[warningevent .. "_time"] = inst.replica.warningtimer[warningevent .. "_time"]:value() > 0 and inst.replica.warningtimer[warningevent .. "_time"]:value()
+                                            or inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value() ~= 0 and inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value()
                                             or 0
     end
-    ThePlayer.HUD.WaringEventTimeData = eventstime
-    ThePlayer.HUD:UpdateWaringEvents()
+    ThePlayer.HUD.WarningEventTimeData = eventstime
+    ThePlayer.HUD:UpdateWarningEvents()
     if not update_task and UpdateTime > 1 then
         print("[全局世界计时器] 开启客户端预测功能！")
         update_task = inst:DoPeriodicTask(1, function() self:OnUpdate(inst) end)
     end
 end
 
-function WaringTimer:OnUpdate(inst) -- 每秒运行一次
+function WarningTimer:OnUpdate(inst) -- 每秒运行一次
     if not EventTimer.ClientPrediction then return end
     local Dirty = false
-    for waringevent in pairs(WaringEvents) do
+    for warningevent in pairs(WarningEvents) do
 
         ----------------------------------------time---------------------------------------
 
-        local time          = self[waringevent .. "_time"]:value() -- 本世界time
-        local time_shardrpc = self[waringevent .. "_time_shardrpc"]:value() -- 其它世界time
+        local time          = self[warningevent .. "_time"]:value() -- 本世界time
+        local time_shardrpc = self[warningevent .. "_time_shardrpc"]:value() -- 其它世界time
 
         time = time - 1
         if time >= 0 then
-            self[waringevent .. "_time"]:set_local(time)
+            self[warningevent .. "_time"]:set_local(time)
             Dirty = true
         end
 
         time_shardrpc = time_shardrpc - 1
         if time_shardrpc >= 0 then
-            self[waringevent .. "_time_shardrpc"]:set_local(time_shardrpc)
+            self[warningevent .. "_time_shardrpc"]:set_local(time_shardrpc)
             Dirty = true
         end
 
@@ -127,9 +127,9 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
 
         local new_text, shard_new_text
 
-        local datatext = self[waringevent .. "_text"]:value() -- 本世界text
+        local datatext = self[warningevent .. "_text"]:value() -- 本世界text
 
-        local datatext_shardrpc  = self[waringevent .. "_text_shardrpc"]:value() -- 其它世界text
+        local datatext_shardrpc  = self[warningevent .. "_text_shardrpc"]:value() -- 其它世界text
         local time_text_shardrpc -- 其它世界的time_text
         local time_text_fromShard -- 来自哪个世界
 
@@ -158,17 +158,17 @@ function WaringTimer:OnUpdate(inst) -- 每秒运行一次
         end
 
         if new_text then
-            self[waringevent .. "_text"]:set_local(new_text) -- 更新text
+            self[warningevent .. "_text"]:set_local(new_text) -- 更新text
             Dirty = true
         elseif shard_new_text then
-            self[waringevent .. "_text_shardrpc"]:set_local(shard_new_text) -- 更新text
+            self[warningevent .. "_text_shardrpc"]:set_local(shard_new_text) -- 更新text
             Dirty = true
         end
     end
 
     if Dirty then
-        self:OnWaringEventDirty(inst) -- 更新数据
+        self:OnWarningEventDirty(inst) -- 更新数据
     end
 end
 
-return WaringTimer
+return WarningTimer
