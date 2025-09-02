@@ -47,6 +47,13 @@ all_clients_require_mod = true
 client_only_mod = false
 server_only_mod = false
 
+server_filter_tags = {
+    "全局事件计时器 V" .. version,
+    "Global Events Timer V" .. version,
+}
+
+icon_atlas = "images/modicon.xml"
+icon = "modicon.tex"
 
 local options_enable = {
 	{description = en_zh("Disabled", "关闭"), data = false},
