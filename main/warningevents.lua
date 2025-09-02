@@ -839,7 +839,7 @@ WarningEvents = {
     },
     riftspawner = { -- 裂隙生成倒计时
         gettimefn = function() -- 当裂隙出现时，不显示
-            if TheWorld and (TheWorld.net.components.Warningtimer.inst.replica.Warningtimer.rift_portal_text:value() or TheWorld.net.components.Warningtimer.inst.replica.Warningtimer.shadowrift_portal_text:value() == "") then
+            if TheWorld and (TheWorld.net.components.warningtimer.inst.replica.warningtimer.rift_portal_text:value() or TheWorld.net.components.warningtimer.inst.replica.warningtimer.shadowrift_portal_text:value() == "") then
                 return GetWorldSettingsTimeLeft("rift_spawn_timer")()
             end
         end,

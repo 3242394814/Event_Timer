@@ -36,7 +36,7 @@ STRINGS.eventtimer = {
             volcano =  "警告：<prefab=crocodog>攻击开始！！！",
             porkland = "警告：<prefab=vampirebat>攻击开始！！！",
         },
-        worm_boss_chance = "<prefab=worm>会在%s后攻击\n<prefab=worm_boss> 概率: %s%%",
+        worm_boss_chance = "<prefab=worm>将在%s后攻击\n<prefab=worm_boss> 概率: %s%%",
     },
     deerclopsspawner = { -- 独眼巨鹿
         cooldown = "<prefab=deerclops>会在%s后生成",
