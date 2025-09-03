@@ -217,3 +217,4 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
 -- gettextfn must return a string. The value is saved to GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_text
 
 -- Finally, enable this mod and your mod together. Your mod must load after this mod.
+-- The events of this mod are recorded in main/warningevents.lua

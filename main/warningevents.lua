@@ -839,9 +839,12 @@ WarningEvents = {
     },
     riftspawner = { -- 裂隙生成倒计时
         gettimefn = function() -- 当裂隙出现时，不显示
-            if TheWorld and (TheWorld.net.components.warningtimer.inst.replica.warningtimer.rift_portal_text:value() or TheWorld.net.components.warningtimer.inst.replica.warningtimer.shadowrift_portal_text:value() == "") then
-                return GetWorldSettingsTimeLeft("rift_spawn_timer")()
+            if TheWorld and TheWorld:HasTag("forest") and TheWorld.net.components.warningtimer.inst.replica.warningtimer.rift_portal_text:value() ~= "" then
+                return
+            elseif TheWorld and TheWorld:HasTag("cave") and TheWorld.net.components.warningtimer.inst.replica.warningtimer.shadowrift_portal_text:value() ~= "" then
+                return
             end
+            return GetWorldSettingsTimeLeft("rift_spawn_timer")()
         end,
         image = {
             atlas = "images/Rift_Split.xml",

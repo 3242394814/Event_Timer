@@ -6,6 +6,7 @@ local UIAnim = require("widgets/uianim")
 local WarningTips = Class(Widget, function(self, owner, text, msgnum)
     Widget._ctor(self, "WarningTips")
     self:SetScale(2, 2)
+    self:SetClickable(false)
     self.Alpha = 0
     self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", WEBCOLOURS["ORANGE"]))
     local w, h = self.text:GetRegionSize() -- 获取文字区域大小

@@ -10,7 +10,6 @@ local TimerPrefabList = {
     "crabking_spawner",
     "crabking_spawner",
     "atrium_gate",
-    "lunarthrall_plantspawner", -- 致命亮茄
     "lunarrift_portal", -- 月亮裂隙
     "shadowrift_portal", -- 暗影裂隙
     "pugalisk_fountain", -- 猪镇：不老泉

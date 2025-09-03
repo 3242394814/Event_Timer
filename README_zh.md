@@ -196,3 +196,4 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
 
 -- 最后，将本模组和你的模组一起启用即可
 -- 注意，你的模组加载应晚于本模组
+-- 本模组的各事件记录在 main/warningevents.lua 里
