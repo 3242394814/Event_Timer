@@ -6,6 +6,7 @@ local UIAnim = require("widgets/uianim")
 local WarningEvent = Class(Widget, function(self, anim_data, image_data)
     Widget._ctor(self, "WarningEvent")
 
+    self:SetClickable(false)
     self:SetScale(TheFrontEnd:GetHUDScale())
     self:SetHAnchor(1) -- 设置原点x坐标位置，0、1、2分别对应屏幕中、左、右
     self:SetVAnchor(1) -- 设置原点y坐标位置，0、1、2分别对应屏幕中、上、下

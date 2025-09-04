@@ -1093,7 +1093,7 @@ WarningEvents = {
         image = {
 			atlas = "images/Dreadstone_Outcrop.xml",
 			tex = "Dreadstone_Outcrop.tex",
-            scale = 1,
+            scale = 0.5,
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.shadowthrallmanager_text

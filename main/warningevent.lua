@@ -156,6 +156,8 @@ local EventUIButton = Class(Button, function(self, owner)
     Button._ctor(self)
     self.owner = owner
 
+    self:SetScaleMode(SCALEMODE_PROPORTIONAL)
+    self:SetMaxPropUpscale(MAX_HUD_SCALE)
     self:SetVAnchor(ANCHOR_RIGHT)
     self:SetHAnchor(ANCHOR_BOTTOM)
 
@@ -167,7 +169,7 @@ local EventUIButton = Class(Button, function(self, owner)
     if save_data.pos and save_data.pos.x and save_data.pos.y then
         self.openbutton:SetPosition(save_data.pos.x, save_data.pos.y, 0)
     else
-        self.openbutton:SetPosition(-65, 250, 0)
+        self.openbutton:SetPosition(-55, 200, 0)
     end
 
     -- 动画
@@ -175,7 +177,7 @@ local EventUIButton = Class(Button, function(self, owner)
     self.openbutton:GetAnimState():SetBank("pocketwatch")
     self.openbutton:GetAnimState():PlayAnimation("cooldown_long", true)
     self.openbutton:GetAnimState():Pause() -- 默认暂停动画
-    self.openbutton:SetScale(0.45, 0.45) -- 设置缩放比
+    self.openbutton:SetScale(0.3, 0.3) -- 设置缩放比
     self.openbutton:SetHoverText(STRINGS.eventtimer.ui_desc, { offset_y = 70 })
     self.openbutton.hovertext:SetScale(0.9, 0.9) -- 重新设置提示大小
 
