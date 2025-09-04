@@ -9,10 +9,14 @@ menv.FrontEndAssets = {
 }
 
 local function DoFnForCurrentScreen(fn)
-	local CurrentScreen = TheFrontEnd:GetActiveScreen()
-	if CurrentScreen then
-		fn(CurrentScreen)
-	end
+	scheduler:ExecuteInTime(0, function()
+		for _, screen in ipairs(TheFrontEnd.screenstack) do
+			if screen.name == "ServerCreationScreen" then
+				fn(screen)
+				break
+			end
+		end
+	end)
 end
 
 local function AddDynamicIcon(self, root, s, x, y)
