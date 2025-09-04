@@ -941,6 +941,13 @@ WarningEvents = {
 			tex = "lunarrift_portal.png",
             scale = 1,
         },
+        announcefn = function()
+            local text = ThePlayer.HUD.WarningEventTimeData.rift_portal_text
+            if text then
+                text = string.gsub(text,"\n",", ")
+                return STRINGS.eventtimer.rift_portal.name .. ": " .. text
+            end
+        end,
     },
 
     ---------------------------------------- Cave ----------------------------------------
@@ -973,6 +980,13 @@ WarningEvents = {
 			tex = "shadowrift_portal.png",
             scale = 1,
         },
+        announcefn = function()
+            local text = ThePlayer.HUD.WarningEventTimeData.shadowrift_portal_text
+            if text then
+                text = string.gsub(text,"\n",", ")
+                return STRINGS.eventtimer.shadowrift_portal.name .. ": " .. text
+            end
+        end,
     },
     daywalkerspawner = { -- 梦魇疯猪
         gettimefn = function()

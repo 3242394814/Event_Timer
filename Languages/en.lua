@@ -112,11 +112,13 @@ STRINGS.eventtimer = {
 		remain_waves = "%s waves remaining",
 	},
     rift_portal = {
+        name = "Lunar Rifts",
 		next_stage = "Next stage in %s.",
 		crystals = "<prefab=lunarrift_crystal_big>: %s available / %s total / %s max",
 		next_crystal = "Next <prefab=lunarrift_crystal_big> spawns in %s",
 	},
     shadowrift_portal = {
+        name = "Shadow Rifts",
         close = "<prefab=shadowrift_portal> will close in %s",
     },
 

@@ -112,11 +112,13 @@ STRINGS.eventtimer = {
 		remain_waves = "剩余%s波",
 	},
     rift_portal = { -- 月亮裂隙
+        name = "月亮裂隙",
 		next_stage = "%s后进入下一阶段",
 		crystals = "<prefab=lunarrift_crystal_big>: %s可用 / %s总共 / %s最大",
 		next_crystal = "下一波<prefab=lunarrift_crystal_big>生成于%s后",
 	},
     shadowrift_portal = { -- 暗影裂隙
+        name = "暗影裂隙",
         close = "<prefab=shadowrift_portal>将关闭于%s后",
     },
 
