@@ -662,6 +662,7 @@ WarningEvents = {
     },
     moon = {
         gettextfn = function()
+            if TheWorld:HasTag("cave") or TheWorld:HasTag("volcano") then return end
             local self = TheWorld.net.components.clock
             if not self then return end
             local MOON_PHASE_CYCLES = Upvaluehelper.FindUpvalue(self.OnUpdate, "MOON_PHASE_CYCLES", nil, nil, nil, "scripts/components/clock.lua", nil)
@@ -967,7 +968,7 @@ WarningEvents = {
             end
 
             if rift_close_time and inst._stage == TUNING.RIFT_SHADOW1_MAXSTAGE then
-                stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.shadowrift_portal.close, TimeToString(rift_close_time))
+                stage_info = stage_info .. ": " .. string.format(ReplacePrefabName(STRINGS.eventtimer.shadowrift_portal.close), TimeToString(rift_close_time))
             elseif inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) then
                 stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.rift_portal.next_stage, TimeToString(inst.components.timer:GetTimeLeft(STAGE_GROWTH_TIMER)))
             end
@@ -1122,7 +1123,19 @@ WarningEvents = {
         end
     },
     atrium_gate = {
-        gettimefn = GetWorldSettingsTimeLeft("cooldown", "atrium_gate"),
+        gettimefn = function()
+            if not (TimerPrefabs.atrium_gate and TimerPrefabs.atrium_gate.components.worldsettingstimer) then return end
+            return GetWorldSettingsTimeLeft("cooldown", "atrium_gate")() or GetWorldSettingsTimeLeft("destabilizing", "atrium_gate")()
+        end,
+        gettextfn = function(time)
+            if time and time > 0 then
+                if GetWorldSettingsTimeLeft("cooldown", "atrium_gate")() then
+                    return string.format(ReplacePrefabName(STRINGS.eventtimer.atrium_gate.cooldown), TimeToString(time))
+                else
+                    return string.format(STRINGS.eventtimer.atrium_gate.destabilizing, TimeToString(time))
+                end
+            end
+        end,
         anim = {
             scale = 0.06,
             bank = "atrium_gate",
@@ -1135,8 +1148,13 @@ WarningEvents = {
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.atrium_gate_time
-            return time and string.format(ReplacePrefabName(STRINGS.eventtimer.atrium_gate.cooldown), TimeToString(time))
-        end
+            local text = ThePlayer.HUD.WarningEventTimeData.atrium_gate_text
+            if text and string.find(text, ReplacePrefabName("<prefab=atrium_gate>")) then
+                return time and string.format(ReplacePrefabName(STRINGS.eventtimer.atrium_gate.cooldown), TimeToString(time))
+            else
+                return time and string.format(STRINGS.eventtimer.atrium_gate.destabilizing, TimeToString(time))
+            end
+        end,
     },
     nightmareclock = {
         gettimefn = NightmareWild, -- 仅返回倒计时

@@ -127,7 +127,7 @@ AddGamePostInit(function()
             }
         }
         )
-    else
+    elseif TheNet:GetIsClient() then
         print("[全局事件计时器] 未检测到玩家开启萌萌的新的【模组设置】","HasMOD_util = ", HasMOD_util)
     end
 end)

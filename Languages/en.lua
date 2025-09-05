@@ -139,6 +139,7 @@ STRINGS.eventtimer = {
     },
     atrium_gate = {
 		cooldown = "<prefab=atrium_gate> will reset in %s.",
+        destabilizing = "The ruins will reset in %s.",
     },
     nightmareclock = {
         phase_locked_text = "Locked by the Ancient Key",

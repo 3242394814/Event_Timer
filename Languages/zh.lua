@@ -139,6 +139,7 @@ STRINGS.eventtimer = {
     },
     atrium_gate = { -- 远古大门
 		cooldown = "<prefab=atrium_gate>会重置于%s后",
+        destabilizing = "远古遗迹会重置于%s后",
     },
     nightmareclock = { -- 遗迹当前阶段
         phase_locked_text = "被远古钥匙锁住",

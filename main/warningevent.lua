@@ -77,14 +77,14 @@ local function AddWarningEvents(self)
             self[warningevent]:SetPosition(x, y, 0)
             local time = eventsdata[warningevent .. "_time"] -- 屏幕左上角倒计时只显示time，不显示text，因为text内容太多
 
-            if self[warningevent].last_time == time then
-                self[warningevent].sametick = (self[warningevent].sametick or 0) + 1
-            else
-                self[warningevent].sametick = 0
-            end
+            -- if self[warningevent].last_time == time then
+            --     self[warningevent].sametick = (self[warningevent].sametick or 0) + 1
+            -- else
+            --     self[warningevent].sametick = 0
+            -- end
 
             if data.gettimefn then
-                if not self[warningevent].force or ((time and time <= 0)or self[warningevent].sametick >= 100) then
+                if not self[warningevent].force or ((time and time <= 0) --[[or self[warningevent].sametick >= 100]]) then
                     if self[warningevent].shown then
                         self[warningevent]:Hide()
                     end
@@ -99,7 +99,7 @@ local function AddWarningEvents(self)
                         end
                         self[warningevent]:Show()
                     end
-                    self[warningevent].last_time = time
+                    -- self[warningevent].last_time = time
 
                     self[warningevent]:OnUpdate(time)
 
