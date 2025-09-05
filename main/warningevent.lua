@@ -150,7 +150,7 @@ end
 ---------------------------------------------------------------------------------------------------------------
 
 local TarnsferPanel = require("widgets/WarningEventUI")
-local UIAnim = require "widgets/uianim"
+local UIAnimButton = require("widgets/uianimbutton")
 local Button = require("widgets/button")
 local EventUIButton = Class(Button, function(self, owner)
     Button._ctor(self)
@@ -161,8 +161,8 @@ local EventUIButton = Class(Button, function(self, owner)
     self:SetVAnchor(ANCHOR_RIGHT)
     self:SetHAnchor(ANCHOR_BOTTOM)
 
-    -- 在屏幕顶部添加一个按钮，用来触发面板的显示与关闭
-    self.openbutton = self:AddChild(UIAnim())
+    -- 在屏幕添加一个按钮，用来触发面板的显示与关闭
+    self.openbutton = self:AddChild(UIAnimButton("pocketwatch","pocketwatch_marble","cooldown_long"))
 
     -- 设置位置
     local save_data = RW_Data:LoadData()
@@ -172,19 +172,26 @@ local EventUIButton = Class(Button, function(self, owner)
         self.openbutton:SetPosition(-55, 200, 0)
     end
 
-    -- 动画
-    self.openbutton:GetAnimState():SetBuild("pocketwatch_marble")
-    self.openbutton:GetAnimState():SetBank("pocketwatch")
-    self.openbutton:GetAnimState():PlayAnimation("cooldown_long", true)
-    self.openbutton:GetAnimState():Pause() -- 默认暂停动画
+    self.openbutton.animstate:Pause() -- 默认暂停动画
     self.openbutton:SetScale(0.3, 0.3) -- 设置缩放比
     self.openbutton:SetHoverText(STRINGS.eventtimer.ui_desc, { offset_y = 70 })
     self.openbutton.hovertext:SetScale(0.9, 0.9) -- 重新设置提示大小
-
-    self:SetClickable(true)
-    self:SetOnClick(function()
+    self.openbutton.onclick = function()
         self:ToggleEventTimerUI()
+    end
+
+    self.openbutton.OnControl = self.OnControl -- 将UIAnimButton的OnControl 改为 Button的OnControl
+
+    -- 鼠标对准时播放动画
+    self.openbutton:SetOnFocus(function()
+        self.openbutton.animstate:Resume()
     end)
+
+    -- 鼠标离开时暂停动画
+    self.openbutton:SetOnLoseFocus(function()
+        self.openbutton.animstate:Pause()
+    end)
+
 
     -- 鼠标右键拖拽
     self.openbutton.OnMouseButton = function(_self, button, down, x, y)
@@ -207,15 +214,9 @@ local EventUIButton = Class(Button, function(self, owner)
             save_data = nil
         end
     end
+
+    self:Refresh()
 end)
-
-function EventUIButton:OnGainFocus() -- 鼠标对准时播放动画
-    self.openbutton:GetAnimState():Resume()
-end
-
-function EventUIButton:OnLoseFocus() -- 鼠标离开时暂停动画
-    self.openbutton:GetAnimState():Pause()
-end
 
 -- 开关面板
 function EventUIButton:ToggleEventTimerUI()
@@ -227,8 +228,50 @@ function EventUIButton:ToggleEventTimerUI()
     end
 end
 
-local function AddWarningEventsHUD(self)
-    self.EventTimerButton = self:AddChild(EventUIButton(self))
+-- 刷新UI按钮显示状态
+function EventUIButton:Refresh()
+    if EventTimer.UIButton ~= "always" then
+        self.openbutton:Hide()
+    else
+        self.openbutton:Show()
+    end
 end
 
-AddClassPostConstruct("screens/playerhud", AddWarningEventsHUD)
+AddClassPostConstruct("screens/playerhud", function(self)
+    self.EventTimerButton = self:AddChild(EventUIButton(self))
+end)
+
+-- 为暂停页面添加按钮
+AddClassPostConstruct("screens/redux/pausescreen", function(self)
+    local EventUIButton = self.menu:AddChild(UIAnimButton("pocketwatch","pocketwatch_marble","cooldown_long"))
+
+    EventUIButton.animstate:Pause()
+    EventUIButton:SetScale(0.5)
+
+    EventUIButton:SetClickable(true)
+    EventUIButton.onclick = function()
+        self:unpause()
+        ThePlayer.HUD.EventTimerButton:ToggleEventTimerUI()
+    end
+
+    EventUIButton.OnControl = Button.OnControl -- 将UIAnimButton的OnControl 改为 Button的OnControl
+
+    EventUIButton:SetHoverText(STRINGS.LMB .. STRINGS.eventtimer.ui_title, { offset_y = 70 })
+    EventUIButton:SetPosition(-RESOLUTION_X * 0.17, -RESOLUTION_Y * 0.35, 0)
+
+    -- 鼠标对准时播放动画
+    EventUIButton:SetOnFocus(function()
+        EventUIButton.animstate:Resume()
+    end)
+
+    -- 鼠标离开时暂停动画
+    EventUIButton:SetOnLoseFocus(function()
+        EventUIButton.animstate:Pause()
+    end)
+
+    if EventTimer.UIButton == "pause_screen" then
+        EventUIButton:Show()
+    else
+        EventUIButton:Hide()
+    end
+end)

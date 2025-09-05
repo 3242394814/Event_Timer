@@ -161,21 +161,12 @@ end
 
 ----------------------------------------模组环境映射到全局环境---------------------------------------
 
-local HasMOD_util, MOD_util = GLOBAL.pcall(require, "utils/MOD_util")
-
-local function GetModConfig(name, client, default)
-    if HasMOD_util then
-        return MOD_util:GetMOption(name, default)
-    else
-        return GetModConfigData(name, client)
-    end
-end
-
 local env = env
 GLOBAL.EventTimer = {
     env = env,
+    UIButton = GetModConfigData("UIButton", true), -- UI开关何时显示
     UpdateTime = GetModConfigData("UpdateTime", false), -- 服务器数据更新频率
-    ClientPrediction = GetModConfig("ClientPrediction", true, true), -- 客户端预测倒计时
+    ClientPrediction = GetModConfigData("ClientPrediction", true), -- 客户端预测倒计时
     TimerMode = GetModConfigData("BossTimer", true), -- 倒计时格式
     TimerTips = GetModConfigData("ShowTips", true), -- 醒目提示
     SyncTimer = GetModConfigData("SyncTimer", false), -- 跨世界同步计时
@@ -244,39 +235,3 @@ local function ModFollowMouse(self)
     end
 end
 env.AddClassPostConstruct("widgets/widget", ModFollowMouse)
-
-----------------------------------------兼容萌萌的新的模组设置---------------------------------------
-
-if HasMOD_util and MOD_util:CanAddSetting() then
-    local pagename = "事件计时器"
-    local pageorder = 1
-    local buttonname = pagename
-    local pagetitle = "事件计时器模组设置"
-    local enabledisableoption = { { text = "关闭", data = false }, { text = "开启", data = true } }
-    MOD_util:CreatePage(pagename, {
-        title = pagetitle,
-        buttondata = { name = buttonname },
-        order = pageorder,
-        all_options = {
-            {
-                description = "客户端预测倒计时", -- 名称
-                key = "ClientPrediction", -- 对应设置项
-                default = true, -- 默认选项
-                options = enabledisableoption, -- 选项列表
-                onapplyfn = function()
-                    EventTimer.ClientPrediction = MOD_util:GetMOption("ClientPrediction", true)
-                end
-            },
-            {
-                description = "醒目提示", -- 名称
-                key = "ShowTips", -- 对应设置项
-                default = true, -- 默认选项
-                options = enabledisableoption, -- 选项列表
-                onapplyfn = function()
-                    EventTimer.TimerTips = MOD_util:GetMOption("ShowTips", true)
-                end
-            },
-        }
-    }
-    )
-end

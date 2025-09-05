@@ -36,8 +36,8 @@ icon_atlas = "images/modicon.xml"
 icon = "modicon.tex"
 
 local options_enable = {
-	{description = en_zh("Disabled", "关闭"), data = false},
 	{description = en_zh("Enabled", "开启"), data = true},
+	{description = en_zh("Disabled", "关闭"), data = false},
 }
 
 
@@ -53,6 +53,17 @@ configuration_options = {
             {description = en_zh("Auto", "自动"), data = "auto", hover = en_zh("Automatically set according to the game language", "根据游戏语言自动设置")},
         },
         default = "auto",
+    },
+    {
+        name = "UIButton",
+        label = en_zh("UI Button Visibility", "UI开关何时显示"),
+        hover = en_zh("Choose when the UI button is visible", "选择UI开关在什么情况下显示"),
+        options = {
+            {description = en_zh("Always Visible", "始终显示"), data = "always"},
+            {description = en_zh("Pause Menu", "在暂停页面显示"), hover = en_zh("Visible when you press ESC to open the pause menu", "按ESC打开暂停页面时显示"), data = "pause_screen"},
+        },
+        default = "always",
+        client = true,
     },
     {
         name = "UpdateTime",
