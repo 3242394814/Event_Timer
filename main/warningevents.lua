@@ -486,7 +486,7 @@ WarningEvents = {
     beargerspawner = {
         gettimefn = GetWorldSettingsTimeLeft("bearger_timetospawn"),
         gettextfn = function(time)
-            local self = TheWorld.components.beargerspawn
+            local self = TheWorld.components.beargerspawner
             if not self then return end
             local description
             local target = Upvaluehelper.GetUpvalue(self.OnUpdate, "_targetplayer")
