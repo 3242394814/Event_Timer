@@ -54,8 +54,8 @@ local function get_new_text(v, datatext)
                 end
             end
         end
-        v = v:gsub("([%%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
-        v = v:gsub("%%%%s", "%%s")
+        v = v:gsub("%%([^sd%%])", "%%%%%1")
+        v = v:gsub("%%$", "%%%%")
         local new_text = string.format(ReplacePrefabName(v), unpack(results))
         return new_text
     else

@@ -269,17 +269,17 @@ WarningEvents = {
         forestimage = {
             atlas = "images/Hound.xml",
 		    tex = "Hound.tex",
-            scale = 0.4,
+            scale = 0.35,
         },
         caveimage = {
             atlas = "images/Depths_Worm.xml",
             tex = "Depths_Worm.tex",
-            scale = 0.25,
+            scale = 0.2,
         },
         wormbossimage = {
             atlas = "images/Worm_boss.xml",
             tex = "Worm_boss.tex",
-            scale = 0.25,
+            scale = 0.2,
         },
         animchangefn = ChangeanimByWorld,
         forestanim = {
@@ -292,7 +292,7 @@ WarningEvents = {
         islandanim = {
             scale = 0.09,
             bank = "crocodog",
-            build = "crocodog_poison",
+            build = "crocodog",
             animation = "idle",
             loop = true,
             uioffset = {
@@ -356,7 +356,7 @@ WarningEvents = {
             },
         },
         winterfeastanim = {
-            scale = 0.05,
+            scale = 0.046,
             bank = "deerclops",
             build = "deerclops_yule",
             animation = "idle_loop",
@@ -433,7 +433,7 @@ WarningEvents = {
             end
         end,
         anim = {
-            scale = 0.11,
+            scale = 0.1,
             bank = "klaus_bag",
             build = "klaus_bag",
             animation = "idle",
@@ -459,7 +459,7 @@ WarningEvents = {
     sinkholespawner = {
         gettimefn = GetWorldSettingsTimeLeft("rage", "antlion"),
         anim = {
-            scale = 0.055,
+            scale = 0.05,
             bank = "antlion",
             build = "antlion_build",
             animation = "idle",
@@ -500,26 +500,26 @@ WarningEvents = {
         end,
         animchangefn = ChangeanimByWintersFeast,
         defaultanim = {
-            scale = 0.04,
+            scale = 0.035,
             bank = "bearger",
             build = "bearger_build",
             animation = "idle_loop",
             loop = true,
             uioffset = {
                 x = 0,
-                y = -10,
+                y = -8,
             },
         },
 
         winterfeastanim = {
-            scale = 0.04,
+            scale = 0.035,
             bank = "bearger",
             build = "bearger_yule",
             animation = "idle_loop",
             loop = true,
             uioffset = {
                 x = 0,
-                y = -10,
+                y = -8,
             },
         },
         announcefn = function()
@@ -553,6 +553,10 @@ WarningEvents = {
             build = "dragonfly_build",
             animation = "idle",
             loop = true,
+            uioffset = {
+                x = 0,
+                y = -4,
+            },
         },
 
         winterfeastanim = {
@@ -581,7 +585,7 @@ WarningEvents = {
     beequeenhive = {
         gettimefn = BeequeenhiveGrown,
         anim = {
-            scale = 0.06,
+            scale = 0.055,
             bank = "bee_queen",
             build = "bee_queen_build",
             animation = "idle_loop",
@@ -631,7 +635,7 @@ WarningEvents = {
     malbatrossspawner = {
         gettimefn = GetWorldSettingsTimeLeft("malbatross_timetospawn"),
         anim = {
-            scale = 0.04,
+            scale = 0.035,
             bank = "malbatross",
             build = "malbatross_build",
             animation = "idle_loop",
@@ -687,12 +691,12 @@ WarningEvents = {
             end
         end,
         fullimage = {
-            scale = 1.2,
+            scale = 1,
             atlas = "images/moon_full.xml",
             tex = "moon_full.tex",
         },
         newimage = {
-            scale = 1.2,
+            scale = 1,
             atlas = "images/moon_new.xml",
             tex = "moon_new.tex",
         },
@@ -749,7 +753,7 @@ WarningEvents = {
             },
             uioffset = {
                 x = -2,
-                y = -20
+                y = -22
             },
             loop = true,
         },
@@ -781,14 +785,14 @@ WarningEvents = {
             return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
         end,
         anim = {
-            scale = 0.06,
+            scale = 0.05,
             build = "daywalker_build",
             bank = "daywalker",
             animation = "idle_creepy_loop",
             overridebuild = { "daywalker_phase3" },
             uioffset = {
                 x = -2,
-                y = -12
+                y = -7
             },
             loop = true,
         },
@@ -828,7 +832,7 @@ WarningEvents = {
         image = {
 			atlas = "minimap/minimap_data.xml",
 			tex = "lunarthrall_plant.png",
-            scale = 1,
+            scale = 0.8,
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.lunarthrall_plantspawner_text
@@ -850,7 +854,7 @@ WarningEvents = {
         image = {
             atlas = "images/Rift_Split.xml",
             tex = "Rift_Split.tex",
-            scale = 1,
+            scale = 0.8,
             offset = {
                 x = 0,
                 y = 13,
@@ -940,7 +944,7 @@ WarningEvents = {
         image = {
             atlas = "minimap/minimap_data.xml",
 			tex = "lunarrift_portal.png",
-            scale = 1,
+            scale = 0.8,
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.rift_portal_text
@@ -979,7 +983,7 @@ WarningEvents = {
         image = {
 			atlas = "minimap/minimap_data.xml",
 			tex = "shadowrift_portal.png",
-            scale = 1,
+            scale = 0.8,
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.shadowrift_portal_text
@@ -1000,13 +1004,13 @@ WarningEvents = {
             return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
         end,
         anim = {
-            scale = 0.06,
+            scale = 0.05,
             build = "daywalker_build",
             bank = "daywalker",
             animation = "idle_creepy_loop",
             uioffset = {
                 x = -2,
-                y = -12
+                y = -7
             },
             loop = true,
         },
@@ -1094,7 +1098,11 @@ WarningEvents = {
         image = {
 			atlas = "images/Dreadstone_Outcrop.xml",
 			tex = "Dreadstone_Outcrop.tex",
-            scale = 0.5,
+            scale = 0.4,
+            uioffset = {
+                x = 0,
+                y = -2,
+            },
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.shadowthrallmanager_text
@@ -1107,7 +1115,7 @@ WarningEvents = {
     toadstoolspawner = {
         gettimefn = GetWorldSettingsTimeLeft("toadstool_respawntask"),
         anim = {
-            scale = 0.033,
+            scale = 0.03,
             bank = "toadstool",
             build = "toadstool_build",
             animation = "idle",
@@ -1137,12 +1145,12 @@ WarningEvents = {
             end
         end,
         anim = {
-            scale = 0.06,
+            scale = 0.055,
             bank = "atrium_gate",
             build = "atrium_gate",
             animation = "idle",
             uioffset = {
-                x = 0,
+                x = -2,
                 y = -5,
             },
         },
@@ -1168,7 +1176,7 @@ WarningEvents = {
             return data.lockedphase and STRINGS.eventtimer.nightmareclock.phase_locked_text
         end,
         anim = {
-            scale = 0.25,
+            scale = 0.22,
             bank = "nightmare_watch",
             build = "nightmare_timepiece",
             animation = "idle_1",
@@ -1204,7 +1212,7 @@ WarningEvents = {
         image = {
             atlas = "images/inventoryimages.xml",
             tex = "rocks.tex",
-            scale = 1,
+            scale = 0.8,
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.quaker_time
@@ -1227,7 +1235,7 @@ WarningEvents = {
             return time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time)) or STRINGS.eventtimer.chessnavy.readytext
         end,
         anim = {
-            scale = 0.095,
+            scale = 0.09,
             bank = "knightboat",
             build = "knightboat_build",
             animation = "idle_loop",
@@ -1290,7 +1298,7 @@ WarningEvents = {
         image = {
             atlas = "images/Twister.xml",
             tex = "Twister.tex",
-            scale = 0.4,
+            scale = 0.35,
         },
         anim = {
             scale = 0.022,
@@ -1335,7 +1343,7 @@ WarningEvents = {
             return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
         end,
         anim = {
-            scale = 0.03,
+            scale = 0.027,
             bank = "quacken",
             build = "quacken",
             animation = "idle_loop",
@@ -1383,7 +1391,7 @@ WarningEvents = {
             return ReplacePrefabName(STRINGS.eventtimer.tigersharker.nospawn)
         end,
         anim = {
-            scale = 0.033,
+            scale = 0.03,
             bank = "tigershark",
             build = "tigershark_ground_build",
             animation = "taunt",
@@ -1436,7 +1444,7 @@ or Ismodloaded("workshop-3322803908") and
             scale = 0.8,
         },
         anim = {
-            scale = 0.025,
+            scale = 0.02,
             bank = "fountain",
             build = "python_fountain",
             animation = "flow_loop",
@@ -1477,7 +1485,7 @@ or Ismodloaded("workshop-3322803908") and
         image = {
 			atlas = "images/pig_bandit.xml",
 			tex = "pig_bandit.tex",
-            scale = 0.08,
+            scale = 0.07,
         },
         anim = {
             scale = 0.07,
@@ -1522,7 +1530,7 @@ or Ismodloaded("workshop-3322803908") and
         image = {
 			atlas = "images/Aporkalypse_Clock.xml",
 			tex = "Aporkalypse_Clock.tex",
-            scale = 0.25
+            scale = 0.2
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.aporkalypse_time
@@ -1562,10 +1570,10 @@ or Ismodloaded("workshop-3322803908") and
         image = {
 			atlas = "images/Ancient_Herald.xml",
 			tex = "Ancient_Herald.tex",
-            scale = 0.25,
+            scale = 0.2,
             offset = {
                 x = 0,
-                y = 15,
+                y = 7,
             }
         },
         announcefn = function()
@@ -1601,18 +1609,18 @@ or Ismodloaded("workshop-3322803908") and
             end
         end,
         anim = {
-            scale = 0.09,
+            scale = 0.08,
             build = "bat_vamp_build",
             bank = "bat_vamp",
             animation = "fly_loop",
             loop = true,
             uioffset = {
                 x = 10,
-                y = -18,
+                y = -15,
             },
             offset = {
                 x = 0,
-                y = -18,
+                y = -15,
             }
         },
         announcefn = function()
@@ -1649,14 +1657,14 @@ or Ismodloaded("workshop-3322803908") and
 			tex = "Roc.tex",
 		},
         anim = {
-            scale = 0.01,
+            scale = 0.008,
             build = "roc_head_build",
             bank = "head",
             animation = "idle_loop",
             loop = true,
             offset = {
                 x = 0,
-                y = -18,
+                y = -15,
             },
         },
         announcefn = function()
@@ -1703,7 +1711,7 @@ local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
         image = {
 			atlas = "images/Moose.xml",
 			tex = "Moose.tex",
-            scale = 0.25,
+            scale = 0.2,
             offset = {
                 x = 0,
                 y = 15,
@@ -1756,10 +1764,10 @@ local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
         image = {
 			atlas = "images/Dragonfly.xml",
 			tex = "Dragonfly.tex",
-            scale = 0.25,
+            scale = 0.2,
             offset = {
                 x = 0,
-                y = 15,
+                y = 13,
             }
         },
         anim = {

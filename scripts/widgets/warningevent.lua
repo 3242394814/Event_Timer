@@ -54,6 +54,7 @@ function WarningEvent:OnUpdate(data)
 end
 
 function WarningEvent:SetEventAnim(data)
+    if not data then return end
     local scale = (data.scale or 0.099)
     self.anim:SetScale(scale)
     self.anim:GetAnimState():SetBank(data.bank)

@@ -53,12 +53,15 @@ function ShowAllEvent()
             return 666
         end
         tb.gettextfn = function(...)
-            return "测试测试(世界233)\n第一行长文字123\n第二行长文字长文字\n第三行最长最长最长最长的文字" -- 客户端如果开启了【客户端预测倒计时】功能则不会显示此文字
+            return "测试测试(世界233)\n第一行长文字123\n第二行长文字长文字长文字长文字\n第三行最长最长最长最长最长最长的文字" -- 客户端如果开启了【客户端预测倒计时】功能则不会显示此文字
         end
     end
 end
 
 function DefaultEvent()
+    if not old_WarningEvents then
+        old_WarningEvents = deepcopy(WarningEvents)
+    end
     WarningEvents = deepcopy(old_WarningEvents)
 
     for warningevent in pairs(WarningEvents) do

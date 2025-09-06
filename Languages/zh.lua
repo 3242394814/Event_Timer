@@ -101,11 +101,11 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=daywalker2>会重生于%s后",
         tips = "<prefab=daywalker2>已刷新！",
     },
-    riftspawner = {
+    riftspawner = { -- 裂隙生成倒计时
         cooldown = "一个<prefab=lunarrift_portal>将生成于%s后",
         stage = "阶段: %s / %s",
     },
-	lunarthrall_plantspawner = {
+	lunarthrall_plantspawner = { -- 致命亮茄
 		infested_count = "已寄生%s株",
 		spawn = "%s后开始寄生",
 		next_wave = "%s后开始下一波",
@@ -117,13 +117,13 @@ STRINGS.eventtimer = {
 		crystals = "<prefab=lunarrift_crystal_big>: %s可用 / %s总共 / %s最大",
 		next_crystal = "下一波<prefab=lunarrift_crystal_big>生成于%s后",
 	},
+
+    ----------------------------------------洞穴----------------------------------------
+
     shadowrift_portal = { -- 暗影裂隙
         name = "暗影裂隙",
         close = "<prefab=shadowrift_portal>将关闭于%s后",
     },
-
-    ----------------------------------------洞穴----------------------------------------
-
     daywalkerspawner = { -- 梦魇疯猪
         cooldown = "<prefab=daywalker>会重生于%s后",
         tips = "<prefab=daywalker>已刷新！",
