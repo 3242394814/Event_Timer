@@ -171,7 +171,7 @@ local EventUIButton = Class(Button, function(self, owner)
     else
         self.openbutton:SetPosition(-55, 200, 0)
     end
-
+    self.openbutton:SetFocusAnim("cooldown_long", true) -- 设置鼠标对准时播放的动画
     self.openbutton.animstate:Pause() -- 默认暂停动画
     self.openbutton:SetScale(0.3, 0.3) -- 设置缩放比
     self.openbutton:SetHoverText(STRINGS.eventtimer.ui_desc, { offset_y = 70 })
@@ -245,6 +245,7 @@ end)
 AddClassPostConstruct("screens/redux/pausescreen", function(self)
     local EventUIButton = self.menu:AddChild(UIAnimButton("pocketwatch","pocketwatch_marble","cooldown_long"))
 
+    EventUIButton:SetFocusAnim("cooldown_long", true) -- 设置鼠标对准时播放的动画
     EventUIButton.animstate:Pause()
     EventUIButton:SetScale(0.5)
 
