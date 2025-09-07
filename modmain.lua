@@ -183,6 +183,7 @@ modimport("main/warningevent") -- 事件计时功能
 if GLOBAL.TheNet:GetIsServer() then
     modimport("main/modcompat") -- 检测其它相同功能的模组
 end
+
 ----------------------------------------鼠标跟随补丁---------------------------------------
 
 GLOBAL.setfenv(1, GLOBAL)
@@ -235,3 +236,21 @@ local function ModFollowMouse(self)
     end
 end
 env.AddClassPostConstruct("widgets/widget", ModFollowMouse)
+
+----------------------------------------镜头缩放补丁---------------------------------------
+
+local function IsCursorOnHUD()
+	local input = TheInput
+	return input.hoverinst and input.hoverinst.Transform == nil
+end
+
+local function playercontroller_postinit(self)
+	local old_DoCameraControl = self.DoCameraControl
+	function self:DoCameraControl()
+		if not ((TheInput:IsControlPressed(CONTROL_ZOOM_IN) or TheInput:IsControlPressed(CONTROL_ZOOM_OUT)) and IsCursorOnHUD() ) then
+			if old_DoCameraControl ~= nil then old_DoCameraControl(self) end
+		end
+	end
+end
+
+env.AddComponentPostInit("playercontroller",playercontroller_postinit)
