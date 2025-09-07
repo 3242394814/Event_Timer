@@ -2,6 +2,7 @@ local menv = env
 GLOBAL.setfenv(1, GLOBAL)
 
 local eventname = "fe_unload_".. menv.modname
+local iconname = menv.modname .. "_dynamic_icon"
 local UIAnim = require("widgets/uianim")
 
 menv.FrontEndAssets = {
@@ -20,33 +21,33 @@ local function DoFnForCurrentScreen(fn)
 end
 
 local function AddDynamicIcon(self, root, s, x, y)
-	if self.global_events_timer_dynamic_icon then
+	if self[iconname] then
 		return
 	end
 
-	self.global_events_timer_dynamic_icon = self[root]:AddChild(UIAnim())
-	self.global_events_timer_dynamic_icon:GetAnimState():SetBuild("global_events_timer_dynamic_icon")
-	self.global_events_timer_dynamic_icon:GetAnimState():SetBank("global_events_timer_dynamic_icon")
-	self.global_events_timer_dynamic_icon:GetAnimState():PlayAnimation("global_events_timer_dynamic_icon", true)
-    -- self.global_events_timer_dynamic_icon:GetAnimState():PushAnimation("", true)
-    -- self.global_events_timer_dynamic_icon:GetAnimState():SetTime(22 * FRAMES)
-    self.global_events_timer_dynamic_icon:SetPosition(x or 0, y or 0)
+	self[iconname] = self[root]:AddChild(UIAnim())
+	self[iconname]:GetAnimState():SetBuild("global_events_timer_dynamic_icon")
+	self[iconname]:GetAnimState():SetBank("global_events_timer_dynamic_icon")
+	self[iconname]:GetAnimState():PlayAnimation("global_events_timer_dynamic_icon", true)
+    -- self[iconname]:GetAnimState():PushAnimation("", true)
+    -- self[iconname]:GetAnimState():SetTime(22 * FRAMES)
+    self[iconname]:SetPosition(x or 0, y or 0)
 	if s then
-		self.global_events_timer_dynamic_icon:SetScale(s)
+		self[iconname]:SetScale(s)
 	end
 
-	self.global_events_timer_dynamic_icon.inst:ListenForEvent(eventname, function()
-		self.global_events_timer_dynamic_icon:Kill()
-		self.global_events_timer_dynamic_icon = nil
+	self[iconname].inst:ListenForEvent(eventname, function()
+		self[iconname]:Kill()
+		self[iconname] = nil
 	end, TheGlobalInstance)
 end
 
 local function PatchModDetails(self)
 	if self.currentmodname == menv.modname then
 		AddDynamicIcon(self, "detailimage", 0.55, 3, 2.5)
-	elseif self.global_events_timer_dynamic_icon then
-		self.global_events_timer_dynamic_icon:Kill()
-		self.global_events_timer_dynamic_icon = nil
+	elseif self[iconname] then
+		self[iconname]:Kill()
+		self[iconname] = nil
 	end
 end
 
@@ -55,18 +56,19 @@ local function PatchModIcon(widget, data)
 	local mod_data = (data or widget.data)
 	if mod_data and mod_data.mod and mod_data.mod.modname == menv.modname then
 		-- Fox: It seems that it triggers too fast if we change world tabs
-		if not data and opt.global_events_timer_dynamic_icon then
-			opt.global_events_timer_dynamic_icon:Kill()
-			opt.global_events_timer_dynamic_icon = nil
+		if not data and opt[iconname] then
+			opt[iconname]:Kill()
+			opt[iconname] = nil
 		end
 		AddDynamicIcon(opt, "image", 0.45, 3, 0)
-	elseif opt.global_events_timer_dynamic_icon then
-		opt.global_events_timer_dynamic_icon:Kill()
-		opt.global_events_timer_dynamic_icon = nil
+	elseif opt[iconname] then
+		opt[iconname]:Kill()
+		opt[iconname] = nil
 	end
 end
 
-if not rawget(_G, "global_events_timer_dynamic_icon_res") then
+
+if not rawget(_G, menv.modname .. "_dynamic_icon_res") then
     local _FrontendUnloadMod = ModManager.FrontendUnloadMod
     ModManager.FrontendUnloadMod = function(self, unloaded_modname, ...)
         if not unloaded_modname or unloaded_modname == menv.modname then
@@ -74,7 +76,7 @@ if not rawget(_G, "global_events_timer_dynamic_icon_res") then
         end
         return _FrontendUnloadMod(self, unloaded_modname, ...)
     end
-    rawset(_G, "global_events_timer_dynamic_icon_res", true)
+    rawset(_G, menv.modname .. "_dynamic_icon_res", true)
 end
 
 local function PreLoad(self)
