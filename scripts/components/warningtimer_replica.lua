@@ -96,7 +96,6 @@ function WarningTimer:OnWarningEventDirty(inst)
     ThePlayer.HUD.WarningEventTimeData = eventstime
     ThePlayer.HUD:UpdateWarningEvents()
     if not update_task and UpdateTime > 1 then
-        print("[全局世界计时器] 开启客户端预测功能！")
         update_task = inst:DoPeriodicTask(1, function() self:OnUpdate(inst) end)
     end
 end
