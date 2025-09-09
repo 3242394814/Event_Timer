@@ -51,7 +51,9 @@ local function checkmod()
 end
 
 AddPrefabPostInit("world", function(inst)
-    inst:DoTaskInTime(5, checkmod)
+    if TheNet:GetIsServer() then
+        inst:DoTaskInTime(5, checkmod)
+    end
 end)
 
 
@@ -59,7 +61,6 @@ end)
 
 AddGamePostInit(function()
     local HasMOD_util, MOD_util = pcall(require, "utils/MOD_util")
-
     local iszh = EventTimer.env.ModLanguage == "zh"
     local function ChangeModConfig(name, saved)
         local config = KnownModIndex:LoadModConfigurationOptions(EventTimer.env.modname, true)
