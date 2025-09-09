@@ -23,8 +23,7 @@ Assets = {
 	Asset("IMAGE", "images/Dragonfly.tex"),
 	Asset("ATLAS", "images/Twister.xml"), -- 豹卷风
 	Asset("IMAGE", "images/Twister.tex"),
-    Asset("ATLAS", "images/saveslot_portraits.xml"), -- 图标背景
-	Asset("IMAGE", "images/saveslot_portraits.tex"),
+    Asset("ATLAS", "images/scrapbook.xml"), -- 图标背景
     Asset("ATLAS", "images/lifeplant.xml"), -- 不老泉
     Asset("IMAGE", "images/lifeplant.tex"),
     Asset("ATLAS", "images/pig_bandit.xml"), -- 蒙面猪人

@@ -233,9 +233,9 @@ function WarningEventHUD:InitDestItem()
     dest.backing.move_on_click = true -- 按下后有视觉反馈
 
     -- 图片/动画背景
-    dest.background = dest:AddChild(Image("images/saveslot_portraits.xml", "background.tex"))
+    dest.background = dest:AddChild(Image("images/scrapbook.xml", "inv_item_background.tex"))
     dest.background:SetPosition(-140, 0, 0)
-    dest.background:SetScale(0.5, 0.58)
+    dest.background:SetScale(0.5, 0.5)
 
     -- TEXT控件
     dest.describe = dest:AddChild(Text(BODYTEXTFONT, 30)) -- 添加TEXT控件 字体，大小，文字
