@@ -71,10 +71,10 @@ local WarningTimer = Class(function(self, inst)
         self[warningevent .. "_time_shardrpc"] = net_shortint(inst.GUID, warningevent .. "_time_shardrpc", "warningevent_dirty")
         self[warningevent .. "_text"] = net_string(inst.GUID, warningevent .. "_text", "warningevent_dirty")
         self[warningevent .. "_text_shardrpc"] = net_string(inst.GUID, warningevent .. "_text_shardrpc", "warningevent_dirty")
+    end
 
-        if not TheNet:IsDedicated() then
-            inst:ListenForEvent("warningevent_dirty", function(inst) self:OnWarningEventDirty(inst) end)
-        end
+    if not TheNet:IsDedicated() then
+        inst:ListenForEvent("warningevent_dirty", function(inst) self:OnWarningEventDirty(inst) end)
     end
 end)
 
