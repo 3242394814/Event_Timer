@@ -61,7 +61,6 @@ end)
 
 AddGamePostInit(function()
     local HasMOD_util, MOD_util = pcall(require, "utils/MOD_util")
-    local iszh = EventTimer.env.ModLanguage == "zh"
     local function ChangeModConfig(name, saved)
         local config = KnownModIndex:LoadModConfigurationOptions(EventTimer.env.modname, true)
         for i,v in pairs(config) do
@@ -75,13 +74,13 @@ AddGamePostInit(function()
 
 
     if HasMOD_util and MOD_util:CanAddSetting() then
-        local pagename = iszh and "事件计时器" or "Events Timer"
+        local pagename = zh and "事件计时器" or "Events Timer"
         local pageorder = 1
         local buttonname = pagename
-        local pagetitle = iszh and "全局事件计时器模组设置" or "Global Events Timer Config"
+        local pagetitle = zh and "全局事件计时器模组设置" or "Global Events Timer Config"
         local enabledisableoption = {
-            { text = iszh and "开启" or "Enabled", data = true },
-            { text = iszh and "关闭" or "Disabled", data = false },
+            { text = zh and "开启" or "Enabled", data = true },
+            { text = zh and "关闭" or "Disabled", data = false },
         }
         MOD_util:CreatePage(pagename, {
             title = pagetitle,
@@ -89,7 +88,7 @@ AddGamePostInit(function()
             order = pageorder,
             all_options = {
                 {
-                    description = iszh and "客户端预测倒计时" or "Client Predicted Countdown", -- 名称
+                    description = zh and "客户端预测倒计时" or "Client Predicted Countdown", -- 名称
                     key = "EventsTimer_ClientPrediction", -- 对应设置项
                     default = true, -- 默认选项
                     options = enabledisableoption, -- 选项列表
@@ -99,7 +98,7 @@ AddGamePostInit(function()
                     end
                 },
                 {
-                    description = iszh and "醒目提示" or "Highlight Tips",
+                    description = zh and "醒目提示" or "Highlight Tips",
                     key = "EventsTimer_ShowTips",
                     default = true,
                     options = enabledisableoption,
@@ -109,12 +108,12 @@ AddGamePostInit(function()
                     end
                 },
                 {
-                    description = iszh and "UI开关何时显示" or "UI Button Visibility",
+                    description = zh and "UI开关何时显示" or "UI Button Visibility",
                     key = "EventsTimer_UIButton",
                     default = "always",
                     options = {
-                        {text = iszh and "始终显示" or "Always Visible", data = "always"},
-                        {text = iszh and "在暂停页面显示" or "Pause Menu", data = "pause_screen"},
+                        {text = zh and "始终显示" or "Always Visible", data = "always"},
+                        {text = zh and "在暂停页面显示" or "Pause Menu", data = "pause_screen"},
                     },
                     onapplyfn = function()
                         EventTimer.UIButton = MOD_util:GetMOption("EventsTimer_UIButton", true)
