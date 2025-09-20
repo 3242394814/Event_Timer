@@ -122,16 +122,9 @@ local function NightmareWild()
 
     local data = nightmareclock:OnSave()
     local locked = data.lockedphase
-    local lengths = data.lengths
-    local phase = data.phase
     local remainingtimeinphase = data.remainingtimeinphase
 
-        if locked then return end
-        if phase == "calm" then
-            remainingtimeinphase = remainingtimeinphase + lengths["warn"] * 30
-        elseif phase == "wild" then
-            remainingtimeinphase = remainingtimeinphase + lengths["dawn"] * 30
-        end
+    if locked then return end
 
     return remainingtimeinphase
 end
@@ -147,11 +140,11 @@ AddPrefabPostInit("world", function(inst)
 end)
 
 local STATES = {
-    none = "idle_1",
-    calm = "idle_1",
-    warn = "idle_2",
-    wild = "idle_3",
-    dawn = "idle_2",
+    none = "idle_1", -- 默认
+    calm = "idle_1", -- 平静
+    warn = "idle_2", -- 警告
+    wild = "idle_3", -- 暴动
+    dawn = "idle_2", -- 黎明
 }
 local changeanim = nil
 local function NightmareWildAnimChange(self)
