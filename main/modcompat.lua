@@ -59,75 +59,73 @@ end)
 
 ----------------------------------------兼容萌萌的新的模组设置---------------------------------------
 
-AddGamePostInit(function()
-    local HasMOD_util, MOD_util = pcall(require, "utils/MOD_util")
-    local function ChangeModConfig(name, saved)
-        local config = KnownModIndex:LoadModConfigurationOptions(EventTimer.env.modname, true)
-        for i,v in pairs(config) do
-            if v.name == name then
-                config[i].saved = saved
-            end
+local HasMOD_util, MOD_util = pcall(require, "utils/MOD_util")
+local function ChangeModConfig(name, saved)
+    local config = KnownModIndex:LoadModConfigurationOptions(EventTimer.env.modname, true)
+    for i,v in pairs(config) do
+        if v.name == name then
+            config[i].saved = saved
         end
-
-        KnownModIndex:SaveConfigurationOptions(function() end, EventTimer.env.modname, config, true)
     end
 
+    KnownModIndex:SaveConfigurationOptions(function() end, EventTimer.env.modname, config, true)
+end
 
-    if HasMOD_util and MOD_util:CanAddSetting() then
-        local pagename = zh and "事件计时器" or "Events Timer"
-        local pageorder = 1
-        local buttonname = pagename
-        local pagetitle = zh and "全局事件计时器模组设置" or "Global Events Timer Config"
-        local enabledisableoption = {
-            { text = zh and "开启" or "Enabled", data = true },
-            { text = zh and "关闭" or "Disabled", data = false },
-        }
-        MOD_util:CreatePage(pagename, {
-            title = pagetitle,
-            buttondata = { name = buttonname },
-            order = pageorder,
-            all_options = {
-                {
-                    description = zh and "客户端预测倒计时" or "Client Predicted Countdown", -- 名称
-                    key = "EventsTimer_ClientPrediction", -- 对应设置项
-                    default = true, -- 默认选项
-                    options = enabledisableoption, -- 选项列表
-                    onapplyfn = function()
-                        EventTimer.ClientPrediction = MOD_util:GetMOption("EventsTimer_ClientPrediction", true)
-                        ChangeModConfig("ClientPrediction", EventTimer.ClientPrediction)
-                    end
-                },
-                {
-                    description = zh and "醒目提示" or "Highlight Tips",
-                    key = "EventsTimer_ShowTips",
-                    default = true,
-                    options = enabledisableoption,
-                    onapplyfn = function()
-                        EventTimer.TimerTips = MOD_util:GetMOption("EventsTimer_ShowTips", true)
-                        ChangeModConfig("ShowTips", EventTimer.TimerTips)
-                    end
-                },
-                {
-                    description = zh and "UI开关何时显示" or "UI Button Visibility",
-                    key = "EventsTimer_UIButton",
-                    default = "always",
-                    options = {
-                        {text = zh and "始终显示" or "Always Visible", data = "always"},
-                        {text = zh and "在暂停页面显示" or "Pause Menu", data = "pause_screen"},
-                    },
-                    onapplyfn = function()
-                        EventTimer.UIButton = MOD_util:GetMOption("EventsTimer_UIButton", true)
-                        ChangeModConfig("UIButton", EventTimer.UIButton)
 
-                        if ThePlayer and ThePlayer.HUD and ThePlayer.HUD.EventTimerButton then
-                            ThePlayer.HUD.EventTimerButton:Refresh()
-                        end
+if HasMOD_util and MOD_util:CanAddSetting() then
+    local pagename = zh and "事件计时器" or "Events Timer"
+    local pageorder = 1
+    local buttonname = pagename
+    local pagetitle = zh and "全局事件计时器模组设置" or "Global Events Timer Config"
+    local enabledisableoption = {
+        { text = zh and "开启" or "Enabled", data = true },
+        { text = zh and "关闭" or "Disabled", data = false },
+    }
+    MOD_util:CreatePage(pagename, {
+        title = pagetitle,
+        buttondata = { name = buttonname },
+        order = pageorder,
+        all_options = {
+            {
+                description = zh and "客户端预测倒计时" or "Client Predicted Countdown", -- 名称
+                key = "EventsTimer_ClientPrediction", -- 对应设置项
+                default = true, -- 默认选项
+                options = enabledisableoption, -- 选项列表
+                onapplyfn = function()
+                    EventTimer.ClientPrediction = MOD_util:GetMOption("EventsTimer_ClientPrediction", true)
+                    ChangeModConfig("ClientPrediction", EventTimer.ClientPrediction)
+                end
+            },
+            {
+                description = zh and "醒目提示" or "Highlight Tips",
+                key = "EventsTimer_ShowTips",
+                default = true,
+                options = enabledisableoption,
+                onapplyfn = function()
+                    EventTimer.TimerTips = MOD_util:GetMOption("EventsTimer_ShowTips", true)
+                    ChangeModConfig("ShowTips", EventTimer.TimerTips)
+                end
+            },
+            {
+                description = zh and "UI开关何时显示" or "UI Button Visibility",
+                key = "EventsTimer_UIButton",
+                default = "always",
+                options = {
+                    {text = zh and "始终显示" or "Always Visible", data = "always"},
+                    {text = zh and "在暂停页面显示" or "Pause Menu", data = "pause_screen"},
+                },
+                onapplyfn = function()
+                    EventTimer.UIButton = MOD_util:GetMOption("EventsTimer_UIButton", true)
+                    ChangeModConfig("UIButton", EventTimer.UIButton)
+
+                    if ThePlayer and ThePlayer.HUD and ThePlayer.HUD.EventTimerButton then
+                        ThePlayer.HUD.EventTimerButton:Refresh()
                     end
-                }
+                end
             }
         }
-        )
-    elseif TheNet:GetIsClient() then
-        print("[全局事件计时器] 未检测到玩家开启萌萌的新的【模组设置】","HasMOD_util = ", HasMOD_util)
-    end
-end)
+    }
+    )
+elseif TheNet:GetIsClient() then
+    print("[全局事件计时器] 未检测到玩家开启萌萌的新的【模组设置】","HasMOD_util = ", HasMOD_util)
+end

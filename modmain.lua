@@ -179,7 +179,7 @@ AddReplicableComponent("warningtimer")
 
 modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
-    modimport("main/modcompat") -- 检测其它相同功能的模组
+modimport("main/modcompat") -- 检测其它模组
 
 ----------------------------------------鼠标跟随补丁---------------------------------------
 

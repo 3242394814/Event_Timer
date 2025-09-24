@@ -88,7 +88,7 @@ local function VolcanoEruption()
     local SegUntilEruption = TheWorld.components.volcanomanager:GetNumSegmentsUntilEruption() or 0
     local SecondUntilEruption = math.floor((SegUntilEruption * 30) - TimeInSeg)
 
-    return SecondUntilEruption
+    return SecondUntilEruption > 0 and SecondUntilEruption or 0
 end
 
 -- 蜂王
@@ -313,7 +313,7 @@ WarningEvents = {
 
             if time == 120 or JustEntered(time) then
                 return true, WarningEvents.hounded.announcefn, 10
-            elseif time > 2 and time <= 60 then
+            elseif time > 2 and time <= 90 then
                 return true, WarningEvents.hounded.announcefn, time
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[is_worm_boss and "worm_boss" or GetWorldtypeStr()])), 10, time
