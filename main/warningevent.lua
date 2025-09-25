@@ -14,42 +14,73 @@ local function AddWarningEvents(self)
         game_ready = true
     end)
 
-    -- 屏幕左上角提示（出现时伴随提示音）
     local warningtips_messages = {}
-    local msgnum = 0
+    local function sort_message()
+        for i, msg in ipairs(warningtips_messages) do
+            local w, h = msg.text:GetRegionSize() -- 获取当前消息文字区域大小
+            msg.target_x = w + 40
 
+            if i > 1 then -- 其它消息，依次根据上个消息的位置调整坐标
+                local up_y = warningtips_messages[i - 1].target_y
+                local up_w, up_h = warningtips_messages[i - 1].text:GetRegionSize()
+                msg.target_y = up_y - up_h - h - 50
+            else
+                msg.target_y = msg.base_y -- 第一条消息，Y轴设为基础坐标
+            end
+
+            local pos = msg:GetPosition()
+            msg:MoveTo(
+                { x = pos.x, y = pos.y, z = 0 },
+                { x = msg.target_x, y = msg.target_y, z = 0},
+                0.5,
+                nil
+            )
+        end
+    end
+
+    -- 醒目提示
     function self:ShowTips(timefn, second)
         if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
         if type(timefn) ~= "function" then return end
-        -- 创建新的 widget
-        local message = self:AddChild(WarningTips(self.owner, timefn(), msgnum))
+
+        -- 获取上一条消息的信息
+        local up_info = #warningtips_messages > 0 and warningtips_messages[#warningtips_messages]
+
+        local message = self:AddChild(WarningTips(timefn(), up_info)) -- 创建新的 widget
 
         -- 插入到旧消息列表
         table.insert(warningtips_messages, message)
 
         -- 启动定时器
         message.inst:DoPeriodicTask(0.5, function() -- 更新倒计时时间
-            message:OnUpdate(timefn())
+            message.text:SetString(timefn())
+            local w, h = message.text:GetRegionSize() -- 获取文字区域大小
+            message.bg:SetSize( -- 刷新背景大小
+                w + 5,
+                h
+            )
+
+            sort_message() -- 整理所有消息
         end)
 
-        message.inst:DoTaskInTime((second or 10) - 0.5, function() -- 更新透明度
+        -- 更新透明度
+        message.inst:DoTaskInTime((second or 10) - 0.5, function()
             message.AlphaMode = false
         end)
 
-        message.inst:DoTaskInTime(second or 10, function() -- 定时销毁
+        -- 定时销毁与整理其它消息
+        message.inst:DoTaskInTime(second or 10, function()
             message:Kill()
             for i = #warningtips_messages, 1, -1 do
                 local msg = warningtips_messages[i]
                 if msg == message then
                     table.remove(warningtips_messages, i)
-                elseif msg and msg.Move then
-                    msg:Move()
+                    break
                 end
             end
-            msgnum = msgnum - 1
-        end)
 
-        msgnum = msgnum + 1
+            sort_message()
+        end)
     end
 
     ---------------------------------------------------------------------------------------------------------------

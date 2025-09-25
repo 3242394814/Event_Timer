@@ -1,15 +1,21 @@
 local NineSlice = require "widgets/nineslice"
 local Widget = require("widgets/widget")
 local Text = require("widgets/text")
-local UIAnim = require("widgets/uianim")
 
-local WarningTips = Class(Widget, function(self, owner, text, msgnum)
+local WarningTips = Class(Widget, function(self, text, up_info)
     Widget._ctor(self, "WarningTips")
     self:SetScale(2, 2)
     self:SetClickable(false)
     self.Alpha = 0
     self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", WEBCOLOURS["ORANGE"]))
     local w, h = self.text:GetRegionSize() -- 获取文字区域大小
+
+    local new_start_y
+    if up_info then
+        local up_y = up_info.target_y
+        local up_w, up_h = up_info.text:GetRegionSize()
+        new_start_y = up_y - up_h - h - 50
+    end
 
     self.bg = self:AddChild(NineSlice(
         "images/dyc_panel_shadow.xml", -- atlas
@@ -24,8 +30,8 @@ local WarningTips = Class(Widget, function(self, owner, text, msgnum)
         "dyc_panel_shadow_13.tex"  -- bottom_right
     ))
     self.bg:SetSize(
-        math.abs(w + 5),
-        math.abs(h / 2 + 5)
+        w + 5,
+        h
     )
     self.bg:SetScale(0.5, 0.5)
     self.bg:SetPosition(0, -2.5)
@@ -33,8 +39,9 @@ local WarningTips = Class(Widget, function(self, owner, text, msgnum)
     self.text:MoveToFront() -- 将文字移动到前面
 
     self.start_x = w + 100 -- 起始X轴位置
-    self.target_x = (w + 40) -- 目标X轴位置
-    self.start_y = (h / 2 - 160) - (msgnum * 75) -- 起始Y轴位置
+    self.target_x = w + 40 -- 目标X轴位置
+    self.base_y = (h / 2 - 160) -- 原始Y轴位置
+    self.start_y = new_start_y or (h / 2 - 160) -- 起始Y轴位置
     self.target_y = self.start_y -- 目标Y轴位置
 
     -- 设置锚点
@@ -58,32 +65,7 @@ local WarningTips = Class(Widget, function(self, owner, text, msgnum)
     )
 
     TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/XP_bar_fill_unlock") -- 播放提示音
-
 end)
-
-function WarningTips:Move()
-    self.target_y = self.target_y + 75
-    local pos = self:GetPosition()
-    self:MoveTo(
-        { x = pos.x, y = pos.y, z = 0 },
-        { x = pos.x, y = self.target_y, z = 0},
-        0.5,
-        nil
-    )
-end
-
-function WarningTips:OnUpdate(text)
-    self.text:SetString(text) -- 刷新文字
-
-    local w, h = self.text:GetRegionSize() -- 获取文字区域大小
-    self.bg:SetSize( -- 刷新背景大小
-        math.abs(w + 5),
-        math.abs(h / 2 + 5)
-    )
-
-    local pos = self:GetPosition() -- 获取当前位置
-    self:SetPosition(w + 40, pos.y) -- 刷新当前横坐标
-end
 
 function WarningTips:OnWallUpdate(dt)
     if self.AlphaMode then -- 淡入
