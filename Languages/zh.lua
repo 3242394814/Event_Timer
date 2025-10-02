@@ -42,7 +42,7 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=deerclops>会在%s后生成",
         target = "<prefab=deerclops>会生成在%s周围于%s后",
         targeted = "目标：%s -> %s",
-        attack = "警告：<prefab=deerclops>已刷新！！！",
+        attack = "警告：<prefab=deerclops>攻击开始！！！",
     },
     deerherdspawner = { -- 无眼鹿
         cooldown = "<prefab=deer>会刷新于%s后",
@@ -62,7 +62,7 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=bearger>会在%s后生成",
         target = "<prefab=bearger>会生成在%s周围于%s后",
         targeted = "目标：%s -> %s",
-        attack = "警告：<prefab=bearger>已刷新！！！",
+        attack = "警告：<prefab=bearger>攻击开始！！！",
     },
     dragonfly_spawner = { -- 龙蝇
         cooldown = "<prefab=dragonfly>会重生于%s后",
@@ -91,8 +91,8 @@ STRINGS.eventtimer = {
     },
     farming_manager = { -- 果蝇王
         cooldown = "<prefab=lordfruitfly>就绪于%s后",
-        ready = "<prefab=lordfruitfly>已刷新！",
-        tips = "警告：<prefab=lordfruitfly>已刷新！"
+        ready = "<prefab=lordfruitfly>攻击开始！！！",
+        tips = "警告：<prefab=lordfruitfly>攻击开始！！！"
     },
     piratespawner = { -- 海盗袭击，暂时不做
         -- TODO
@@ -172,7 +172,7 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=twister>会在%s后生成。",
         target = "<prefab=twister>会生成在%s周围于%s后",
         targeted = "目标：%s -> %s",
-        attack = "警告：<prefab=twister>已刷新！！！",
+        attack = "警告：<prefab=twister>攻击开始！！！",
     },
     krakener = { -- 海妖
         cooldown = "<prefab=kraken>会重生于%s后",
@@ -208,7 +208,7 @@ STRINGS.eventtimer = {
         tips = "警告：大灾变将在%s后到来！！！",
         tips_ready = "血月降临！",
         tips_attack = "警告：<prefab=ancient_herald>会在%s后生成。", -- 未使用
-        tips_attack_ready = "警告：<prefab=ancient_herald>已刷新！！！", -- 未使用
+        tips_attack_ready = "警告：<prefab=ancient_herald>攻击开始！！！", -- 未使用
     },
     batted = { -- 吸血蝙蝠
         cooldown = "<prefab=vampirebat>会在%s后攻击。",
@@ -218,7 +218,7 @@ STRINGS.eventtimer = {
     rocmanager = { -- 友善的大鹏
         cooldown = "<prefab=roc_head>会在%s后到来。",
         exists = "<prefab=roc_head>正在出没",
-        tips = "警告：<prefab=roc_head>已刷新！"
+        tips = "警告：<prefab=roc_head>正在出没！"
     },
 
     ----------------------------------------永不妥协----------------------------------------
@@ -227,12 +227,12 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=moose1>会在%s后生成",
         target = "<prefab=moose1>会生成在%s周围于%s后",
         targeted = "目标：%s -> %s",
-        attack = "警告：<prefab=moose1>已刷新！！！",
+        attack = "警告：<prefab=moose1>攻击开始！！！",
     },
     mock_dragonflyspawner = { -- 龙蝇
         cooldown = "<prefab=dragonfly>会在%s后生成",
         target = "<prefab=dragonfly>会生成在%s周围于%s后",
         targeted = "目标：%s -> %s",
-        attack = "警告：<prefab=dragonfly>已刷新！！！",
+        attack = "警告：<prefab=dragonfly>攻击开始！！！",
     },
 }

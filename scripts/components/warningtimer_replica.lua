@@ -67,106 +67,127 @@ local WarningTimer = Class(function(self, inst)
 	self.inst = inst
 
     for warningevent in pairs(WarningEvents) do
-        self[warningevent .. "_time"] = net_shortint(inst.GUID, warningevent .. "_time", "warningevent_dirty")
-        self[warningevent .. "_time_shardrpc"] = net_shortint(inst.GUID, warningevent .. "_time_shardrpc", "warningevent_dirty")
-        self[warningevent .. "_text"] = net_string(inst.GUID, warningevent .. "_text", "warningevent_dirty")
-        self[warningevent .. "_text_shardrpc"] = net_string(inst.GUID, warningevent .. "_text_shardrpc", "warningevent_dirty")
+        self[warningevent .. "_time"] = net_shortint(inst.GUID, warningevent .. "_time",  warningevent .. "_time_dirty")
+        self[warningevent .. "_time_shardrpc"] = net_shortint(inst.GUID, warningevent .. "_time_shardrpc", warningevent .. "_time_dirty")
+        self[warningevent .. "_text"] = net_string(inst.GUID, warningevent .. "_text", warningevent .. "_text_dirty")
+        self[warningevent .. "_text_shardrpc"] = net_string(inst.GUID, warningevent .. "_text_shardrpc", warningevent .. "_text_dirty")
+
+
+        if not TheNet:IsDedicated() then
+            inst:ListenForEvent(warningevent .. "_time_dirty", function(inst)
+                self:OnWarningEventDirty(inst, warningevent, "time", true)
+            end)
+
+            inst:ListenForEvent(warningevent .. "_text_dirty", function(inst)
+                self:OnWarningEventDirty(inst, warningevent, "text", true)
+            end)
+        end
     end
 
     if not TheNet:IsDedicated() then
-        inst:ListenForEvent("warningevent_dirty", function(inst) self:OnWarningEventDirty(inst) end)
+        inst:DoPeriodicTask(0.5, function() self:OnUpdate() end)
     end
 end)
 
-local update_task
-function WarningTimer:OnWarningEventDirty(inst)
+local eventstime = {}
+local client_prediction_tasks = {}
+function WarningTimer:OnWarningEventDirty(inst, warningevent, type, fromserver)
     if not ThePlayer or not ThePlayer.HUD then
         return
     end
-    local eventstime = {}
-    for warningevent in pairs(WarningEvents) do
+
+    if type == "text" then
         eventstime[warningevent .. "_text"] = inst.replica.warningtimer[warningevent .. "_text"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text"]:value()
                                             or inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value()
                                             or ""
-
+    else
         eventstime[warningevent .. "_time"] = inst.replica.warningtimer[warningevent .. "_time"]:value() > 0 and inst.replica.warningtimer[warningevent .. "_time"]:value()
                                             or inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value() ~= 0 and inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value()
                                             or 0
     end
-    ThePlayer.HUD.WarningEventTimeData = eventstime
-    ThePlayer.HUD:UpdateWarningEvents()
-    if not update_task and UpdateTime > 1 then
-        update_task = inst:DoPeriodicTask(1, function() self:OnUpdate(inst) end)
+
+    if fromserver and client_prediction_tasks[warningevent] then
+        client_prediction_tasks[warningevent]:Cancel()
+        client_prediction_tasks[warningevent] = nil
+    end
+
+    if not client_prediction_tasks[warningevent] and UpdateTime > 1 then
+        client_prediction_tasks[warningevent] = inst:DoPeriodicTask(1, function() self:UpdateClientPrediction(inst, warningevent) end)
     end
 end
 
-function WarningTimer:OnUpdate(inst) -- 每秒运行一次
+function WarningTimer:OnUpdate()
+    ThePlayer.HUD.WarningEventTimeData = eventstime
+    ThePlayer.HUD:UpdateWarningEvents()
+end
+
+function WarningTimer:UpdateClientPrediction(inst, warningevent) -- 每个事件单独每秒运行一次
     if not EventTimer.ClientPrediction then return end
     local Dirty = false
-    for warningevent in pairs(WarningEvents) do
 
-        ----------------------------------------time---------------------------------------
+    ----------------------------------------time---------------------------------------
 
-        local time          = self[warningevent .. "_time"]:value() -- 本世界time
-        local time_shardrpc = self[warningevent .. "_time_shardrpc"]:value() -- 其它世界time
+    local time          = self[warningevent .. "_time"]:value() -- 本世界time
+    local time_shardrpc = self[warningevent .. "_time_shardrpc"]:value() -- 其它世界time
 
-        time = time - 1
-        if time >= 0 then
-            self[warningevent .. "_time"]:set_local(time)
-            Dirty = true
-        end
+    time = time - 1
+    if time >= 0 then
+        self[warningevent .. "_time"]:set_local(time)
+        Dirty = true
+    end
 
-        time_shardrpc = time_shardrpc - 1
-        if time_shardrpc >= 0 then
-            self[warningevent .. "_time_shardrpc"]:set_local(time_shardrpc)
-            Dirty = true
-        end
+    time_shardrpc = time_shardrpc - 1
+    if time_shardrpc >= 0 then
+        self[warningevent .. "_time_shardrpc"]:set_local(time_shardrpc)
+        Dirty = true
+    end
 
-        ----------------------------------------text---------------------------------------
+    ----------------------------------------text---------------------------------------
 
-        local new_text, shard_new_text
+    local new_text, shard_new_text
 
-        local datatext = self[warningevent .. "_text"]:value() -- 本世界text
+    local datatext = self[warningevent .. "_text"]:value() -- 本世界text
 
-        local datatext_shardrpc  = self[warningevent .. "_text_shardrpc"]:value() -- 其它世界text
-        local time_text_shardrpc -- 其它世界的time_text
-        local time_text_fromShard -- 来自哪个世界
+    local datatext_shardrpc  = self[warningevent .. "_text_shardrpc"]:value() -- 其它世界text
+    local time_text_shardrpc -- 其它世界的time_text
+    local time_text_fromShard -- 来自哪个世界
 
-        if datatext ~= "" then
-            new_text = get_new_text(Getformat(datatext), datatext)
+    if datatext ~= "" then
+        new_text = get_new_text(Getformat(datatext), datatext)
 
-            -- 如果上方的匹配失败了，直接使用上上方的time
-            if not new_text then
-                if time >= 0 then
-                    new_text = TimeToString(time)
-                end
-            end
-        elseif datatext_shardrpc ~= "" then
-            time_text_fromShard, time_text_shardrpc = string.match(datatext_shardrpc, "([^\n]*)\n(.*)" ) -- 提取出来自哪个世界，具体信息
-            if time_text_fromShard and time_text_shardrpc then
-                shard_new_text = get_new_text(Getformat(time_text_shardrpc), time_text_shardrpc)
-
-                if not shard_new_text then
-                    if time_shardrpc >= 0 and time_text_fromShard then -- 如果上方的匹配失败了，直接使用上上方的time_shardrpc
-                        shard_new_text = time_text_fromShard .. "\n" .. TimeToString(time_shardrpc)
-                    end
-                else
-                    shard_new_text = time_text_fromShard .. "\n" .. shard_new_text
-                end
+        -- 如果上方的匹配失败了，直接使用上上方的time
+        if not new_text then
+            if time >= 0 then
+                new_text = TimeToString(time)
             end
         end
+    elseif datatext_shardrpc ~= "" then
+        time_text_fromShard, time_text_shardrpc = string.match(datatext_shardrpc, "([^\n]*)\n(.*)" ) -- 提取出来自哪个世界，具体信息
+        if time_text_fromShard and time_text_shardrpc then
+            shard_new_text = get_new_text(Getformat(time_text_shardrpc), time_text_shardrpc)
 
-        if new_text then
-            self[warningevent .. "_text"]:set_local(new_text) -- 更新text
-            Dirty = true
-        elseif shard_new_text then
-            self[warningevent .. "_text_shardrpc"]:set_local(shard_new_text) -- 更新text
-            Dirty = true
+            if not shard_new_text then
+                if time_shardrpc >= 0 and time_text_fromShard then -- 如果上方的匹配失败了，直接使用上上方的time_shardrpc
+                    shard_new_text = time_text_fromShard .. "\n" .. TimeToString(time_shardrpc)
+                end
+            else
+                shard_new_text = time_text_fromShard .. "\n" .. shard_new_text
+            end
         end
     end
 
+    if new_text then
+        self[warningevent .. "_text"]:set_local(new_text) -- 更新text
+        Dirty = true
+    elseif shard_new_text then
+        self[warningevent .. "_text_shardrpc"]:set_local(shard_new_text) -- 更新text
+        Dirty = true
+    end
+
     if Dirty then
-        self:OnWarningEventDirty(inst) -- 更新数据
+        -- 更新数据
+        self:OnWarningEventDirty(inst, warningevent, "text")
+        self:OnWarningEventDirty(inst, warningevent, "time")
     end
 end
 

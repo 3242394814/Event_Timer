@@ -311,10 +311,10 @@ WarningEvents = {
             local text = ThePlayer.HUD.WarningEventTimeData.hounded_text
             local is_worm_boss = text ~= "" and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
 
-            if time == 120 or JustEntered(time) then
-                return true, WarningEvents.hounded.announcefn, 10
-            elseif time > 2 and time <= 90 then
+            if time > 2 and time <= 90 then
                 return true, WarningEvents.hounded.announcefn, time
+            elseif time == 120 or JustEntered(time) then
+                return true, WarningEvents.hounded.announcefn, 10
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[is_worm_boss and "worm_boss" or GetWorldtypeStr()])), 10, time
             end
@@ -371,10 +371,10 @@ WarningEvents = {
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.deerclopsspawner_time
-            if time == 120 or JustEntered(time) then
-                return true, WarningEvents.deerclopsspawner.announcefn, 10
-            elseif time > 2 and time <= 60 then
+            if time > 2 and time <= 60 then
                 return true, WarningEvents.deerclopsspawner.announcefn, time
+            elseif time == 120 or JustEntered(time) then
+                return true, WarningEvents.deerclopsspawner.announcefn, 10
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.attack)), 10, time
             end
@@ -527,10 +527,10 @@ WarningEvents = {
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.beargerspawner_time
-            if time == 120 or JustEntered(time) then
-                return true, WarningEvents.beargerspawner.announcefn, 10
-            elseif time > 2 and time <= 60 then
+            if time > 2 and time <= 60 then
                 return true, WarningEvents.beargerspawner.announcefn, time
+            elseif time == 120 or JustEntered(time) then
+                return true, WarningEvents.beargerspawner.announcefn, 10
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.attack)), 10, time
             end
@@ -588,6 +588,7 @@ WarningEvents = {
                 y = -10,
             },
         },
+        DisableShardRPC = true,
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.beequeenhive_time
             return time and string.format(ReplacePrefabName(STRINGS.eventtimer.beequeenhive.cooldown), TimeToString(time))
@@ -1261,12 +1262,12 @@ WarningEvents = {
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.volcanomanager_time
-            if JustEntered(time) and time <= 480 then
+            if time > 2 and time <= 60 then
+                return true, WarningEvents.volcanomanager.announcefn, time
+            elseif JustEntered(time) and time <= 480 then
                 return true, WarningEvents.volcanomanager.announcefn, 10
             elseif time == 120 then
                 return true, WarningEvents.volcanomanager.announcefn, 10
-            elseif time > 2 and time <= 60 then
-                return true, WarningEvents.volcanomanager.announcefn, time
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.volcanomanager.attack)), 10, time
             end
@@ -1312,10 +1313,10 @@ WarningEvents = {
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.twisterspawner_time
-            if time == 120 or JustEntered(time) then
-                return true, WarningEvents.twisterspawner.announcefn, 10
-            elseif time > 2 and time <= 60 then
+            if time > 2 and time <= 60 then
                 return true, WarningEvents.twisterspawner.announcefn, time
+            elseif time == 120 or JustEntered(time) then
+                return true, WarningEvents.twisterspawner.announcefn, 10
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.attack)), 10, time
             end
@@ -1669,7 +1670,9 @@ or Ismodloaded("workshop-3322803908") and
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.rocmanager_time
             local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
-            if time == 120 or (JustEntered(time) and time > 30) then
+            if time > 2 and time <= 90 then
+                return true, WarningEvents.rocmanager.announcefn, time
+            elseif time == 120 or JustEntered(time) then
                 return true, WarningEvents.rocmanager.announcefn, 10
             elseif text == ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.rocmanager.tips)), 10
@@ -1729,10 +1732,10 @@ local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.gmoosespawner_time
-            if time == 120 or JustEntered(time) then
-                return true, WarningEvents.gmoosespawner.announcefn, 10
-            elseif time > 2 and time <= 60 then
+            if time > 2 and time <= 60 then
                 return true, WarningEvents.gmoosespawner.announcefn, time
+            elseif time == 120 or JustEntered(time) then
+                return true, WarningEvents.gmoosespawner.announcefn, 10
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.attack)), 10, time
             end
@@ -1782,10 +1785,10 @@ local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.mock_dragonflyspawner_time
-            if time == 120 or JustEntered(time) then
-                return true, WarningEvents.mock_dragonflyspawner.announcefn, 10
-            elseif time > 2 and time <= 60 then
+            if time > 2 and time <= 60 then
                 return true, WarningEvents.mock_dragonflyspawner.announcefn, time
+            elseif time == 120 or JustEntered(time) then
+                return true, WarningEvents.mock_dragonflyspawner.announcefn, 10
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.attack)), 10, time
             end
@@ -1816,12 +1819,11 @@ for warningevent, data in pairs(WarningEvents) do
         if timedata then
             warningtimer.inst.replica.warningtimer[event_time_shardrpc]:set(timedata or 0)
 
-            local textdata
             if timedata > 0 then
-                textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
+                local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
                 textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
+                warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
             end
-            warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
         end
     end)
 
