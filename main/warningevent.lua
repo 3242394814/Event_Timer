@@ -115,7 +115,7 @@ local function AddWarningEvents(self)
             -- end
 
             if data.gettimefn then
-                if not self[warningevent].force or ((time and time <= 0) --[[or self[warningevent].sametick >= 100]]) then
+                if not self[warningevent].force or ((not time or time and time <= 0) --[[or self[warningevent].sametick >= 100]]) then
                     if self[warningevent].shown then
                         self[warningevent]:Hide()
                     end

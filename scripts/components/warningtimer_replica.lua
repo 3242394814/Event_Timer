@@ -92,10 +92,6 @@ end)
 local eventstime = {}
 local client_prediction_tasks = {}
 function WarningTimer:OnWarningEventDirty(inst, warningevent, type, fromserver)
-    if not ThePlayer or not ThePlayer.HUD then
-        return
-    end
-
     if type == "text" then
         eventstime[warningevent .. "_text"] = inst.replica.warningtimer[warningevent .. "_text"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text"]:value()
                                             or inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value()
@@ -117,6 +113,9 @@ function WarningTimer:OnWarningEventDirty(inst, warningevent, type, fromserver)
 end
 
 function WarningTimer:OnUpdate()
+    if not ThePlayer or not ThePlayer.HUD then
+        return
+    end
     ThePlayer.HUD.WarningEventTimeData = eventstime
     ThePlayer.HUD:UpdateWarningEvents()
 end
