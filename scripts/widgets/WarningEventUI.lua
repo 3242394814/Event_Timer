@@ -167,8 +167,11 @@ local WarningEventHUD = Class(Widget, function(self, owner)
 
             -- 点击倒计时后触发的事件
             widget.destitem.backing:SetOnClick(function()
-                if type(data.announcefn) == "function" and type(data.announcefn()) == "string" then
-                    TheNet:Say(STRINGS.LMB .. ' ' .. data.announcefn())
+                if type(data.announcefn) == "function" then
+                    local res = data.announcefn()
+                    if type(res) == "string" then
+                        TheNet:Say(STRINGS.LMB .. ' ' .. res)
+                    end
                 end
             end)
 

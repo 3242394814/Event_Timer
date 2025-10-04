@@ -1819,11 +1819,12 @@ for warningevent, data in pairs(WarningEvents) do
         if timedata then
             warningtimer.inst.replica.warningtimer[event_time_shardrpc]:set(timedata or 0)
 
+            local textdata
             if timedata > 0 then
-                local textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
+                textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
                 textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
-                warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
             end
+            warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
         end
     end)
 
