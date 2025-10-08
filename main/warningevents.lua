@@ -1803,12 +1803,10 @@ for k, v in pairs(UncompromisingEvents) do
     WarningEvents[k] = v
 end
 
-for event in pairs(WarningEvents) do
-    WarningEvents[event].name = event -- 给 WarningEventUI.lua 使用
-end
+_G.EventTimer.Register_Event = function(warningevent)
+    WarningEvents[warningevent].name = warningevent -- 给 WarningEventUI.lua 使用
 
---跨世界同步计时
-for warningevent, data in pairs(WarningEvents) do
+    -- 跨世界同步倒计时
     local event_time_shardrpc = warningevent .. "_time_shardrpc"
     local event_text_shardrpc = warningevent .. "_text_shardrpc"
 
@@ -1837,4 +1835,8 @@ for warningevent, data in pairs(WarningEvents) do
             warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
         end
     end)
+end
+
+for warningevent in pairs(WarningEvents) do
+    _G.EventTimer.Register_Event(warningevent)
 end
