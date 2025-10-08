@@ -37,36 +37,36 @@ local function OnUpdate(self)
             time = data.gettimefn()
             if time and time < 0 then time = 0 end -- 避免被负数影响
 
-            -- 更新本世界数据
-            self.inst.replica.warningtimer[warningevent .. "_time"]:set(time or 0)
-
-            -- 更新其它世界数据
-            if SyncTimer and not data.DisableShardRPC then
-                if valid_data[warningevent].time_sametick > math.ceil(2 / UpdateTime) then -- 时间不变，删除其它世界的时间数据
-                    if valid_data[warningevent].time_valid then
-                        valid_data[warningevent].time_valid = false -- 标记数据无效
-
+            if valid_data[warningevent].time_sametick > math.ceil(2 / UpdateTime) then -- 重复次数过多，删除数据
+                if valid_data[warningevent].time_valid then
+                    valid_data[warningevent].time_valid = false -- 标记数据无效
+                    self.inst.replica.warningtimer[warningevent .. "_time"]:set(0) -- 更新本世界数据
+                    if SyncTimer and not data.DisableShardRPC then -- 更新其它世界数据
                         for id in pairs(Shard_GetConnectedShards()) do
                             SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][warningevent .. "_time_shardrpc"], id, 0, GetWorldType())
                         end
                     end
-                elseif time and time > 0  then -- 时间有效，发送时间数据
-                    valid_data[warningevent].time_valid = true -- 标记数据有效
-
+                end
+            elseif time and time > 0  then -- 时间有效
+                valid_data[warningevent].time_valid = true -- 标记数据有效
+                self.inst.replica.warningtimer[warningevent .. "_time"]:set(time) -- 更新本世界数据
+                if SyncTimer and not data.DisableShardRPC then -- 更新其它世界数据
                     for id in pairs(Shard_GetConnectedShards()) do
                         SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][warningevent .. "_time_shardrpc"], id, time, GetWorldType())
                     end
                 end
-
-                -- 判断时间是否有变化
-                if valid_data[warningevent].time_last == time then
-                    valid_data[warningevent].time_sametick = (valid_data[warningevent].time_sametick) + 1
-                else
-                    valid_data[warningevent].time_sametick = 0
-                end
-
-                valid_data[warningevent].time_last = time -- 更新上次记录的时间
+            else
+                self.inst.replica.warningtimer[warningevent .. "_time"]:set(time or 0)
             end
+
+            -- 判断时间是否有变化
+            if valid_data[warningevent].time_last == time then
+                valid_data[warningevent].time_sametick = (valid_data[warningevent].time_sametick) + 1
+            else
+                valid_data[warningevent].time_sametick = 0
+            end
+
+            valid_data[warningevent].time_last = time -- 更新上次记录的时间
         end
         if data.gettextfn then
             local text = data.gettextfn(time)
