@@ -1,8 +1,8 @@
 -- This README_en.md was translated by ChatGPT
 
 -- How to add your event to this mod
--- Add a table to GLOBAL.WarningEvents. The event name can be anything you like.
--- Example and field explanations are below.
+
+-- 1.Add a table to GLOBAL.WarningEvents. The event name can be anything you like. Example and field explanations are below.
 
 local TimeToString = GLOBAL.EventTimer.env.TimeToString -- Get the global events timer mod's time formatting function (converts a raw number into "Xday Xmin Xsec")
 local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- Global events timer mod's get-upvalue helper. File located at ./scripts/utils/bbgoat_upvaluehelper.lua
@@ -208,6 +208,10 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
     },
 }
 
+-- 2.Use the GLOBAL.EventTimer.Register_Event("EventName") function to register your event.
+-- In the example above, the event name is hounded, so the registration method is:
+-- GLOBAL.EventTimer.Register_Event("hounded")
+
 -- Summary / Important notes
 -- gettimefn / gettextfn run on the server.
 -- imagechangefn / animchangefn / announcefn / tipsfn run on the client. The client cannot call gettimefn or gettextfn
@@ -215,6 +219,9 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
 -- Return types and save locations must be strictly followed:
 -- gettimefn must return a number (seconds). The value is saved to GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_time
 -- gettextfn must return a string. The value is saved to GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_text
+
+-- After writing the event, use GLOBAL.EventTimer.Register_Event to register it.
+-- The parameter you pass in should be the event name as a string.
 
 -- Finally, enable this mod and your mod together. Your mod must load after this mod.
 -- The events of this mod are recorded in main/warningevents.lua
