@@ -28,7 +28,7 @@ all_clients_require_mod = true
 client_only_mod = false
 server_only_mod = false
 
-server_filter_tags = {
+server_filter_tags = { -- 服务器标签
     "全局事件计时器 V" .. version,
     "Global Events Timer V" .. version,
 }

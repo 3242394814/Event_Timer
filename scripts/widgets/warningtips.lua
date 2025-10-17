@@ -2,12 +2,22 @@ local NineSlice = require "widgets/nineslice"
 local Widget = require("widgets/widget")
 local Text = require("widgets/text")
 
-local WarningTips = Class(Widget, function(self, text, up_info)
+--- @param text string|nil 消息内容
+--- @param up_info table|nil 上条提示的info
+--- @param level number|nil 1-静默提醒-白色 2-声音提醒-黄色 3-声音提醒-红色
+local WarningTips = Class(Widget, function(self, text, up_info, level)
     Widget._ctor(self, "WarningTips")
     self:SetScale(2, 2)
     self:SetClickable(false)
     self.Alpha = 0
-    self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", WEBCOLOURS["ORANGE"]))
+
+    level = type(level) == "number" and level or 2
+    local color = {
+        [1] = RGB(255, 255, 255), -- 白色
+        [2] = WEBCOLOURS["ORANGE"],
+        [3] = WEBCOLOURS["RED"],
+    }
+    self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", color[level] or color[2]))
     local w, h = self.text:GetRegionSize() -- 获取文字区域大小
 
     local new_start_y
@@ -63,8 +73,9 @@ local WarningTips = Class(Widget, function(self, text, up_info)
         0.5, -- 移动时长 time
         nil -- 移动完成后执行的函数 fn
     )
-
-    TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/XP_bar_fill_unlock") -- 播放提示音
+    if level > 1 then
+        TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/XP_bar_fill_unlock") -- 播放提示音
+    end
 end)
 
 function WarningTips:OnWallUpdate(dt)

@@ -172,19 +172,22 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
     -- Return values (in order): boolean (true to trigger tip; false to not trigger and reset state),
     -- a function that returns the tip string (function -> string),
     -- duration (number, seconds),
-    -- delay before showing (number, seconds).
-    -- Signature: boolean, function->string, number, number
-    -- Example: return true, function() return "text" end, 10, 10
+    -- delay before showing (number, seconds or nil).
+    -- Message Level (1 - Silent Alert - White, 2 - Sound Alert - Yellow, 3 - Sound Alert - Red)
+    -- Signature: boolean, function->string, number, number|nil, number
+    -- Example: return true, function() return "text" end, 10, 10, 3
     tipsfn = function()
         local time = GLOBAL.ThePlayer.HUD.WarningEventTimeData.hounded_time
 
-        if time == 120 or (GLOBAL.GetTime() > 1 and GLOBAL.GetTime() < 10 and time > 0) then
+        if time == 120 or (GLOBAL.GetTime() > 1 and GLOBAL.GetTime() < 10 and time > 0 and time < 960) then
             -- GLOBAL.GetTime returns time since this game load; reloading/entering world/reseting will reset it to 0.
-            return true, GLOBAL.WarningEvents.hounded.announcefn, 10 -- true = tip triggers; announcefn provides text; 10 = duration (seconds)
-        elseif time > 2 and time <= 60 then
-            return true, GLOBAL.WarningEvents.hounded.announcefn, time
+            return true, GLOBAL.WarningEvents.hounded.announcefn, 10, nil, 2 -- true = tip triggers; announcefn provides text; 10 = duration (seconds); 2 = Message Level
+        elseif time == 120 or (GLOBAL.GetTime() > 1 and GLOBAL.GetTime() < 10 and time > 0) then -- The difference from the one above is that this one is missing time < 960
+            return true, GLOBAL.WarningEvents.hounded.announcefn, 10, nil, 1 -- The message level is lower than the one above.
+        elseif time > 2 and time <= 90 then
+            return true, GLOBAL.WarningEvents.hounded.announcefn, time, nil, 2
         elseif time < 2 and time > 0 then -- when gettimefn can't fetch hound info it's treated as 0, so avoid checking equality with 0
-            return true, (function() return "WARNING: Hound attack starts!" end), 10, time -- second return must be a function returning a string; fourth value is delay (seconds)
+            return true, (function() return "WARNING: Hound attack starts!" end), 10, time, 3 -- second return must be a function returning a string; fourth value is delay (seconds)
         end
         return false -- otherwise return false to reset state
     end

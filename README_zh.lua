@@ -153,18 +153,20 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
         return text ~= "" and text or time and string.format("猎犬将在%s后攻击", TimeToString(time))
     end,
 
-    -- 醒目提示功能，在客户端执行的函数，这是一个可选函数，返回值依次为：布尔值(为true时触发提示，为false时不提示并重置状态)，提示信息内容（必须为一个返回字符串的函数），提示持续时间（数字类型，单位秒），延迟多久显示（数字类型，单位秒）
-    -- boolean, function->string, number, number
-    -- 示例：return true, function() return "text" end, 10, 10
+    -- 醒目提示功能，在客户端执行的函数，这是一个可选函数，返回值依次为：布尔值(为true时触发提示，为false时不提示并重置状态)，提示信息内容（必须为一个返回字符串的函数），提示持续时间（数字类型，单位秒），延迟多久显示（数字类型，单位秒，可不填），消息等级(1-静默提醒-白色 2-声音提醒-黄色 3-声音提醒-红色)
+    -- boolean, function->string, number, number|nil, number
+    -- 示例：return true, function() return "text" end, 10, 10, 3
     tipsfn = function()
         local time = GLOBAL.ThePlayer.HUD.WarningEventTimeData.hounded_time
 
-        if time == 120 or (GLOBAL.GetTime() > 1 and GLOBAL.GetTime() < 10 and time > 0) then -- 其中GetTime是科雷的函数，返回的是游戏本次加载后到现在的运行时间，重载游戏/进出房间/穿越世界 就会归0
-            return true, GLOBAL.WarningEvents.hounded.announcefn, 10 -- true表示可以提醒玩家了，WarningEvents.hounded.announcefn是上面的宣告函数，10表示提示持续10秒
-        elseif time > 2 and time <= 60 then -- 第二种情况：猎犬袭击倒计时在2~60秒内
-            return true, GLOBAL.WarningEvents.hounded.announcefn, time
+        if time == 120 or (GLOBAL.GetTime() > 1 and GLOBAL.GetTime() < 10 and time > 0 and time < 960) then -- 其中GetTime是科雷的函数，返回的是游戏本次加载后到现在的运行时间，重载游戏/进出房间/穿越世界 就会归0
+            return true, GLOBAL.WarningEvents.hounded.announcefn, 10, nil, 2 -- true表示可以提醒玩家了，WarningEvents.hounded.announcefn是上面的宣告函数，10表示提示持续10秒，2表示中等消息等级
+        elseif time == 120 or (GLOBAL.GetTime() > 1 and GLOBAL.GetTime() < 10 and time > 0) then -- 与上面一条的区别是少了 time < 960
+            return true, GLOBAL.WarningEvents.hounded.announcefn, 10, nil, 1 -- 消息等级比上面的低
+        elseif time > 2 and time <= 90 then -- 第二种情况：猎犬袭击倒计时在2~90秒内
+            return true, GLOBAL.WarningEvents.hounded.announcefn, time, nil, 2
         elseif time < 2 and time > 0 then -- 因为gettimefn获取不到猎犬袭击信息时，会被视作倒计时0秒，所以这里的time判断不能等于0
-            return true, (function() return "警告：猎犬正在袭击" end), 10, time -- 第二个返回值必须是一个“返回字符串的函数”。第四个值是延迟多少秒显示，这里设置为time就能刚好在倒计时结束时发出警告
+            return true, (function() return "警告：猎犬正在袭击" end), 10, time, 3 -- 第二个返回值必须是一个“返回字符串的函数”。第四个值是延迟多少秒显示，这里设置为time就能刚好在倒计时结束时发出警告
         end
         return false -- 其余情况返回一个false，重置状态
     end

@@ -39,14 +39,14 @@ local function AddWarningEvents(self)
     end
 
     -- 醒目提示
-    function self:ShowTips(timefn, second)
+    function self:ShowTips(timefn, second, level)
         if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
         if type(timefn) ~= "function" then return end
 
         -- 获取上一条消息的信息
         local up_info = #warningtips_messages > 0 and warningtips_messages[#warningtips_messages]
 
-        local message = self:AddChild(WarningTips(timefn(), up_info)) -- 创建新的 widget
+        local message = self:AddChild(WarningTips(timefn(), up_info, level)) -- 创建新的 widget
 
         -- 插入到旧消息列表
         table.insert(warningtips_messages, message)
@@ -139,16 +139,16 @@ local function AddWarningEvents(self)
             end
 
             if time and data.tipsfn and game_ready then
-                local need_tips, tipstextfn, tipstime, delay = data.tipsfn()
+                local need_tips, tipstextfn, tipstime, delay, level = data.tipsfn() -- 加载事件列表的tips函数
                 self[warningevent].last_tips = self[warningevent].last_tips or false
                 if need_tips and not self[warningevent].last_tips then
                     self[warningevent].last_tips = true
                     if delay and TheWorld then
                         TheWorld:DoTaskInTime(delay, function() -- 延迟提示
-                            self:ShowTips(tipstextfn, tipstime)
+                            self:ShowTips(tipstextfn, tipstime, level)
                         end)
                     else
-                        self:ShowTips(tipstextfn, tipstime)
+                        self:ShowTips(tipstextfn, tipstime, level)
                     end
                 elseif not need_tips then
                     self[warningevent].last_tips = false
