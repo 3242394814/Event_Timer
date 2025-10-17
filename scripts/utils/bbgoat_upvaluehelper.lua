@@ -1,14 +1,13 @@
 -- 此lua文件由冰冰羊参考其它模组的upvaluehelper代码制作，并进行了功能完善，如果你想使用我这个版本的upvaluehelper，建议去模组Chinese++ Pro模组的scripts/utils文件夹下获取最新版的
 -- 创意工坊：https://steamcommunity.com/sharedfiles/filedetails/?id=2941527805
 -- GitLab：https://gitlab.com/bbgoat/chinese-pro/-/blob/Beta/scripts/utils/bbgoat_upvaluehelper.lua
-GLOBAL.setfenv(1, GLOBAL)
 
 -- 加载此文件可使用下面的示例代码
 --[[
 local function Import(modulename)
 	local f = GLOBAL.kleiloadlua(modulename)
 	if f and type(f) == "function" then
-        setfenv(f, env.env)
+        setfenv(f, GLOBAL)
         return f()
 	end
 end

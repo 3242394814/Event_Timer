@@ -78,7 +78,7 @@ end
 function Import(modulename)
 	local f = GLOBAL.kleiloadlua(modulename)
 	if f and type(f) == "function" then
-        GLOBAL.setfenv(f, env.env)
+        GLOBAL.setfenv(f, GLOBAL)
         return f()
 	end
 end

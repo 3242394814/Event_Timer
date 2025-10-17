@@ -1457,7 +1457,7 @@ or Ismodloaded("workshop-3322803908") and
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.pugalisk_fountain_time
             if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.pugalisk_fountain_time.ready)), 5, time
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.pugalisk_fountain.tips)), 5, time
             end
             return false
         end
@@ -1492,6 +1492,7 @@ or Ismodloaded("workshop-3322803908") and
                 y = -15,
             }
         },
+        DisableShardRPC = true,
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.banditmanager_time
             local text = ThePlayer.HUD.WarningEventTimeData.banditmanager_text
@@ -1663,14 +1664,17 @@ or Ismodloaded("workshop-3322803908") and
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.rocmanager_time
-            if time and time > 0 then
+            local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
+            if text == ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists) then
+                return ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)
+            elseif time and time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.rocmanager.cooldown), TimeToString(time))
             end
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.rocmanager_time
             local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
-            if time > 2 and time <= 90 then
+            if time > 30 and time <= 90 then
                 return true, WarningEvents.rocmanager.announcefn, time
             elseif time == 120 or JustEntered(time) then
                 return true, WarningEvents.rocmanager.announcefn, 10

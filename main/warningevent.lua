@@ -64,12 +64,12 @@ local function AddWarningEvents(self)
         end)
 
         -- 更新透明度
-        TheWorld:DoTaskInTime((second or 10) - 0.5, function()
+        TheWorld:DoTaskInTime((second or 10), function()
             message.AlphaMode = false
         end)
 
         -- 定时销毁与整理其它消息
-        TheWorld:DoTaskInTime(second or 10, function()
+        TheWorld:DoTaskInTime((second or 10) + 2, function()
             message:Kill()
             for i = #warningtips_messages, 1, -1 do
                 local msg = warningtips_messages[i]
