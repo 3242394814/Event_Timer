@@ -155,7 +155,7 @@ local function NightmareWildAnimChange(self)
 
     if not ChangeNightmareWildAnim then
         ChangeNightmareWildAnim = TheWorld:DoPeriodicTask(1, function()
-            local text = ThePlayer.HUD.WarningEventTimeData.nightmareclock_text
+            local text = ThePlayer and ThePlayer.HUD and ThePlayer.HUD.WarningEventTimeData and ThePlayer.HUD.WarningEventTimeData.nightmareclock_text
             if text and string.find(text, STRINGS.eventtimer.nightmareclock.phase_locked_text) then
                 self.anim.animation = STATES.wild -- 暴动锁定(因为计时器面板UI里的Anim是不会播放动画的，所以改用静态动画)
                 ThePlayer.HUD.nightmareclock:SetEventAnim(self.anim)
