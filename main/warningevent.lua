@@ -18,23 +18,25 @@ local function AddWarningEvents(self)
     local function sort_message()
         for i, msg in ipairs(warningtips_messages) do
             local w, h = msg.text:GetRegionSize() -- 获取当前消息文字区域大小
-            msg.target_x = w + 40
+            if w and h then
+                msg.target_x = w + 40
 
-            if i > 1 then -- 其它消息，依次根据上个消息的位置调整坐标
-                local up_y = warningtips_messages[i - 1].target_y
-                local up_w, up_h = warningtips_messages[i - 1].text:GetRegionSize()
-                msg.target_y = up_y - up_h - h - 50
-            else
-                msg.target_y = msg.base_y -- 第一条消息，Y轴设为基础坐标
+                if i > 1 then -- 其它消息，依次根据上个消息的位置调整坐标
+                    local up_y = warningtips_messages[i - 1].target_y
+                    local up_w, up_h = warningtips_messages[i - 1].text:GetRegionSize()
+                    msg.target_y = up_y - up_h - h - 50
+                else
+                    msg.target_y = msg.base_y -- 第一条消息，Y轴设为基础坐标
+                end
+
+                local pos = msg:GetPosition()
+                msg:MoveTo(
+                    { x = pos.x, y = pos.y, z = 0 },
+                    { x = msg.target_x, y = msg.target_y, z = 0},
+                    0.5,
+                    nil
+                )
             end
-
-            local pos = msg:GetPosition()
-            msg:MoveTo(
-                { x = pos.x, y = pos.y, z = 0 },
-                { x = msg.target_x, y = msg.target_y, z = 0},
-                0.5,
-                nil
-            )
         end
     end
 
@@ -55,10 +57,12 @@ local function AddWarningEvents(self)
         message.inst:DoPeriodicTask(0.5, function() -- 更新倒计时时间
             message.text:SetString(timefn())
             local w, h = message.text:GetRegionSize() -- 获取文字区域大小
-            message.bg:SetSize( -- 刷新背景大小
-                w + 5,
-                h
-            )
+            if w and h then
+                message.bg:SetSize( -- 刷新背景大小
+                    w + 5,
+                    h
+                )
+            end
 
             sort_message() -- 整理所有消息
         end)
