@@ -140,23 +140,28 @@ AddPrefabPostInit("world", function(inst)
 end)
 
 local STATES = {
-    none = "idle_1", -- 默认
-    calm = "idle_1", -- 平静
-    warn = "idle_2", -- 警告
-    wild = "idle_3", -- 暴动
-    dawn = "idle_2", -- 黎明
+    none = "calm_loop", -- 默认
+    calm = "calm_loop", -- 平静
+    warn = "warn_loop", -- 警告
+    wild = "wild_loop", -- 暴动
+    dawn = "dawn_loop", -- 黎明
+    lock = "wild_lock", -- 锁定暴动阶段
 }
-local changeanim = nil
+local ChangeNightmareWildAnim = nil
 local function NightmareWildAnimChange(self)
-    if TheWorld.ismastersim then
+    if TheNet:IsDedicated() then
         return
     end
 
-    if not changeanim then
-        changeanim = TheWorld:DoPeriodicTask(1, function()
-            if ThePlayer and ThePlayer.HUD.NightmareWild then
+    if not ChangeNightmareWildAnim then
+        ChangeNightmareWildAnim = TheWorld:DoPeriodicTask(1, function()
+            local text = ThePlayer.HUD.WarningEventTimeData.nightmareclock_text
+            if text and string.find(text, STRINGS.eventtimer.nightmareclock.phase_locked_text) then
+                self.anim.animation = STATES.wild -- 暴动锁定(因为计时器面板UI里的Anim是不会播放动画的，所以改用静态动画)
+                ThePlayer.HUD.nightmareclock:SetEventAnim(self.anim)
+            elseif ThePlayer and ThePlayer.HUD.nightmareclock then
                 self.anim.animation = STATES[TheWorld.state.nightmarephase]
-                ThePlayer.HUD.NightmareWild:SetEventAnim(self.anim)
+                ThePlayer.HUD.nightmareclock:SetEventAnim(self.anim) -- 屏幕左上角的倒计时不会自动刷新Anim，需要手动刷新
             end
         end)
     end
@@ -240,7 +245,7 @@ WarningEvents = {
 
             if next_wave_is_wormboss then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss), TimeToString(time))
-            elseif type(_wave_override_chance) == "number" then
+            elseif type(_wave_override_chance) == "number" and _wave_override_chance > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.worm_boss_chance), TimeToString(time), _wave_override_chance * 100)
             end
         end,
@@ -304,7 +309,8 @@ WarningEvents = {
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.hounded_time
             local text = ThePlayer.HUD.WarningEventTimeData.hounded_text
-            return text ~= "" and text or time and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time))
+            local is_worm_boss = text ~= "" and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
+            return is_worm_boss and text or time and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time))
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.hounded_time
@@ -665,9 +671,9 @@ WarningEvents = {
             if TheWorld:HasTag("cave") or TheWorld:HasTag("volcano") then return end
             local self = TheWorld.net.components.clock
             if not self then return end
-            local MOON_PHASE_CYCLES = Upvaluehelper.FindUpvalue(self.OnUpdate, "MOON_PHASE_CYCLES", nil, nil, nil, "scripts/components/clock.lua", nil)
-            local _mooniswaxing = Upvaluehelper.FindUpvalue(self.OnUpdate, "_mooniswaxing", nil, nil, nil, "scripts/components/clock.lua", nil)
-            local _mooomphasecycle = Upvaluehelper.FindUpvalue(self.OnUpdate, "_mooomphasecycle", nil, nil, nil, "scripts/components/clock.lua", nil)
+            local MOON_PHASE_CYCLES = Upvaluehelper.FindUpvalue(self.OnLoad, "MOON_PHASE_CYCLES", nil, nil, nil, "scripts/components/clock.lua", nil)
+            local _mooniswaxing = Upvaluehelper.FindUpvalue(self.OnLoad, "_mooniswaxing", nil, nil, nil, "scripts/components/clock.lua", nil)
+            local _mooomphasecycle = Upvaluehelper.FindUpvalue(self.OnLoad, "_mooomphasecycle", nil, nil, nil, "scripts/components/clock.lua", nil)
             if not (MOON_PHASE_CYCLES and _mooniswaxing and _mooomphasecycle) then
                 return
             end
@@ -1172,13 +1178,17 @@ WarningEvents = {
             return data.lockedphase and STRINGS.eventtimer.nightmareclock.phase_locked_text
         end,
         anim = {
-            scale = 0.22,
-            bank = "nightmare_watch",
-            build = "nightmare_timepiece",
-            animation = "idle_1",
+            scale = 0.5,
+            bank = "nigthmarephaseindicator",
+            build = "nigthmarephaseindicator",
+            animation = "calm_loop",
             offset = {
                 x = 0,
-                y = 10,
+                y = 15,
+            },
+            uioffset = {
+                x = 0,
+                y = 15,
             },
         },
         animchangefn = NightmareWildAnimChange,
@@ -1210,6 +1220,7 @@ WarningEvents = {
             tex = "rocks.tex",
             scale = 0.8,
         },
+        DisableShardRPC = true, -- 我觉得同步这个意义不大
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.quaker_time
             if time and time > 0 then
