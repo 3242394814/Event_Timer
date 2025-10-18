@@ -1542,10 +1542,10 @@ or Ismodloaded("workshop-3322803908") and
 
             if (JustEntered(time) and time < 2400) then
                 return true, string.format(STRINGS.eventtimer.aporkalypse.cooldown, TimeToString(time)), 10, nil, 1
-            elseif time == 120 then
+            elseif time == 480 then
                 return true, string.format(STRINGS.eventtimer.aporkalypse.tips, TimeToString(time)), 10, nil, 2
-            elseif ready_attack(time) then
-                return true, StringToFunction(STRINGS.eventtimer.aporkalypse.tips_ready), 5, time + 1, 3
+            elseif time == 0 then -- 这个写法比较特殊..为了保证大灾变确实开始了，使用JustEntered来使新进入世界的玩家不触发提示
+                return true, not JustEntered(time) and StringToFunction(STRINGS.eventtimer.aporkalypse.tips_ready), 5, 1, 3 -- 延迟1秒是因为大灾变在1秒后才真正开始
             end
             return false
         end
@@ -1681,7 +1681,7 @@ or Ismodloaded("workshop-3322803908") and
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.rocmanager_time
             local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
-            if time > 30 and time <= 90 then -- 如果没有目标玩家就从0变成30，为了防止重复tips需修改此处
+            if time > TUNING.SEG_TIME and time <= 90 then -- 如果没有目标玩家就从0变成30，为了防止重复tips需修改此处
                 return true, WarningEvents.rocmanager.announcefn, 10, nil, 2
             elseif time == 120 or (JustEntered(time) and time < 960) then
                 return true, WarningEvents.rocmanager.announcefn, 10, nil, 2
