@@ -110,7 +110,7 @@ local function AddWarningEvents(self)
             local y = (-line * 70 - 30) * scale
 
             self[warningevent]:SetPosition(x, y, 0)
-            local time = eventsdata[warningevent .. "_time"] -- 屏幕左上角倒计时只显示time，不显示text，因为text内容太多
+            local time = eventsdata[warningevent .. "_time"] or 0 -- 屏幕左上角倒计时只显示time，不显示text，因为text内容太多
 
             -- if self[warningevent].last_time == time then
             --     self[warningevent].sametick = (self[warningevent].sametick or 0) + 1
@@ -119,7 +119,7 @@ local function AddWarningEvents(self)
             -- end
 
             if data.gettimefn then
-                if not self[warningevent].force or ((not time or time and time <= 0) --[[or self[warningevent].sametick >= 100]]) then
+                if not self[warningevent].force or ((time and time <= 0) --[[or self[warningevent].sametick >= 100]]) then
                     if self[warningevent].shown then
                         self[warningevent]:Hide()
                     end
@@ -142,7 +142,7 @@ local function AddWarningEvents(self)
                 end
             end
 
-            if time and data.tipsfn and game_ready then
+            if data.tipsfn and game_ready then
                 local need_tips, tipstextfn, tipstime, delay, level = data.tipsfn() -- 加载事件列表的tips函数
                 self[warningevent].last_tips = self[warningevent].last_tips or false
                 if need_tips and not self[warningevent].last_tips then

@@ -13,34 +13,60 @@ GLOBAL.setfenv(1, GLOBAL)
 modimport("main/timerprefab")
 
 local CalcTimeOfDay -- 今天还剩多少时间
-AddComponentPostInit("clock", function(self)
-    CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay")
-end)
-
+local second_world_moonphase -- 当前月相阶段(从世界使用)
 local lunarthrall_plant_table = {} -- 储存致命亮茄数量
--- 对致命亮茄的HOOK（存储世界上亮茄的数量）
-AddPrefabPostInit("lunarthrall_plant", function(inst)
-    if not TheWorld.ismastersim then
-        return
-    end
+local lordfruitfly_spawned -- 果蝇王是否已生成
 
-    table.insert(lunarthrall_plant_table, inst)
-	inst:ListenForEvent("onremove", function(inst)
-		local index = table.reverselookup(lunarthrall_plant_table, inst)
-		if index then
-			table.remove(lunarthrall_plant_table, index)
-		end
-	end)
-end)
-
--- 对果蝇王的HOOK（方便Tips）
-local lordfruitfly_spawned
-AddPrefabPostInit("lordfruitfly", function(inst)
-    lordfruitfly_spawned = true
-    inst:ListenForEvent("onremove", function(inst)
-        lordfruitfly_spawned = false
+if TheNet:GetIsServer() then
+    AddComponentPostInit("clock", function(self)
+        CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay")
     end)
-end)
+
+    AddComponentPostInit("shard_clock", function(self)
+        if not TheWorld.ismastershard then
+            local IA_CORE = rawget(_G,"IA_CORE_HAS_LOADED")
+            local world_type = ""
+
+            if TheWorld:HasTag("porkland") then
+                world_type = "_plateau"
+            elseif (not IA_CORE) or (IA_CORE and IsDSTWorld()) then
+                -- DST世界，什么也不做
+            elseif IA_CORE and IsShipwreckedWorld() then
+                world_type = "_tropical"
+            end
+
+            local clockdirty = Upvaluehelper.GetEventHandle(self.inst, "clockdirty" .. world_type, "components/shard_clock")
+            if not clockdirty then return end
+
+            local _moonphase = Upvaluehelper.GetUpvalue(clockdirty, "_moonphase")
+            if _moonphase and _moonphase:value() then
+                second_world_moonphase = _moonphase
+            end
+        end
+    end)
+
+    -- 对致命亮茄的HOOK（存储世界上亮茄的数量）
+    AddPrefabPostInit("lunarthrall_plant", function(inst)
+        if not TheWorld.ismastersim then
+            return
+        end
+
+        table.insert(lunarthrall_plant_table, inst)
+        inst:ListenForEvent("onremove", function(inst)
+            local index = table.reverselookup(lunarthrall_plant_table, inst)
+            if index then
+                table.remove(lunarthrall_plant_table, index)
+            end
+        end)
+    end)
+
+    AddPrefabPostInit("lordfruitfly", function(inst)
+        lordfruitfly_spawned = true
+        inst:ListenForEvent("onremove", function(inst)
+            lordfruitfly_spawned = false
+        end)
+    end)
+end
 
 -- 判断某个模组是否加载
 local function Ismodloaded(name)
@@ -668,19 +694,27 @@ WarningEvents = {
     },
     moon = {
         gettextfn = function()
-            if TheWorld:HasTag("cave") or TheWorld:HasTag("volcano") then return end
-            local self = TheWorld.net.components.clock
-            if not self then return end
-            local MOON_PHASE_CYCLES = Upvaluehelper.FindUpvalue(self.OnLoad, "MOON_PHASE_CYCLES", nil, nil, nil, "scripts/components/clock.lua", nil)
-            local _mooniswaxing = Upvaluehelper.FindUpvalue(self.OnLoad, "_mooniswaxing", nil, nil, nil, "scripts/components/clock.lua", nil)
-            local _mooomphasecycle = Upvaluehelper.FindUpvalue(self.OnLoad, "_mooomphasecycle", nil, nil, nil, "scripts/components/clock.lua", nil)
-            if not (MOON_PHASE_CYCLES and _mooniswaxing and _mooomphasecycle) then
-                return
-            end
-            if _mooniswaxing:value() then -- 月黑 → 月圆
-                return string.format(STRINGS.eventtimer.moon.moon_full, math.floor(#MOON_PHASE_CYCLES / 2 + 1 - _mooomphasecycle))
-            else -- 月圆 → 月黑
-                return string.format(STRINGS.eventtimer.moon.moon_new, math.floor(#MOON_PHASE_CYCLES + 1 - _mooomphasecycle))
+            if TheWorld.ismastershard then -- 主世界
+                local self = TheWorld.net.components.clock
+                if not self then return end
+                local MOON_PHASE_CYCLES = Upvaluehelper.GetUpvalue(self.OnLoad, "MOON_PHASE_CYCLES")
+                local _mooniswaxing = Upvaluehelper.GetUpvalue(self.OnLoad, "_mooniswaxing")
+                local _mooomphasecycle = Upvaluehelper.GetUpvalue(self.OnLoad, "_mooomphasecycle")
+                if not (MOON_PHASE_CYCLES and _mooniswaxing and _mooomphasecycle) then
+                    return
+                end
+                if _mooniswaxing:value() then -- 月黑 → 月圆
+                    return string.format(STRINGS.eventtimer.moon.moon_full, math.floor(#MOON_PHASE_CYCLES / 2 + 1 - _mooomphasecycle))
+                else -- 月圆 → 月黑
+                    return string.format(STRINGS.eventtimer.moon.moon_new, math.floor(#MOON_PHASE_CYCLES + 1 - _mooomphasecycle))
+                end
+            elseif not TheWorld:HasTag("cave") then -- 从世界
+                if not second_world_moonphase then return end
+                if second_world_moonphase:value() == 1 then -- 新月
+                    return STRINGS.eventtimer.moon.moon_new_ready
+                elseif second_world_moonphase:value() == 5 then -- 满月
+                    return STRINGS.eventtimer.moon.moon_full_ready
+                end
             end
         end,
         imagechangefn = function(self)
@@ -727,11 +761,15 @@ WarningEvents = {
                 local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_full)
                 if tonumber(day) == 10 then
                     return true, StringToFunction(STRINGS.eventtimer.moon.moon_new_ready), 10, nil, 1
+                elseif text == STRINGS.eventtimer.moon.moon_full_ready then
+                    return true, StringToFunction(STRINGS.eventtimer.moon.moon_full_ready), 10, nil, 1
                 end
             else
                 local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_new)
                 if tonumber(day) == 10 then
                     return true, StringToFunction(STRINGS.eventtimer.moon.moon_full_ready), 10, nil, 1
+                elseif text == STRINGS.eventtimer.moon.moon_new_ready then
+                    return true, StringToFunction(STRINGS.eventtimer.moon.moon_new_ready), 10, nil, 1
                 end
             end
             return false
@@ -844,28 +882,44 @@ WarningEvents = {
             end
         end,
     },
-    riftspawner = { -- 裂隙生成倒计时
+    lunar_riftspawner = { -- 月亮裂隙生成倒计时（为了跨世界同步数据修改了事件名。原事件名 riftspawner）
         gettimefn = function() -- 当裂隙出现时，不显示
-            if TheWorld and TheWorld:HasTag("forest") and TheWorld.net.components.warningtimer.inst.replica.warningtimer.rift_portal_text:value() ~= "" then
-                return
-            elseif TheWorld and TheWorld:HasTag("cave") and TheWorld.net.components.warningtimer.inst.replica.warningtimer.shadowrift_portal_text:value() ~= "" then
-                return
+            if TheWorld and TheWorld:HasTag("forest") and TheWorld.net.components.warningtimer.inst.replica.warningtimer.rift_portal_text:value() == "" then
+                return GetWorldSettingsTimeLeft("rift_spawn_timer")()
             end
-            return GetWorldSettingsTimeLeft("rift_spawn_timer")()
         end,
         image = {
-            atlas = "images/Rift_Split.xml",
-            tex = "Rift_Split.tex",
+            atlas = "minimap/minimap_data.xml",
+			tex = "lunarrift_portal.png",
             scale = 0.8,
             offset = {
                 x = 0,
                 y = 13,
             },
         },
-        DisableShardRPC = true,
         announcefn = function()
-            local time = ThePlayer.HUD.WarningEventTimeData.riftspawner_time
-            return time and time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.riftspawner.cooldown), TimeToString(time))
+            local time = ThePlayer.HUD.WarningEventTimeData.lunar_riftspawner_time
+            return time and time > 0 and string.format(STRINGS.eventtimer.riftspawner.lunar_cooldown, TimeToString(time))
+        end,
+    },
+    shadow_riftspawner = { -- 暗影裂隙生成倒计时（为了跨世界同步数据修改了事件名。原事件名 riftspawner）
+        gettimefn = function() -- 当裂隙出现时，不显示
+            if TheWorld and TheWorld:HasTag("cave") and TheWorld.net.components.warningtimer.inst.replica.warningtimer.shadowrift_portal_text:value() == "" then
+                return GetWorldSettingsTimeLeft("rift_spawn_timer")()
+            end
+        end,
+        image = {
+			atlas = "minimap/minimap_data.xml",
+			tex = "shadowrift_portal.png",
+            scale = 0.8,
+            offset = {
+                x = 0,
+                y = 13,
+            },
+        },
+        announcefn = function()
+            local time = ThePlayer.HUD.WarningEventTimeData.shadow_riftspawner_time
+            return time and time > 0 and string.format(STRINGS.eventtimer.riftspawner.shadow_cooldown, TimeToString(time))
         end,
     },
     rift_portal = { -- 月亮裂隙信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616 (爱死你了)
@@ -1555,8 +1609,8 @@ or Ismodloaded("workshop-3322803908") and
                 return true, string.format(STRINGS.eventtimer.aporkalypse.cooldown, TimeToString(time)), 10, nil, 1
             elseif time == 480 then
                 return true, string.format(STRINGS.eventtimer.aporkalypse.tips, TimeToString(time)), 10, nil, 2
-            elseif time == 0 then -- 这个写法比较特殊..为了保证大灾变确实开始了，使用JustEntered来使新进入世界的玩家不触发提示
-                return true, not JustEntered(time) and StringToFunction(STRINGS.eventtimer.aporkalypse.tips_ready), 5, 1, 3 -- 延迟1秒是因为大灾变在1秒后才真正开始
+            elseif time == 0 then -- 这个写法比较特殊..为了保证大灾变确实开始了
+                return true, not (GetTime() > 1 and GetTime() < 10) and StringToFunction(STRINGS.eventtimer.aporkalypse.tips_ready), 5, 1, 3 -- 延迟1秒是因为大灾变在1秒后才真正开始
             end
             return false
         end
@@ -1683,7 +1737,7 @@ or Ismodloaded("workshop-3322803908") and
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.rocmanager_time
             local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
-            if text == ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists) then
+            if text and string.find(text, ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)) then
                 return ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)
             elseif time and time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.rocmanager.cooldown), TimeToString(time))
@@ -1694,12 +1748,12 @@ or Ismodloaded("workshop-3322803908") and
             local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
             if time > TUNING.SEG_TIME and time <= 90 then -- 如果没有目标玩家就从0变成30，为了防止重复tips需修改此处
                 return true, WarningEvents.rocmanager.announcefn, 10, nil, 2
-            elseif time == 120 or (JustEntered(time) and time < 960) then
+            elseif JustEntered(time) and time < 960 then
                 return true, WarningEvents.rocmanager.announcefn, 10, nil, 2
-            elseif JustEntered(time) then
-                return true, WarningEvents.rocmanager.announcefn, 10, nil, 1
             elseif text == ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.rocmanager.tips)), 10, nil, 3
+            elseif JustEntered(time) then
+                return true, WarningEvents.rocmanager.announcefn, 10, nil, 1
             end
             return false
         end

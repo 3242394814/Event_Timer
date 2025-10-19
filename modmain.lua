@@ -9,8 +9,8 @@ Assets = {
 	Asset("IMAGE", "images/Worm_boss.tex"),
     Asset("ATLAS", "images/Daywalker.xml"), -- 梦魇疯猪
 	Asset("IMAGE", "images/Daywalker.tex"),
-    Asset("ATLAS", "images/Rift_Split.xml"), -- 双裂隙
-	Asset("IMAGE", "images/Rift_Split.tex"),
+    -- Asset("ATLAS", "images/Rift_Split.xml"), -- 双裂隙
+	-- Asset("IMAGE", "images/Rift_Split.tex"),
     Asset("ATLAS", "images/Dreadstone_Outcrop.xml"), -- 被控制的梦魇裂隙
 	Asset("IMAGE", "images/Dreadstone_Outcrop.tex"),
     Asset("ATLAS", "images/moon_full.xml"), -- 月圆

@@ -83,11 +83,11 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=crabking> will respawn in %s.",
     },
     moon = {
-        moon_full = "%s days until full moon",
-        moon_new = "%s days until new moon",
+        moon_full = "%s days until full moon.",
+        moon_new = "%s days until new moon.",
         str_full = "full moon",
-        moon_full_ready = "Tonight is the full moon! ",
-        moon_new_ready = "Tonight is the new moon! ",
+        moon_full_ready = "Tonight is the full moon.",
+        moon_new_ready = "Tonight is the new moon.",
     },
     farming_manager = {
         cooldown = "<prefab=lordfruitfly> will be ready in %s.",
@@ -102,7 +102,8 @@ STRINGS.eventtimer = {
         tips = "<prefab=daywalker2> has respawned!",
     },
     riftspawner = {
-        cooldown = "A <prefab=lunarrift_portal> will spawn in %s",
+        lunar_cooldown = "Lunar Rifts will spawn in %s",
+        shadow_cooldown = "Shadow Rifts will spawn in %s",
         stage = "Stage: %s / %s",
     },
 	lunarthrall_plantspawner = {

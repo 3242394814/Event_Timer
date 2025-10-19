@@ -63,6 +63,7 @@ local function get_new_text(v, datatext)
     end
 end
 
+local eventstime = {}
 local WarningTimer = Class(function(self, inst)
 	self.inst = inst
 
@@ -81,6 +82,10 @@ local WarningTimer = Class(function(self, inst)
             inst:ListenForEvent(warningevent .. "_text_dirty", function(inst)
                 self:OnWarningEventDirty(inst, warningevent, "text", true)
             end)
+
+            -- 初始化eventstime表，防止数据为nil
+            eventstime[warningevent .. "_text"] = ""
+            eventstime[warningevent .. "_time"] = 0
         end
     end
 
@@ -89,7 +94,6 @@ local WarningTimer = Class(function(self, inst)
     end
 end)
 
-local eventstime = {}
 local client_prediction_tasks = {}
 function WarningTimer:OnWarningEventDirty(inst, warningevent, type, fromserver)
     if type == "text" then

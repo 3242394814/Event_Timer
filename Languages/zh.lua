@@ -83,11 +83,11 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=crabking>会重生于%s后",
     },
     moon = { -- 月相
-        moon_full = "距离月圆还剩%s天",
-        moon_new = "距离月黑还剩%s天",
+        moon_full = "距离月圆还剩%s天。",
+        moon_new = "距离月黑还剩%s天。",
         str_full = "月圆",
-        moon_full_ready = "今晚月圆！",
-        moon_new_ready = "今晚月黑！",
+        moon_full_ready = "今天是月圆",
+        moon_new_ready = "今天是月黑",
     },
     farming_manager = { -- 果蝇王
         cooldown = "<prefab=lordfruitfly>就绪于%s后",
@@ -102,7 +102,8 @@ STRINGS.eventtimer = {
         tips = "<prefab=daywalker2>已刷新！",
     },
     riftspawner = { -- 裂隙生成倒计时
-        cooldown = "一个<prefab=lunarrift_portal>将生成于%s后",
+        lunar_cooldown = "月亮裂隙将生成于%s后",
+        shadow_cooldown = "暗影裂隙将生成于%s后",
         stage = "阶段: %s / %s",
     },
 	lunarthrall_plantspawner = { -- 致命亮茄
