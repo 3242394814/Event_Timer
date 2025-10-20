@@ -366,7 +366,7 @@ WarningEvents = {
 
             if time > 2 and time <= 90 then
                 return true, WarningEvents.hounded.announcefn, time, nil, 2
-            elseif time == 120 or (JustEntered(time) and time < 960) then
+            elseif JustEntered(time) and time < 960 then
                 return true, WarningEvents.hounded.announcefn, 10, nil, 2
             elseif JustEntered(time) then
                 return true, WarningEvents.hounded.announcefn, 10, nil, 1
@@ -428,7 +428,7 @@ WarningEvents = {
             local time = ThePlayer.HUD.WarningEventTimeData.deerclopsspawner_time
             if time > 2 and time <= 60 then
                 return true, WarningEvents.deerclopsspawner.announcefn, time, nil, 2
-            elseif time == 480 or time == 120 or JustEntered(time) then
+            elseif time == 480 or JustEntered(time) then
                 return true, WarningEvents.deerclopsspawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.attack)), 10, time, 3
@@ -584,7 +584,7 @@ WarningEvents = {
             local time = ThePlayer.HUD.WarningEventTimeData.beargerspawner_time
             if time > 2 and time <= 60 then
                 return true, WarningEvents.beargerspawner.announcefn, time, nil, 2
-            elseif time == 480 or time == 120 or JustEntered(time) then
+            elseif time == 480 or JustEntered(time) then
                 return true, WarningEvents.beargerspawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.attack)), 10, time, 3
@@ -1411,8 +1411,6 @@ WarningEvents = {
                 return true, WarningEvents.volcanomanager.announcefn, 10, nil, 2
             elseif JustEntered(time) and time > 480 then
                 return true, WarningEvents.volcanomanager.announcefn, 10, nil, 1
-            elseif time == 120 then
-                return true, WarningEvents.volcanomanager.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.volcanomanager.attack)), 10, time, 3
             end
@@ -1460,7 +1458,7 @@ WarningEvents = {
             local time = ThePlayer.HUD.WarningEventTimeData.twisterspawner_time
             if time > 2 and time <= 60 then
                 return true, WarningEvents.twisterspawner.announcefn, time, nil, 2
-            elseif time == 480 or time == 120 or JustEntered(time) then
+            elseif time == 480 or JustEntered(time) then
                 return true, WarningEvents.twisterspawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.attack)), 10, time, 3
@@ -1772,7 +1770,7 @@ or Ismodloaded("workshop-3322803908") and
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.batted_time
-            if time == 120 or (JustEntered(time) and time < 960) then
+            if time == 60 or (JustEntered(time) and time < 960) then
                 return true, WarningEvents.batted.announcefn, 10, nil, 2
             elseif JustEntered(time) then
                 return true, WarningEvents.batted.announcefn, 10, nil, 1
@@ -1888,7 +1886,7 @@ local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
             local time = ThePlayer.HUD.WarningEventTimeData.gmoosespawner_time
             if time > 2 and time <= 60 then
                 return true, WarningEvents.gmoosespawner.announcefn, time, nil, 2
-            elseif time == 480 or time == 120 or JustEntered(time) then
+            elseif time == 480 or JustEntered(time) then
                 return true, WarningEvents.gmoosespawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.attack)), 10, time, 3
@@ -1941,7 +1939,7 @@ local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
             local time = ThePlayer.HUD.WarningEventTimeData.mock_dragonflyspawner_time
             if time > 2 and time <= 60 then
                 return true, WarningEvents.mock_dragonflyspawner.announcefn, time, nil, 2
-            elseif time == 480 or time == 120 or JustEntered(time) then
+            elseif time == 480 or JustEntered(time) then
                 return true, WarningEvents.mock_dragonflyspawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.attack)), 10, time, 3
