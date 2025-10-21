@@ -87,7 +87,7 @@ end
 Upvaluehelper = Import(MODROOT .. "scripts/utils/bbgoat_upvaluehelper.lua")
 
 local STRINGS = GLOBAL.STRINGS
-local TimerMode = GetModConfigData("BossTimer", true)
+local TimerMode = GetModConfigData("BossTimer")
 
 -- 填充Prefab名字
 --- @param str string
@@ -167,7 +167,7 @@ GLOBAL.EventTimer = {
     UIButton = GetModConfigData("UIButton", true), -- UI开关何时显示
     UpdateTime = GetModConfigData("UpdateTime", false), -- 服务器数据更新频率
     ClientPrediction = GetModConfigData("ClientPrediction", true), -- 客户端预测倒计时
-    TimerMode = GetModConfigData("BossTimer", true), -- 倒计时格式
+    TimerMode = GetModConfigData("BossTimer"), -- 倒计时格式-服务器设置
     TimerTips = GetModConfigData("ShowTips", true), -- 醒目提示
     SyncTimer = GetModConfigData("SyncTimer", false), -- 跨世界同步计时
 }

@@ -1,5 +1,4 @@
 GLOBAL.setfenv(1, GLOBAL)
-local TimerMode = EventTimer.TimerMode
 
 -- for master
 function TurnOnAllWarning()
@@ -117,12 +116,4 @@ function HideWarning(event)
     if event and ThePlayer.HUD[event] then
         ThePlayer.HUD[event].force = false
     end
-end
-
-function SetTimeMode(mode)
-    if not ThePlayer then
-        return
-    end
-
-    TimerMode = mode
 end
