@@ -1310,6 +1310,7 @@ WarningEvents = {
             },
         },
         animchangefn = NightmareWildAnimChange,
+        DisableShardRPC = true,
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.nightmareclock_time
             local text = ThePlayer.HUD.WarningEventTimeData.nightmareclock_text
