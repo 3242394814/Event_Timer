@@ -173,7 +173,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                 if type(data.announcefn) == "function" then
                     local res = data.announcefn()
                     if type(res) == "string" then
-                        TheNet:Say(STRINGS.LMB .. ' ' .. res)
+                        TheNet:Say(STRINGS.LMB .. ' ' .. res, TheInput:IsKeyDown(KEY_CTRL))
                     end
                 end
             end)
