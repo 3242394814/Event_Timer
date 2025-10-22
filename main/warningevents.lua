@@ -160,6 +160,48 @@ local function PirateRaid()
     end
 end
 
+-- 云霄国度 大灾变倒计时
+local Next_Aporkalypse_Time
+AddPrefabPostInit("world", function(inst)
+    if inst:HasTag("porkland") then
+        inst:ListenForEvent("aporkalypseclocktick", function(src, data)
+            Next_Aporkalypse_Time = data and data.timeuntilaporkalypse
+        end)
+    end
+end)
+
+-- 猎犬/洞穴蠕虫/鳄狗/巨大洞穴蠕虫 Anim刷新
+local HoundedAnimChange_task = nil
+local function HoundedAnimChange(self)
+    if TheNet:IsDedicated() then
+        return
+    end
+
+    local last_anim
+    if not HoundedAnimChange_task then
+        HoundedAnimChange_task = TheWorld:DoPeriodicTask(1, function()
+            local text = ThePlayer and ThePlayer.HUD and ThePlayer.HUD.WarningEventTimeData and ThePlayer.HUD.WarningEventTimeData.hounded_text
+            local is_worm_boss = text and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
+
+            if TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
+                self.anim = self.islandanim
+            elseif is_worm_boss then
+                self.anim = self.wormbossanim
+            elseif TheWorld:HasTag("cave") then
+                self.anim = self.caveanim
+            else
+                self.anim = self.forestanim
+            end
+
+            if self.anim ~= last_anim then
+                last_anim = self.anim
+                ThePlayer.HUD.hounded:SetEventAnim(self.anim)
+            end
+        end)
+    end
+end
+
+
 -- 远古遗迹当前阶段
 local function NightmareWild()
     local nightmareclock = TheWorld.net.components.nightmareclock
@@ -176,16 +218,6 @@ local function NightmareWild()
     return remainingtimeinphase
 end
 
--- 云霄国度 大灾变倒计时
-local Next_Aporkalypse_Time
-AddPrefabPostInit("world", function(inst)
-    if inst:HasTag("porkland") then
-        inst:ListenForEvent("aporkalypseclocktick", function(src, data)
-            Next_Aporkalypse_Time = data and data.timeuntilaporkalypse
-        end)
-    end
-end)
-
 local STATES = {
     none = "calm_loop", -- 默认
     calm = "calm_loop", -- 平静
@@ -194,20 +226,24 @@ local STATES = {
     dawn = "dawn_loop", -- 黎明
     lock = "wild_lock", -- 锁定暴动阶段
 }
-local ChangeNightmareWildAnim = nil
+local NightmareWildAnimChange_task = nil
 local function NightmareWildAnimChange(self)
     if TheNet:IsDedicated() then
         return
     end
 
-    if not ChangeNightmareWildAnim then
-        ChangeNightmareWildAnim = TheWorld:DoPeriodicTask(1, function()
+    local last_anim
+    if not NightmareWildAnimChange_task then
+        NightmareWildAnimChange_task = TheWorld:DoPeriodicTask(1, function()
             local text = ThePlayer and ThePlayer.HUD and ThePlayer.HUD.WarningEventTimeData and ThePlayer.HUD.WarningEventTimeData.nightmareclock_text
             if text and string.find(text, STRINGS.eventtimer.nightmareclock.phase_locked_text) then
                 self.anim.animation = STATES.wild -- 暴动锁定(因为计时器面板UI里的Anim是不会播放动画的，所以改用静态动画)
-                ThePlayer.HUD.nightmareclock:SetEventAnim(self.anim)
             elseif ThePlayer and ThePlayer.HUD.nightmareclock then
                 self.anim.animation = STATES[TheWorld.state.nightmarephase]
+            end
+
+            if self.anim.animation ~= last_anim then
+                last_anim = self.anim.animation
                 ThePlayer.HUD.nightmareclock:SetEventAnim(self.anim) -- 屏幕左上角的倒计时不会自动刷新Anim，需要手动刷新
             end
         end)
@@ -326,7 +362,7 @@ WarningEvents = {
             tex = "Worm_boss.tex",
             scale = 0.2,
         },
-        animchangefn = ChangeanimByWorld,
+        animchangefn = HoundedAnimChange,
         forestanim = {
             scale = 0.099,
             bank = "hound",
@@ -350,6 +386,14 @@ WarningEvents = {
             bank = "worm",
             build = "worm",
             animation = "atk",
+            loop = true,
+        },
+        wormbossanim = {
+            scale = 0.066,
+            bank = "worm_boss",
+            build = "worm_boss",
+            animation = "head_idle_loop",
+            orientation = 1,
             loop = true,
         },
         DisableShardRPC = true,
@@ -764,13 +808,13 @@ WarningEvents = {
             if string.find(text, STRINGS.eventtimer.moon.str_full) then
                 local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_full)
                 if tonumber(day) == 10 then
-                    return STRINGS.eventtimer.moon.moon_new_ready .. text
+                    return STRINGS.eventtimer.moon.moon_new_ready .. " " .. text
                 end
                 return text
             else
                 local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_new)
                 if tonumber(day) == 10 then
-                    return STRINGS.eventtimer.moon.moon_full_ready .. text
+                    return STRINGS.eventtimer.moon.moon_full_ready .. " " .. text
                 end
                 return text
             end
@@ -860,6 +904,7 @@ WarningEvents = {
                 return text
             end
         end,
+        tipsfn = nil -- 开始袭击的时候对应的玩家会说台词，不需要我来提醒
     },
     forestdaywalkerspawner = { -- 拾荒疯猪，参考了 饥饥事件计时器 的代码 https://steamcommunity.com/sharedfiles/filedetails/?id=3511498282 @不要看上我的菊
         gettimefn = function()

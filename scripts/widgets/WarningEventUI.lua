@@ -126,6 +126,9 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                         widget.destitem.anim:GetAnimState():AddOverrideBuild(b)
                     end
                 end
+                if data.anim.orientation then
+                    widget.destitem.anim:GetAnimState():SetOrientation(data.anim.orientation)
+                end
                 widget.destitem.anim:GetAnimState():Pause()
             end
 

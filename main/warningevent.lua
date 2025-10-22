@@ -33,7 +33,7 @@ local function AddWarningEvents(self)
                 msg:MoveTo(
                     { x = pos.x, y = pos.y, z = 0 },
                     { x = msg.target_x, y = msg.target_y, z = 0},
-                    0.5,
+                    1,
                     nil
                 )
             end
@@ -73,7 +73,7 @@ local function AddWarningEvents(self)
         end)
 
         -- 定时销毁与整理其它消息
-        TheWorld:DoTaskInTime((second or 10) + 2, function()
+        TheWorld:DoTaskInTime((second or 10) + 1, function()
             message:Kill()
             for i = #warningtips_messages, 1, -1 do
                 local msg = warningtips_messages[i]

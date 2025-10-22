@@ -83,8 +83,8 @@ STRINGS.eventtimer = {
         cooldown = "<prefab=crabking>会重生于%s后",
     },
     moon = { -- 月相
-        moon_full = "距离月圆还剩%s天。",
-        moon_new = "距离月黑还剩%s天。",
+        moon_full = "距离月圆还剩%s天",
+        moon_new = "距离月黑还剩%s天",
         str_full = "月圆",
         moon_full_ready = "今天是月圆",
         moon_new_ready = "今天是月黑",

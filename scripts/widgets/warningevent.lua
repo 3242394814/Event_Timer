@@ -75,6 +75,9 @@ function WarningEvent:SetEventAnim(data)
             self.anim:GetAnimState():AddOverrideBuild(b)
         end
     end
+    if data.orientation then
+        self.anim:GetAnimState():SetOrientation(data.orientation)
+    end
 
     if data.offset then
         self.anim:SetPosition(-45 + data.offset.x, -25 + data.offset.y)
