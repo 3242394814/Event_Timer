@@ -17,7 +17,7 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊，Jerry"
-version = "0.1.7" -- 模组版本
+version = "0.1.7.1" -- 模组版本
 version_compatible = "0.1.7" -- 最低兼容版本
 api_version = 10
 priority = -1 -- 模组加载优先级

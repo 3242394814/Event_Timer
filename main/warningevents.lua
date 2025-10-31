@@ -193,7 +193,7 @@ local function HoundedAnimChange(self)
                 self.anim = self.forestanim
             end
 
-            if self.anim ~= last_anim then
+            if self.anim ~= last_anim and ThePlayer and ThePlayer.HUD and ThePlayer.HUD.hounded then
                 last_anim = self.anim
                 ThePlayer.HUD.hounded:SetEventAnim(self.anim)
             end
@@ -242,7 +242,7 @@ local function NightmareWildAnimChange(self)
                 self.anim.animation = STATES[TheWorld.state.nightmarephase]
             end
 
-            if self.anim.animation ~= last_anim then
+            if self.anim.animation ~= last_anim and ThePlayer and ThePlayer.HUD and ThePlayer.HUD.nightmareclock then
                 last_anim = self.anim.animation
                 ThePlayer.HUD.nightmareclock:SetEventAnim(self.anim) -- 屏幕左上角的倒计时不会自动刷新Anim，需要手动刷新
             end

@@ -33,6 +33,8 @@ local function TimeToString(t)
         return math.floor(t) .. STRINGS.eventtimer.time.seconds -- 秒
     elseif t < 480 then
         return math.floor(t / 60 * 10) / 10 .. STRINGS.eventtimer.time.minutes -- 分
+    elseif EventTimer.TimerMode == 2 and t < 3600 then -- 小时模式下但不足一小时，显示分钟
+        return math.floor(t / 60 * 10) / 10 .. STRINGS.eventtimer.time.minutes
     else
         return math.floor(t / daytime * 10) / 10 .. (EventTimer.TimerMode == 2 and STRINGS.eventtimer.time.hour --[[小时]] or STRINGS.eventtimer.time.day) -- 天
     end
