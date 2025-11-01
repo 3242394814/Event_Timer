@@ -1039,7 +1039,7 @@ WarningEvents = {
 
             -- 裂隙阶段信息
             local stage_info = string.format(STRINGS.eventtimer.riftspawner.stage, inst._stage, TUNING.RIFT_LUNAR1_MAXSTAGE) -- 阶段信息，内容类似：阶段 1 / 3
-            if inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) and not (inst._stage == TUNING.RIFT_LUNAR1_MAXSTAGE) then
+            if inst.components.timer and inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) and not (inst._stage == TUNING.RIFT_LUNAR1_MAXSTAGE) then
                 stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.rift_portal.next_stage, TimeToString(inst.components.timer:GetTimeLeft(STAGE_GROWTH_TIMER))) -- 补充信息：%s后进入下一阶段
             end
 
@@ -1138,7 +1138,7 @@ WarningEvents = {
 
             if rift_close_time and inst._stage == TUNING.RIFT_SHADOW1_MAXSTAGE then
                 stage_info = stage_info .. ": " .. string.format(ReplacePrefabName(STRINGS.eventtimer.shadowrift_portal.close), TimeToString(rift_close_time))
-            elseif inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) then
+            elseif inst.components.timer and inst.components.timer:TimerExists(STAGE_GROWTH_TIMER) then
                 stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.rift_portal.next_stage, TimeToString(inst.components.timer:GetTimeLeft(STAGE_GROWTH_TIMER)))
             end
 
