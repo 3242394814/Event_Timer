@@ -182,7 +182,7 @@ modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
 modimport("main/modcompat") -- 检测其它模组
 
-----------------------------------------鼠标跟随补丁---------------------------------------
+----------------------------------------鼠标跟随---------------------------------------
 
 GLOBAL.setfenv(1, GLOBAL)
 local function ModFollowMouse(self)
@@ -223,7 +223,7 @@ local function ModFollowMouse(self)
         return Vector3(mouse_pos.x/ scale.x, mouse_pos.y/ scale.y, mouse_pos.z/ scale.z)
     end
 
-    self.FollowMouse = function(_self)
+    self.BBGoat_FollowMouse = function(_self)
         if _self.followhandler == nil then
             _self.followhandler = TheInput:AddMoveHandler(function(x, y)
                 local loc_pos = GetMouseLocalPos(_self, Vector3(x, y, 0))

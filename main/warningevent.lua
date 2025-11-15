@@ -231,7 +231,7 @@ local EventUIButton = Class(Button, function(self, owner)
     -- 鼠标右键拖拽
     self.openbutton.OnMouseButton = function(_self, button, down, x, y)
         if button == MOUSEBUTTON_RIGHT and down then
-            _self:FollowMouse()
+            _self:BBGoat_FollowMouse()
             _self.hovertext_root:Hide()
             _self.hovertext:Hide()
         elseif button == MOUSEBUTTON_RIGHT then
