@@ -105,6 +105,14 @@ end
 
 local WarningTimer = Class(function(self, inst)
     self.inst = inst
+
+    -- 初始化数据
+    for warningevent, data in pairs(WarningEvents) do
+        self.inst.replica.warningtimer[warningevent .. "_time"]:set(0)
+        self.inst.replica.warningtimer[warningevent .. "_text"]:set("")
+        self.inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:set(0)
+        self.inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:set("")
+    end
     self.inst:DoPeriodicTask(UpdateTime , function() OnUpdate(self) end)
 end)
 

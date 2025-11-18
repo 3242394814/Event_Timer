@@ -1443,7 +1443,7 @@ WarningEvents = {
             bank = "volcano",
             build = "volcano",
             animation = "active_idle_pst",
-            -- loop = "",
+            loop = true,
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.volcanomanager_time

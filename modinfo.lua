@@ -17,7 +17,7 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊，Jerry"
-version = "0.1.7.2" -- 模组版本
+version = "0.1.7.3" -- 模组版本
 version_compatible = "0.1.7" -- 最低兼容版本
 api_version = 10
 priority = -1 -- 模组加载优先级
@@ -36,7 +36,7 @@ server_filter_tags = { -- 服务器标签
 icon_atlas = "images/modicon.xml"
 icon = "modicon.tex"
 
-local options_enable = {
+local toggle = {
 	{description = en_zh("Enabled", "开启"), data = true},
 	{description = en_zh("Disabled", "关闭"), data = false},
 }
@@ -90,7 +90,7 @@ configuration_options = {
         name = "ClientPrediction",
         label = en_zh("Client Predicted Countdown", "客户端预测倒计时"),
         hover = en_zh("If the server update interval is longer than 1 second, use client prediction to fill the gaps","如果服务器的数据更新频率在1秒以上，则使用客户端预测填补空缺的刷新周期"),
-        options = options_enable,
+        options = toggle,
         default = true,
         client = true,
     },
@@ -108,14 +108,14 @@ configuration_options = {
         name = "ShowTips",
         label = en_zh("Highlight Tips", "醒目提示"),
         hover = en_zh("Show a noticeable alert when entering the game or when an event countdown is about to end", "当进入游戏时/事件倒计时即将结束时发出醒目提示"),
-        options = options_enable,
+        options = toggle,
         default = true,
         client = true,
     },
     {
         name = "SyncTimer",
         label = en_zh("Sync Timer", "跨世界同步计时"),
-        options = options_enable,
+        options = toggle,
         default = true,
     },
 }
