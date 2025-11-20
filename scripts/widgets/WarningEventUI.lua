@@ -209,6 +209,7 @@ function WarningEventHUD:UpdateDestItem()
     for name, value in pairs(WarningEvents) do
         local datatext = eventsdata[name .. "_text"]
         local datatime = eventsdata[name .. "_time"]
+        value.name = name
         if type(datatext) == "string" and datatext ~= "" then
             value.text = datatext
             data_list[#data_list + 1] = value

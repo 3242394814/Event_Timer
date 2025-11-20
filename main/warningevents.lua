@@ -1392,9 +1392,10 @@ WarningEvents = {
             end
         end,
     },
+}
 
+local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
     ---------------------------------------- IA-SW ---------------------------------------
-
     chessnavy = {
         gettimefn = function()
             if TheWorld.components.chessnavy then
@@ -1607,8 +1608,12 @@ WarningEvents = {
             return false
         end
     },
+} or {}
 
-}
+-- 将海难计时添加到WarningEvents
+for k, v in pairs(ShipwreckedEvents) do
+    WarningEvents[k] = v
+end
 
 local HamletEvents = rawget(_G, "IA_HAM_ENABLED") and
 {   ---------------------------------------- IA-HAM ---------------------------------------
@@ -1885,7 +1890,7 @@ for k, v in pairs(HamletEvents) do
     WarningEvents[k] = v
 end
 
-local UncompromisingEvents = Ismodloaded("workshop-2039181790") and
+local UncompromisingEvents = TUNING.DSTU ~= nil and
 {
     gmoosespawner = {
         gettimefn = GetWorldSettingsTimeLeft("mothergoose_timetoattack"),
@@ -2001,40 +2006,42 @@ for k, v in pairs(UncompromisingEvents) do
     WarningEvents[k] = v
 end
 
-_G.EventTimer.Register_Event = function(warningevent)
-    WarningEvents[warningevent].name = warningevent -- 给 WarningEventUI.lua 使用
 
-    -- 跨世界同步倒计时
-    local event_time_shardrpc = warningevent .. "_time_shardrpc"
-    local event_text_shardrpc = warningevent .. "_text_shardrpc"
+AddShardModRPCHandler("EventTimer", "event_time_shardrpc", function(shardid, event, timedata, worldtype)
+    if TheShard:GetShardId() == tostring(shardid) then return end
+    if not SyncTimer then return end -- 未开启同步功能，取消同步
 
-    AddShardModRPCHandler("EventTimer", event_time_shardrpc, function(shardid, timedata, worldtype)
-        if not SyncTimer then return end -- 未开启同步功能，取消同步
+    local event_time_shardrpc = event .. "_time_shardrpc"
+    local event_text_shardrpc = event .. "_text_shardrpc"
 
-        local warningtimer = TheWorld.net.components.warningtimer
-        if timedata then
+    local warningtimer = TheWorld.net.components.warningtimer
+    if timedata then
+        if warningtimer.inst.replica.warningtimer[event_time_shardrpc] then
             warningtimer.inst.replica.warningtimer[event_time_shardrpc]:set(timedata or 0)
+        end
 
-            local textdata
-            if timedata > 0 then
-                textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
-                textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
-            end
+        local textdata
+        if timedata > 0 then
+            textdata = TimeToString(timedata) -- 同时设置text，以显示来自哪个世界
+            textdata = string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata
+        end
+
+        if warningtimer.inst.replica.warningtimer[event_text_shardrpc] then
             warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
         end
-    end)
+    end
+end)
 
-    AddShardModRPCHandler("EventTimer", event_text_shardrpc, function(shardid, textdata, worldtype)
-        if not SyncTimer then return end -- 未开启同步功能，取消同步
+AddShardModRPCHandler("EventTimer", "event_text_shardrpc", function(shardid, event, textdata, worldtype)
+    if TheShard:GetShardId() == tostring(shardid) then return end
+    if not SyncTimer then return end -- 未开启同步功能，取消同步
+    local event_text_shardrpc = event .. "_text_shardrpc"
 
-        local warningtimer = TheWorld.net.components.warningtimer
-        if textdata then
-            textdata = textdata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata)
+    local warningtimer = TheWorld.net.components.warningtimer
+    if textdata then
+        textdata = textdata ~= "" and (string.format(STRINGS.eventtimer.worldid, shardid) .. "(" .. worldtype .. ")\n" .. textdata)
+        if warningtimer.inst.replica.warningtimer[event_text_shardrpc] then
             warningtimer.inst.replica.warningtimer[event_text_shardrpc]:set(textdata or "")
         end
-    end)
-end
-
-for warningevent in pairs(WarningEvents) do
-    _G.EventTimer.Register_Event(warningevent)
-end
+    end
+end)

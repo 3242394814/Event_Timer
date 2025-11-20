@@ -1,6 +1,7 @@
 -- 如何把你的事件加入到本模组中？
 
--- 1.在GLOBAL.WarningEvents中添加一个表，名称随意。示例与各项说明如下
+-- 只需要在GLOBAL.WarningEvents中添加一个表，名称随意。
+-- 示例与各项说明如下
 
 local TimeToString = GLOBAL.EventTimer.env.TimeToString -- 获取全局事件计时器模组的格式化时间函数(将纯数字转换为X天X分X秒)
 local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- 全局事件计时器模组的getupvalue工具，文件位于 当前目录\scripts\utils\bbgoat_upvaluehelper.lua
@@ -189,11 +190,6 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
         animation = "idle", -- 动画
     },
 }
-
--- 2.使用GLOBAL.EventTimer.Register_Event("事件名")函数注册你的事件
--- 上面的事件名为hounded，所以注册的方法为
--- GLOBAL.EventTimer.Register_Event("hounded")
-
 
 -- 总结：gettimefn/gettextfn 在服务器执行，imagechangefn/animchangefn/announcefn/tipsfn 在客户端执行，客户端无法调用 gettimefn/gettextfn
 

@@ -2,7 +2,8 @@
 
 -- How to add your event to this mod
 
--- 1.Add a table to GLOBAL.WarningEvents. The event name can be anything you like. Example and field explanations are below.
+-- Add a table to GLOBAL.WarningEvents. The event name can be anything you like.
+-- Example and field explanations are below.
 
 local TimeToString = GLOBAL.EventTimer.env.TimeToString -- Get the global events timer mod's time formatting function (converts a raw number into "Xday Xmin Xsec")
 local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- Global events timer mod's get-upvalue helper. File located at ./scripts/utils/bbgoat_upvaluehelper.lua

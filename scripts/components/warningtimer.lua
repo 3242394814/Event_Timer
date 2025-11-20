@@ -42,18 +42,14 @@ local function OnUpdate(self)
                     valid_data[warningevent].time_valid = false -- 标记数据无效
                     self.inst.replica.warningtimer[warningevent .. "_time"]:set(0) -- 更新本世界数据
                     if SyncTimer and not data.DisableShardRPC then -- 更新其它世界数据
-                        for id in pairs(Shard_GetConnectedShards()) do
-                            SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][warningevent .. "_time_shardrpc"], id, 0, GetWorldType())
-                        end
+                        SendModRPCToShard(SHARD_MOD_RPC["EventTimer"]["event_time_shardrpc"], nil, warningevent, 0, GetWorldType())
                     end
                 end
             elseif time and time > 0  then -- 时间有效
                 valid_data[warningevent].time_valid = true -- 标记数据有效
                 self.inst.replica.warningtimer[warningevent .. "_time"]:set(time) -- 更新本世界数据
                 if SyncTimer and not data.DisableShardRPC then -- 更新其它世界数据
-                    for id in pairs(Shard_GetConnectedShards()) do
-                        SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][warningevent .. "_time_shardrpc"], id, time, GetWorldType())
-                    end
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"]["event_time_shardrpc"], nil, warningevent, time, GetWorldType())
                 end
             else
                 self.inst.replica.warningtimer[warningevent .. "_time"]:set(time or 0)
@@ -79,17 +75,11 @@ local function OnUpdate(self)
                 if valid_data[warningevent].text_sametick > math.ceil(2 / UpdateTime) then -- 数据多次不变，删除其它世界的数据
                     if valid_data[warningevent].text_valid then
                         valid_data[warningevent].text_valid = false -- 标记数据无效
-
-                        for id in pairs(Shard_GetConnectedShards()) do
-                            SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][warningevent .. "_text_shardrpc"], id, "", "")
-                        end
+                        SendModRPCToShard(SHARD_MOD_RPC["EventTimer"]["event_text_shardrpc"], nil, warningevent, "", "")
                     end
                 elseif text and text ~= "" then
                     valid_data[warningevent].text_valid = true -- 标记数据有效
-
-                    for id in pairs(Shard_GetConnectedShards()) do
-                        SendModRPCToShard(SHARD_MOD_RPC["EventTimer"][warningevent .. "_text_shardrpc"], id, text, GetWorldType())
-                    end
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"]["event_text_shardrpc"], nil, warningevent, text, GetWorldType())
                 end
 
                 -- 标记无效数据
