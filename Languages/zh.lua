@@ -118,6 +118,9 @@ STRINGS.eventtimer = {
 		crystals = "<prefab=lunarrift_crystal_big>: %s可用 / %s总共 / %s最大",
 		next_crystal = "下一波<prefab=lunarrift_crystal_big>生成于%s后",
 	},
+    messagebottlemanager = {
+        text = "待打捞宝藏数量: %d / %d",
+    },
 
     ----------------------------------------洞穴----------------------------------------
 
@@ -155,7 +158,12 @@ STRINGS.eventtimer = {
         cooldown_none = "远古遗迹当前阶段还剩%s",
     },
     quaker = { -- 地震
-        cooldown = "洞穴将在%s后地震"
+        cooldown = "洞穴将在%s后地震",
+    },
+
+    ----------------------------------------玩家----------------------------------------
+    flotsamgenerator = {
+        announce = "我的下一个<prefab=messagebottle>将于%s后刷新",
     },
 
     ----------------------------------------海难----------------------------------------

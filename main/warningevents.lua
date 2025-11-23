@@ -942,6 +942,32 @@ WarningEvents = {
             return false
         end
     },
+    messagebottlemanager = { -- 待打捞宝藏数量信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
+        gettextfn = function()
+            local self = TheWorld.components.messagebottlemanager
+            if not self then return end
+            local count = 0
+            for _ in pairs(self.active_treasure_hunt_markers) do
+                count = count + 1
+            end
+            if count > 0 then
+                return string.format(STRINGS.eventtimer.messagebottlemanager.text, count, TUNING.MAX_ACTIVE_TREASURE_HUNTS)
+            end
+        end,
+        image = {
+			atlas = "minimap/minimap_data.xml",
+			tex = "messagebottletreasure_marker.png",
+            scale = 0.9,
+		},
+        -- DisableShardRPC = true, -- 其它世界有宝藏吗？没有！
+        announcefn = function()
+            local text = ThePlayer.HUD.WarningEventTimeData.messagebottlemanager_text
+            if text then
+                text = string.gsub(text, "\n", ": ")
+                return text
+            end
+        end,
+    },
     lunarthrall_plantspawner = { -- 致命亮茄信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
         gettextfn = function()
             local self = TheWorld.components.lunarthrall_plantspawner
@@ -1392,6 +1418,43 @@ WarningEvents = {
             end
         end,
     },
+
+    ---------------------------------------- Player ----------------------------------------
+
+    -- 针对单个玩家的事件，不支持gettimefn，gettextfn返回一个包含所有玩家信息的json字符串。不支持跨世界同步
+    flotsamgenerator = { -- 瓶中信
+        gettextfn = function() -- 参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
+            if not (TheWorld.components.flotsamgenerator and TheWorld.components.flotsamgenerator.ScheduleGuaranteedSpawn) then return end
+            local time_list = {}
+            local _guaranteed_spawn_tasks = Upvaluehelper.GetUpvalue(TheWorld.components.flotsamgenerator.ScheduleGuaranteedSpawn, "_guaranteed_spawn_tasks")
+            if not _guaranteed_spawn_tasks then return end
+            for _, player in pairs(AllPlayers) do
+                if player and player:IsValid() and player.userid then
+                    local tasks = _guaranteed_spawn_tasks[player]
+                    for v, task in pairs(tasks) do
+                        if v.prefabs[1] == "messagebottle" then
+                            time_list[player.userid] = TimeToString(GetTaskRemaining(task))
+                        end
+                    end
+                end
+            end
+            return json.encode(time_list)
+        end,
+        image = {
+            atlas = "images/inventoryimages2.xml",
+            tex = "messagebottle.tex",
+            scale = 0.9,
+        },
+        playerly = true, -- 指明是针对单个玩家的事件
+        announcefn = function()
+            local text = ThePlayer.HUD.WarningEventTimeData.flotsamgenerator_text
+            if not text then return end
+            text = json.decode(text)
+            if type(text) ~= "table" then return end
+            text = text[ThePlayer.userid]
+            return string.format(ReplacePrefabName(STRINGS.eventtimer.flotsamgenerator.announce), text)
+        end
+    }
 }
 
 local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {

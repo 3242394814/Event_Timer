@@ -118,13 +118,15 @@ STRINGS.eventtimer = {
 		crystals = "<prefab=lunarrift_crystal_big>: %s available / %s total / %s max",
 		next_crystal = "Next <prefab=lunarrift_crystal_big> spawns in %s",
 	},
+    messagebottlemanager = {
+        text = "Treasures to grab: %d / %d",
+    },
+
+    ----------------------------------------Cave----------------------------------------
     shadowrift_portal = {
         name = "Shadow Rifts",
         close = "<prefab=shadowrift_portal> will close in %s",
     },
-
-    ----------------------------------------Cave----------------------------------------
-
     daywalkerspawner = {
         cooldown = "<prefab=daywalker> will respawn in %s.",
         tips = "<prefab=daywalker> has respawned!",
@@ -156,6 +158,12 @@ STRINGS.eventtimer = {
     },
     quaker = {
         cooldown = "The cave will earthquake in %s"
+    },
+
+    ----------------------------------------player----------------------------------------
+
+    flotsamgenerator = {
+        announce = "My next <prefab=messagebottle> will spawn in %s",
     },
 
     ----------------------------------------Shipwrecked----------------------------------------

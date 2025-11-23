@@ -71,7 +71,7 @@ local function OnUpdate(self)
             self.inst.replica.warningtimer[warningevent .. "_text"]:set(text or "")
 
             -- 更新其它世界数据
-            if SyncTimer and not data.DisableShardRPC then
+            if SyncTimer and not data.DisableShardRPC and not data.playerly then
                 if valid_data[warningevent].text_sametick > math.ceil(2 / UpdateTime) then -- 数据多次不变，删除其它世界的数据
                     if valid_data[warningevent].text_valid then
                         valid_data[warningevent].text_valid = false -- 标记数据无效
