@@ -47,16 +47,16 @@ if ModLanguage == "auto" then
 end
 
 local _languages = {
-	de = "de", --german
-	es = "es", --spanish
-	fr = "fr", --french
-	it = "it", --italian
-	ko = "ko", --korean
-	--Note: The only language mod I found that uses "pt" is also brazilian portuguese -M
-	pt = "pt", --portuguese
-	br = "pt", --brazilian portuguese
-	pl = "pl", --polish
-	ru = "ru", --russian
+	-- de = "de", --german
+	-- es = "es", --spanish
+	-- fr = "fr", --french
+	-- it = "it", --italian
+	-- ko = "ko", --korean
+	-- --Note: The only language mod I found that uses "pt" is also brazilian portuguese -M
+	-- pt = "pt", --portuguese
+	-- br = "pt", --brazilian portuguese
+	-- pl = "pl", --polish
+	-- ru = "ru", --russian
 	zh = "zh", --Chinese for Steam
 	zhr = "zh", --Chinese for WeGame
 	ch = "zh", --Chinese mod

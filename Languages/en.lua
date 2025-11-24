@@ -163,7 +163,7 @@ STRINGS.eventtimer = {
     ----------------------------------------player----------------------------------------
 
     flotsamgenerator = {
-        announce = "My next <prefab=messagebottle> will spawn in %s",
+        announce = "My next <prefab=messagebottle> will try to spawn in %s",
     },
 
     ----------------------------------------Shipwrecked----------------------------------------
