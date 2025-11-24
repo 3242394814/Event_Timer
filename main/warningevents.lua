@@ -1450,9 +1450,8 @@ WarningEvents = {
             local text = ThePlayer.HUD.WarningEventTimeData.flotsamgenerator_text
             if not text then return end
             text = json.decode(text)
-            if type(text) ~= "table" then return end
-            text = text[ThePlayer.userid]
-            return string.format(ReplacePrefabName(STRINGS.eventtimer.flotsamgenerator.announce), text)
+            if type(text) ~= "table" or not text[ThePlayer.userid] then return end
+            return string.format(ReplacePrefabName(STRINGS.eventtimer.flotsamgenerator.announce), text[ThePlayer.userid])
         end
     }
 }
