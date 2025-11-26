@@ -16,6 +16,7 @@ local CalcTimeOfDay -- 今天还剩多少时间
 local second_world_moonphase -- 当前月相阶段(从世界使用)
 local lunarthrall_plant_table = {} -- 储存致命亮茄数量
 local lordfruitfly_spawned -- 果蝇王是否已生成
+local _guaranteed_spawn_tasks---瓶中信
 
 if TheNet:GetIsServer() then
     AddComponentPostInit("clock", function(self)
@@ -65,6 +66,12 @@ if TheNet:GetIsServer() then
         inst:ListenForEvent("onremove", function(inst)
             lordfruitfly_spawned = false
         end)
+    end)
+
+    AddComponentPostInit("flotsamgenerator", function(self)
+        if TheWorld.components.flotsamgenerator and TheWorld.components.flotsamgenerator.ScheduleGuaranteedSpawn then
+            _guaranteed_spawn_tasks = Upvaluehelper.GetUpvalue(TheWorld.components.flotsamgenerator.ScheduleGuaranteedSpawn, "_guaranteed_spawn_tasks")
+        end
     end)
 end
 
@@ -1424,16 +1431,16 @@ WarningEvents = {
     -- 针对单个玩家的事件，不支持gettimefn，gettextfn返回一个包含所有玩家信息的json字符串。不支持跨世界同步
     flotsamgenerator = { -- 瓶中信
         gettextfn = function() -- 参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
-            if not (TheWorld.components.flotsamgenerator and TheWorld.components.flotsamgenerator.ScheduleGuaranteedSpawn) then return end
-            local time_list = {}
-            local _guaranteed_spawn_tasks = Upvaluehelper.GetUpvalue(TheWorld.components.flotsamgenerator.ScheduleGuaranteedSpawn, "_guaranteed_spawn_tasks")
             if not _guaranteed_spawn_tasks then return end
+            local time_list = {}
             for _, player in pairs(AllPlayers) do
                 if player and player:IsValid() and player.userid then
                     local tasks = _guaranteed_spawn_tasks[player]
-                    for v, task in pairs(tasks) do
-                        if v.prefabs[1] == "messagebottle" then
-                            time_list[player.userid] = TimeToString(GetTaskRemaining(task))
+                    if tasks then
+                        for v, task in pairs(tasks) do
+                            if v.prefabs[1] == "messagebottle" then
+                                time_list[player.userid] = TimeToString(GetTaskRemaining(task))
+                            end
                         end
                     end
                 end
