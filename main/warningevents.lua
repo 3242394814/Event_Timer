@@ -2079,6 +2079,7 @@ end
 AddShardModRPCHandler("EventTimer", "event_time_shardrpc", function(shardid, event, timedata, worldtype)
     if TheShard:GetShardId() == tostring(shardid) then return end
     if not SyncTimer then return end -- 未开启同步功能，取消同步
+    if not rawget(_G, "TheWorld") then return end
 
     local event_time_shardrpc = event .. "_time_shardrpc"
     local event_text_shardrpc = event .. "_text_shardrpc"
@@ -2104,6 +2105,7 @@ end)
 AddShardModRPCHandler("EventTimer", "event_text_shardrpc", function(shardid, event, textdata, worldtype)
     if TheShard:GetShardId() == tostring(shardid) then return end
     if not SyncTimer then return end -- 未开启同步功能，取消同步
+    if not rawget(_G, "TheWorld") then return end
     local event_text_shardrpc = event .. "_text_shardrpc"
 
     local warningtimer = TheWorld.net.components.warningtimer
