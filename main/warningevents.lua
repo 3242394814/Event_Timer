@@ -769,9 +769,20 @@ WarningEvents = {
             if TheWorld.ismastershard then -- 主世界
                 local self = TheWorld.net.components.clock
                 if not self then return end
-                local MOON_PHASE_CYCLES = Upvaluehelper.GetUpvalue(self.OnLoad, "MOON_PHASE_CYCLES")
-                local _mooniswaxing = Upvaluehelper.GetUpvalue(self.OnLoad, "_mooniswaxing")
-                local _mooomphasecycle = Upvaluehelper.GetUpvalue(self.OnLoad, "_mooomphasecycle")
+                local MOON_PHASE_CYCLES
+                local _mooniswaxing
+                local _mooomphasecycle
+
+                if TheWorld:HasTag("forest") or TheWorld:HasTag("cave") then
+                    MOON_PHASE_CYCLES = Upvaluehelper.FindUpvalue(self.OnLoad, "MOON_PHASE_CYCLES", "scripts/components/clock.lua")
+                    _mooniswaxing = Upvaluehelper.FindUpvalue(self.OnLoad, "_mooniswaxing", "scripts/components/clock.lua")
+                    _mooomphasecycle = Upvaluehelper.FindUpvalue(self.OnLoad, "_mooomphasecycle", "scripts/components/clock.lua")
+                else
+                    MOON_PHASE_CYCLES = Upvaluehelper.GetUpvalue(self.OnLoad, "MOON_PHASE_CYCLES")
+                    _mooniswaxing = Upvaluehelper.GetUpvalue(self.OnLoad, "_mooniswaxing")
+                    _mooomphasecycle = Upvaluehelper.GetUpvalue(self.OnLoad, "_mooomphasecycle")
+                end
+
                 if not (MOON_PHASE_CYCLES and _mooniswaxing and _mooomphasecycle) then
                     return
                 end
