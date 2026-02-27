@@ -197,7 +197,6 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
 -- gettimefn 必须返回 number（秒），同名数据保存到 GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_time。
 -- gettextfn 必须返回 string，保存到 GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_text
 
--- 事件写完后使用GLOBAL.EventTimer.Register_Event注册事件，传入的参数为事件名的字符串
 -- 最后，将本模组和你的模组一起启用即可
 -- 注意，你的模组加载应晚于本模组
 -- 本模组的各事件记录在 main/warningevents.lua 里
