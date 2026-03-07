@@ -91,7 +91,7 @@ local function AddWarningEvents(self)
 
     -- 屏幕左上角倒计时
     self.WarningEventTimeData = {}
-    local save_data = EventTimer.env.RW_Data:LoadData()
+    local save_data = RW_Data:LoadData()
     for warningevent, data in pairs(WarningEvents) do
         self[warningevent] = self:AddChild(WarningEvent(data.anim, data.image))
         self[warningevent]:Hide()

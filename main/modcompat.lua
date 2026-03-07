@@ -1,7 +1,8 @@
 local AddPrefabPostInit = AddPrefabPostInit
-local AddGamePostInit = AddGamePostInit
+-- local AddGamePostInit = AddGamePostInit
 local ModLanguage = ModLanguage
 local zh = ModLanguage == "zh"
+local RW_Data = RW_Data
 GLOBAL.setfenv(1, GLOBAL)
 
 -- 判断某个模组是否加载
@@ -118,11 +119,23 @@ if HasMOD_util and MOD_util:CanAddSetting() then
                     EventTimer.UIButton = MOD_util:GetMOption("EventsTimer_UIButton", true)
                     ChangeModConfig("UIButton", EventTimer.UIButton)
 
-                    if ThePlayer and ThePlayer.HUD and ThePlayer.HUD.EventTimerButton then
+                    if table.typecheckedgetfield(ThePlayer, "table","HUD", "EventTimerButton") then
                         ThePlayer.HUD.EventTimerButton:Refresh()
                     end
                 end
-            }
+            },
+            {
+                description = zh and "重置计时器面板打开按钮位置" or "Reset timer panel open button position",
+                onclickfn = function()
+                    if table.typecheckedgetfield(ThePlayer, "table","HUD", "EventTimerButton", "openbutton") and EventTimer.UIButton == "always" then
+                        local x, y = -55, 200
+                        ThePlayer.HUD.EventTimerButton.openbutton:SetPosition(x, y, 0)
+                        local save_data = RW_Data:LoadData()
+                        save_data.pos = nil -- 删除记录也能恢复默认位置
+                        RW_Data:SaveData(save_data)
+                    end
+                end
+            },
         }
     }
     )
