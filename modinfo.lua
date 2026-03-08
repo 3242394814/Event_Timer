@@ -17,8 +17,8 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊，Jerry"
-version = "0.1.8.5" -- 模组版本
-version_compatible = "0.1.8.4" -- 最低兼容版本
+version = "0.1.9" -- 模组版本
+version_compatible = "0.1.9" -- 最低兼容版本
 api_version = 10
 priority = -1 -- 模组加载优先级
 dst_compatible = true -- 兼容联机版
@@ -84,7 +84,7 @@ configuration_options = {
             {description = "9s", data = 9},
             {description = "10s", data = 10},
         },
-        default = 0.5,
+        default = 1,
     },
     {
         name = "ClientPrediction",

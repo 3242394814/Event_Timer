@@ -1471,7 +1471,40 @@ WarningEvents = {
             if type(text) ~= "table" or not text[ThePlayer.userid] then return end
             return string.format(ReplacePrefabName(STRINGS.eventtimer.flotsamgenerator.announce), text[ThePlayer.userid])
         end
-    }
+    },
+    yoth_knightmanager = { -- 镀金骑士冷却倒计时
+        gettextfn = function()
+            local time_list = {}
+            for _, player in pairs(AllPlayers) do
+                if player and player:IsValid() and player.userid then
+                    local debuff = player.components.debuffable and player.components.debuffable:GetDebuff("yoth_princesscooldown_buff")
+                    if debuff then
+                        local time = debuff.components and debuff.components.timer and debuff.components.timer:GetTimeLeft("buffover")
+                        time_list[player.userid] = time and TimeToString(time)
+                    end
+                end
+            end
+            return json.encode(time_list)
+        end,
+        anim = {
+            scale = 0.08,
+            bank = "knight",
+            build = "knight_yoth_build",
+            animation = "idle_loop",
+            uioffset = {
+                x = 0,
+                y = -10,
+            },
+        },
+        playerly = true, -- 指明是针对单个玩家的事件
+        announcefn = function()
+            local text = ThePlayer.HUD.WarningEventTimeData.yoth_knightmanager_text
+            if not text then return end
+            text = json.decode(text)
+            if type(text) ~= "table" or not text[ThePlayer.userid] then return end
+            return string.format(ReplacePrefabName(STRINGS.eventtimer.yoth_knightmanager.announce), text[ThePlayer.userid])
+        end
+    },
 }
 
 local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {

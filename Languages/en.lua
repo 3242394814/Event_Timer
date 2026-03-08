@@ -165,6 +165,9 @@ STRINGS.eventtimer = {
     flotsamgenerator = {
         announce = "My next <prefab=messagebottle> will try to spawn in %s",
     },
+    yoth_knightmanager = {
+        announce = "My <prefab=knight_yoth> respawn cooldown has %s remaining."
+    },
 
     ----------------------------------------Shipwrecked----------------------------------------
 
