@@ -68,8 +68,8 @@ local WarningTimer = Class(function(self, inst)
 	self.inst = inst
 
     for warningevent in pairs(WarningEvents) do
-        self[warningevent .. "_time"] = net_shortint(inst.GUID, warningevent .. "_time",  warningevent .. "_time_dirty")
-        self[warningevent .. "_time_shardrpc"] = net_shortint(inst.GUID, warningevent .. "_time_shardrpc", warningevent .. "_time_dirty")
+        self[warningevent .. "_time"] = net_ushortint(inst.GUID, warningevent .. "_time",  warningevent .. "_time_dirty")
+        self[warningevent .. "_time_shardrpc"] = net_ushortint(inst.GUID, warningevent .. "_time_shardrpc", warningevent .. "_time_dirty")
         self[warningevent .. "_text"] = net_string(inst.GUID, warningevent .. "_text", warningevent .. "_text_dirty")
         self[warningevent .. "_text_shardrpc"] = net_string(inst.GUID, warningevent .. "_text_shardrpc", warningevent .. "_text_dirty")
 

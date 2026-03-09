@@ -85,10 +85,13 @@ local function GetWorldSettingsTimeLeft(name, prefab)
     return function()
         local ent = TheWorld
         if prefab then
-            ent =  TimerPrefabs[prefab]
+            ent = TimerPrefabs[prefab]
         end
         if ent and ent.components.worldsettingstimer then
-            return (not ent.components.worldsettingstimer:IsPaused(name)) and ent.components.worldsettingstimer:GetTimeLeft(name)
+            if not ent.components.worldsettingstimer:IsPaused(name) then
+                local time = ent.components.worldsettingstimer:GetTimeLeft(name)
+                return time and time < 65535 and time
+            end
         end
     end
 end

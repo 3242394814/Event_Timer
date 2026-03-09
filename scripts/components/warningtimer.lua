@@ -47,12 +47,12 @@ local function OnUpdate(self)
                 end
             elseif time and time > 0  then -- 时间有效
                 valid_data[warningevent].time_valid = true -- 标记数据有效
-                self.inst.replica.warningtimer[warningevent .. "_time"]:set(time) -- 更新本世界数据
+                self.inst.replica.warningtimer[warningevent .. "_time"]:set(time < 65535 and time or 65535) -- 更新本世界数据
                 if SyncTimer and not data.DisableShardRPC then -- 更新其它世界数据
-                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"]["event_time_shardrpc"], nil, warningevent, time, GetWorldType())
+                    SendModRPCToShard(SHARD_MOD_RPC["EventTimer"]["event_time_shardrpc"], nil, warningevent, time < 65535 and time or 65535, GetWorldType())
                 end
             else
-                self.inst.replica.warningtimer[warningevent .. "_time"]:set(time or 0)
+                self.inst.replica.warningtimer[warningevent .. "_time"]:set((time and time > 65535 and 65535) or time or 0)
             end
 
             -- 判断时间是否有变化
