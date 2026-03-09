@@ -166,7 +166,8 @@ STRINGS.eventtimer = {
         announce = "My next <prefab=messagebottle> will try to spawn in %s",
     },
     yoth_knightmanager = {
-        announce = "My <prefab=knight_yoth> respawn cooldown has %s remaining."
+        announce = "My <prefab=knight_yoth> will respawn in %s.",
+        tips = "<prefab=knight_yoth> ready to spawn."
     },
 
     ----------------------------------------Shipwrecked----------------------------------------

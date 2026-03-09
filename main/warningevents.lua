@@ -1,5 +1,6 @@
 local modimport = modimport
 local TimeToString = TimeToString
+local StringToTime = StringToTime
 local SyncTimer = GetModConfigData("SyncTimer")
 local Upvaluehelper = Upvaluehelper
 local ReplacePrefabName = ReplacePrefabName
@@ -11,7 +12,7 @@ local AddComponentPostInit = AddComponentPostInit
 GLOBAL.setfenv(1, GLOBAL)
 
 modimport("main/timerprefab")
-
+local player_userid = TheNet:GetUserID()
 local CalcTimeOfDay -- 今天还剩多少时间
 local second_world_moonphase -- 当前月相阶段(从世界使用)
 local lunarthrall_plant_table = {} -- 储存致命亮茄数量
@@ -304,13 +305,13 @@ end
 
 -- 如果event_time > 0，在刚进入游戏的1~10秒内返回true
 local function JustEntered(event_time)
-    if type(event_time) ~= "number" then return end
+    if not checknumber(event_time) then return end
     return GetTime() > 1 and GetTime() < 10 and event_time > 0
 end
 
 -- 当time在0~2秒时返回true
 local function ready_attack(time)
-    if type(time) ~= "number" then return end
+    if not checknumber(time) then return end
     if time < 2 and time > 0 then
         return true
     end
@@ -338,7 +339,7 @@ WarningEvents = {
 
             if next_wave_is_wormboss then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss), TimeToString(time))
-            elseif type(_wave_override_chance) == "number" and _wave_override_chance > 0 then
+            elseif checknumber(_wave_override_chance) and _wave_override_chance > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.worm_boss_chance), TimeToString(time), _wave_override_chance * 100)
             end
         end,
@@ -805,7 +806,7 @@ WarningEvents = {
         end,
         imagechangefn = function(self)
             local text = ThePlayer.HUD.WarningEventTimeData.moon_text
-            if not text then return end
+            if not text or text == "" then return end
             if string.find(text, STRINGS.eventtimer.moon.str_full) then
                 self.image = self.fullimage
             else
@@ -825,7 +826,7 @@ WarningEvents = {
         DisableShardRPC = true,
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.moon_text
-            if not text then return end
+            if not text or text == "" then return end
             if string.find(text, STRINGS.eventtimer.moon.str_full) then
                 local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_full)
                 if tonumber(day) == 10 then
@@ -842,7 +843,7 @@ WarningEvents = {
         end,
         tipsfn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.moon_text
-            if not text then return end
+            if not text or text == "" then return end
             if string.find(text, STRINGS.eventtimer.moon.str_full) then
                 local day = Extract_by_format(text, STRINGS.eventtimer.moon.moon_full)
                 if tonumber(day) == 10 then
@@ -1469,10 +1470,10 @@ WarningEvents = {
         playerly = true, -- 指明是针对单个玩家的事件
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.flotsamgenerator_text
-            if not text then return end
-            text = json.decode(text)
-            if type(text) ~= "table" or not text[ThePlayer.userid] then return end
-            return string.format(ReplacePrefabName(STRINGS.eventtimer.flotsamgenerator.announce), text[ThePlayer.userid])
+            if not text or text == "" then return end
+            local data = json.decode(text)
+            if type(data) ~= "table" or not data[player_userid] then return end
+            return string.format(ReplacePrefabName(STRINGS.eventtimer.flotsamgenerator.announce), data[player_userid])
         end
     },
     yoth_knightmanager = { -- 镀金骑士冷却倒计时
@@ -1502,10 +1503,25 @@ WarningEvents = {
         playerly = true, -- 指明是针对单个玩家的事件
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.yoth_knightmanager_text
-            if not text then return end
-            text = json.decode(text)
-            if type(text) ~= "table" or not text[ThePlayer.userid] then return end
-            return string.format(ReplacePrefabName(STRINGS.eventtimer.yoth_knightmanager.announce), text[ThePlayer.userid])
+            if not text or text == "" then return end
+
+            local data = json.decode(text)
+            if type(data) ~= "table" or not data[player_userid] then return end
+
+            return string.format(ReplacePrefabName(STRINGS.eventtimer.yoth_knightmanager.announce), data[player_userid])
+        end,
+        tipsfn = function ()
+            local text = ThePlayer.HUD.WarningEventTimeData.yoth_knightmanager_text
+            if not text or text == "" then return end
+
+            local data = json.decode(text)
+            if type(data) ~= "table" or not data[player_userid] then return end
+
+            local time = StringToTime(data[player_userid])
+            if ready_attack(time) then
+                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.yoth_knightmanager.tips)), 10, time, 2
+            end
+            return false
         end
     },
 }

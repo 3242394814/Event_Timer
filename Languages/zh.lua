@@ -166,7 +166,8 @@ STRINGS.eventtimer = {
         announce = "我的下一个<prefab=messagebottle>将于%s后尝试刷新",
     },
     yoth_knightmanager = {
-        announce = "我的<prefab=knight_yoth>刷新冷却时间还剩%s"
+        announce = "我的<prefab=knight_yoth>会重生于%s后",
+        tips = "<prefab=knight_yoth>已准备就绪",
     },
 
     ----------------------------------------海难----------------------------------------

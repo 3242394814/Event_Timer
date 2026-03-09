@@ -209,7 +209,7 @@ function WarningEventHUD:UpdateDestItem()
     for name, value in pairs(WarningEvents) do
         local datatext = eventsdata[name .. "_text"]
         local datatime = eventsdata[name .. "_time"]
-        value.name = name
+        value.name = name -- name在这定义，注意这一点
         if type(datatext) == "string" and datatext ~= "" then
             if value.playerly then
                 local text = json.decode(datatext)

@@ -3,35 +3,15 @@ local ReplacePrefabName = EventTimer.env.ReplacePrefabName
 local TimerMode = EventTimer.TimerMode
 local UpdateTime = EventTimer.UpdateTime
 local TimeToString = EventTimer.env.TimeToString
+local StringToTime = EventTimer.env.StringToTime
 
 local day_str = STRINGS.eventtimer.time.day
 local hour_str = STRINGS.eventtimer.time.hour
 local min_str = STRINGS.eventtimer.time.minutes
 local sec_str = STRINGS.eventtimer.time.seconds
 
-local StringToTime_format_1 = "(.*)".. day_str .. "(.*)" .. min_str .. "(.*)" .. sec_str
-local StringToTime_format_2 = "(.*)" .. hour_str .. "(.*)" .. min_str .. "(.*)" .. sec_str
-
 local Getformat_format_1 = "(%d+)".. day_str .. "(%d+)" .. min_str .. "(%d+)" .. sec_str
 local Getformat_format_2 = "(%d+)" .. hour_str .. "(%d+)" .. min_str .. "(%d+)" .. sec_str
-
--- 反向格式化时间
-local function StringToTime(string)
-    if type(string) ~= "string" then return end
-    local time = 0
-    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
-    local format = TimerMode == 2 and StringToTime_format_2 or StringToTime_format_1
-    local d,m,s = string.match(string, format)
-    d = tonumber(d)
-    m = tonumber(m)
-    s = tonumber(s)
-    if d and m and s then
-        time = time + d * daytime
-        time = time + m * 60
-        time = time + s
-        return time
-    end
-end
 
 local function Getformat(text)
     local format = TimerMode == 2 and Getformat_format_2 or Getformat_format_1

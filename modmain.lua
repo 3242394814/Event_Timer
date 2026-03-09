@@ -74,6 +74,8 @@ else
     ModLanguage = "en"
 end
 
+modimport("Languages/" .. ModLanguage) -- 加载翻译
+
 ----------------------------------------定义模组环境函数---------------------------------------
 
 function Import(modulename)
@@ -93,7 +95,7 @@ local TimerMode = GetModConfigData("BossTimer")
 --- @param str string
 --- @return string, number
 function ReplacePrefabName(str)
-	if type(str) ~= "string" then return str end
+	if not GLOBAL.checkstring(str) then return str end
     return str:gsub("<prefab=(.-)>", function(prefab)
         local key = prefab:upper()
         return STRINGS.NAMES[key] or prefab
@@ -102,7 +104,7 @@ end
 
 -- 格式化时间
 function TimeToString(seconds)
-    if type(seconds) ~= "number" then return seconds end
+    if not GLOBAL.checknumber(seconds) then return seconds end
     local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
     local d = math.floor(seconds / daytime)
     local min = math.floor(seconds % daytime / 60)
@@ -115,9 +117,33 @@ function TimeToString(seconds)
     end
 end
 
+-- 反向格式化时间
+local day_str = STRINGS.eventtimer.time.day
+local hour_str = STRINGS.eventtimer.time.hour
+local min_str = STRINGS.eventtimer.time.minutes
+local sec_str = STRINGS.eventtimer.time.seconds
+local StringToTime_format_1 = "(.*)".. day_str .. "(.*)" .. min_str .. "(.*)" .. sec_str
+local StringToTime_format_2 = "(.*)" .. hour_str .. "(.*)" .. min_str .. "(.*)" .. sec_str
+function StringToTime(string)
+    if not GLOBAL.checkstring(string) then return string end
+    local time = 0
+    local daytime = TimerMode == 2 and 3600 or TUNING.TOTAL_DAY_TIME
+    local format = TimerMode == 2 and StringToTime_format_2 or StringToTime_format_1
+    local d,m,s = string.match(string, format)
+    d = GLOBAL.tonumber(d)
+    m = GLOBAL.tonumber(m)
+    s = GLOBAL.tonumber(s)
+    if d and m and s then
+        time = time + d * daytime
+        time = time + m * 60
+        time = time + s
+        return time
+    end
+end
+
 -- 反向提取信息
 function Extract_by_format(text, format_str)
-    if type(text) ~= "string" or type(format_str) ~= "string" then return end
+    if not GLOBAL.checkstring(text) or not GLOBAL.checkstring(format_str) then return end
     local safe = format_str:gsub("([%%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
     local pattern = safe:gsub("%%%%s", "(.*)")
     return text:match(pattern)
@@ -142,7 +168,7 @@ RW_Data = {}
 
 function RW_Data:SaveData(data)
 	local str = GLOBAL.json.encode(data)
-	local insz, outsz = GLOBAL.SavePersistentString(DATA_FILE, str)
+	GLOBAL.SavePersistentString(DATA_FILE, str)
 end
 
 function RW_Data:LoadData()
@@ -173,8 +199,6 @@ GLOBAL.EventTimer = {
 }
 
 ----------------------------------------加载模组---------------------------------------
-
-modimport("Languages/" .. ModLanguage) -- 加载翻译
 
 AddReplicableComponent("warningtimer")
 
