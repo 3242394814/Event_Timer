@@ -17,8 +17,8 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊，Jerry"
-version = "v0.1.10" -- 模组版本
--- version_compatible = "0.1.10" -- 最低兼容版本
+version = "0.1.11" -- 模组版本
+version_compatible = "0.1.10" -- 最低兼容版本
 api_version = 10
 priority = -1 -- 模组加载优先级
 dst_compatible = true -- 兼容联机版
@@ -41,6 +41,35 @@ local toggle = {
 	{description = en_zh("Disabled", "关闭"), data = false},
 }
 
+local keyboard = { -- from STRINGS.UI.CONTROLSSCREEN.INPUTS[1] of strings.lua, need to match constants.lua too.
+  { 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', 'Print', 'ScrolLock', 'Pause' },
+  { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' },
+  { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' },
+  { 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' },
+  { 'Escape', 'Tab', 'CapsLock', 'LShift', 'LCtrl', 'LSuper', 'LAlt' },
+  { 'Space', 'RAlt', 'RSuper', 'RCtrl', 'RShift', 'Enter', 'Backspace' },
+  { 'BackQuote', 'Minus', 'Equals', 'LeftBracket', 'RightBracket' },
+  { 'Backslash', 'Semicolon', 'Quote', 'Period', 'Slash' }, -- punctuation
+  { 'Up', 'Down', 'Left', 'Right', 'Insert', 'Delete', 'Home', 'End', 'PageUp', 'PageDown' }, -- navigation
+}
+local numpad = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Period', 'Divide', 'Multiply', 'Minus', 'Plus' }
+local mouse = { '\238\132\128', '\238\132\129', '\238\132\130', '\238\132\131', '\238\132\132' } -- Mouse Button Left/Right/Middle/4/5
+local key_disabled = { description = en_zh('Disabled', '禁用'), data = 'KEY_DISABLED' }
+keys = { key_disabled }
+for i = 1, #mouse do
+  keys[#keys + 1] = { description = mouse[i], data = mouse[i] }
+end
+for i = 1, #keyboard do
+  for j = 1, #keyboard[i] do
+    local key = keyboard[i][j]
+    keys[#keys + 1] = { description = key, data = 'KEY_' .. key:upper() }
+  end
+  keys[#keys + 1] = key_disabled
+end
+for i = 1, #numpad do
+  local key = numpad[i]
+  keys[#keys + 1] = { description = 'Numpad ' .. key, data = 'KEY_KP_' .. key:upper() }
+end
 
 configuration_options = {
     {
@@ -56,9 +85,17 @@ configuration_options = {
         default = "auto",
     },
     {
+        name = "hotkey",
+        label = en_zh("Panel Hotkey", "计时器面板快捷键"),
+        hover = en_zh("Hotkey to toggle the timer panel", "开关计时器面板的快捷键"),
+        options = keys,
+        default = "KEY_DISABLED",
+        client = true,
+    },
+    {
         name = "UIButton",
-        label = en_zh("UI Button Visibility", "UI开关何时显示"),
-        hover = en_zh("Choose when the UI button is visible", "选择UI开关在什么情况下显示"),
+        label = en_zh("Panel Toggle Button Visibility", "面板开关按钮何时显示"),
+        hover = en_zh("Choose when the event timer panel toggle button appears", "选择事件计时器面板的开关在什么情况下显示"),
         options = {
             {description = en_zh("Always Visible", "始终显示"), data = "always"},
             {description = en_zh("Pause Menu", "在暂停页面显示"), hover = en_zh("Visible when you press ESC to open the pause menu", "按ESC打开暂停页面时显示"), data = "pause_screen"},
@@ -95,7 +132,7 @@ configuration_options = {
         client = true,
     },
     {
-        name = "BossTimer", -- 这个设置比较特殊..可能出现客户端/服务器设置不同的情况，需要额外兼容
+        name = "BossTimer",
         label = en_zh("Boss Timing Format", "Boss计时格式"),
         options =
         {
