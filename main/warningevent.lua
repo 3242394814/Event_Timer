@@ -322,8 +322,8 @@ env.KeyBind = function(_, key)
 
   -- 新建绑定或无绑定
   local function f(_key, down)
-    return (_key == key and down ) and ThePlayer.HUD.EventTimerButton:ToggleEventTimerUI()
+    return (_key == key and down ) and ThePlayer and ThePlayer.HUD.EventTimerButton:ToggleEventTimerUI()
   end
 
-  down_handler = key and (key >= 1000 and GLOBAL.TheInput:AddMouseButtonHandler(f) or GLOBAL.TheInput:AddKeyHandler(f) or nil)
+  down_handler = key and (key >= 1000 and TheInput:AddMouseButtonHandler(f) or TheInput:AddKeyHandler(f) or nil)
 end
