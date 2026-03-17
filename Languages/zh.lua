@@ -49,7 +49,6 @@ STRINGS.eventtimer = {
     },
     klaussackspawner = { -- 赃物袋
         cooldown = "<prefab=klaus_sack>会生成于%s后",
-        cooldowntext = "%s",
         despawn = "<prefab=klaus_sack>将消失于第%s天",
         despawntext = "消失于第%s天",
         tips = "<prefab=klaus_sack>已刷新！",
@@ -199,6 +198,12 @@ STRINGS.eventtimer = {
         exists = "当前<prefab=tigershark>正在出没",
         nospawn = "<prefab=tigershark>：没有刷出的可能？",
         tips = "<prefab=tigershark>重生准备就绪",
+    },
+    islandsklaussackspawner = { -- 热带赃物袋
+        cooldown = "<prefab=klaus_sack_tropical>会生成于%s后",
+        despawn = "<prefab=klaus_sack_tropical>将消失于第%s天",
+        despawntext = "消失于第%s天",
+        tips = "<prefab=klaus_sack_tropical>已刷新！",
     },
 
     ----------------------------------------猪镇----------------------------------------

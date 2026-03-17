@@ -49,7 +49,6 @@ STRINGS.eventtimer = {
     },
     klaussackspawner = {
         cooldown = "<prefab=klaus_sack> will spawn in %s.",
-        cooldowntext = "%s",
         despawn = "<prefab=klaus_sack> will despawn on day %s.",
         despawntext = "Despawns on day: %s",
         tips = "<prefab=klaus_sack> has respawned!",
@@ -199,6 +198,12 @@ STRINGS.eventtimer = {
         exists = "<prefab=tigershark> is present.",
         nospawn = "<prefab=tigershark>: ?No Spawn Possible?",
         tips = "<prefab=tigershark> ready to spawn.",
+    },
+    islandsklaussackspawner = {
+        cooldown = "<prefab=klaus_sack_tropical> will spawn in %s.",
+        despawn = "<prefab=klaus_sack_tropical> will despawn on day %s.",
+        despawntext = "Despawns on day: %s",
+        tips = "<prefab=klaus_sack_tropical> has respawned!",
     },
 
     ----------------------------------------Hamlet----------------------------------------
