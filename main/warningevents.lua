@@ -173,13 +173,15 @@ end
 
 -- 云霄国度 大灾变倒计时
 local Next_Aporkalypse_Time
-AddPrefabPostInit("world", function(inst)
-    if inst:HasTag("porkland") then
-        inst:ListenForEvent("aporkalypseclocktick", function(src, data)
-            Next_Aporkalypse_Time = data and data.timeuntilaporkalypse
-        end)
-    end
-end)
+if Ismodloaded("workshop-3322803908") then
+    AddPrefabPostInit("world", function(inst)
+        if inst:HasTag("porkland") then
+            inst:ListenForEvent("aporkalypseclocktick", function(src, data)
+                Next_Aporkalypse_Time = data and data.timeuntilaporkalypse
+            end)
+        end
+    end)
+end
 
 -- 猎犬/洞穴蠕虫/鳄狗/巨大洞穴蠕虫 Anim刷新
 local HoundedAnimChange_task = nil
