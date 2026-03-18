@@ -221,7 +221,7 @@ STRINGS.eventtimer = {
     },
     aporkalypse = { -- 大灾变
         cooldown = "大灾变将在%s后到来。",
-        attack = "\n下一次<prefab=vampirebat>袭击: %s后\n下一次<prefab=ancient_herald>袭击: %s后",
+        attack = "下一次<prefab=vampirebat>袭击: %s后\n下一次<prefab=ancient_herald>袭击: %s后",
         announce_attack = "下一次<prefab=vampirebat>袭击: %s后    下一次<prefab=ancient_herald>袭击: %s后",
         tips = "警告：大灾变将在%s后到来！！！",
         tips_ready = "血月降临！",

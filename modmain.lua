@@ -78,10 +78,10 @@ modimport("Languages/" .. ModLanguage) -- 加载翻译
 
 ----------------------------------------定义模组环境函数---------------------------------------
 
-function Import(modulename)
+function Import(modulename, env)
 	local f = GLOBAL.kleiloadlua(modulename)
 	if f and type(f) == "function" then
-        GLOBAL.setfenv(f, GLOBAL)
+        GLOBAL.setfenv(f, env or GLOBAL)
         return f()
 	end
 end
@@ -149,7 +149,7 @@ function Extract_by_format(text, format_str)
     return text:match(pattern)
 end
 
--- 根据世界类型返回一段字符串
+-- 根据世界类型返回一段字符串，兼容热带冒险
 function GetWorldtypeStr()
     if GLOBAL.TheWorld:HasTag("porkland") then
         return "porkland"
@@ -158,6 +158,16 @@ function GetWorldtypeStr()
     elseif GLOBAL.TheWorld:HasTag("cave") then
         return "cave"
     else
+        local ThePlayer = GLOBAL.ThePlayer
+        if ThePlayer and TUNING.TROPICAL_ADVENTURE_ACTIVATED then
+            if ThePlayer.AwareInVolcanoArea and ThePlayer:AwareInVolcanoArea() then
+                return "shipwrecked"
+            elseif ThePlayer.AwareInShipwreckedArea and ThePlayer:AwareInShipwreckedArea() then
+                return "shipwrecked"
+            elseif ThePlayer.AwareInHamletArea and ThePlayer:AwareInHamletArea() then
+                return "porkland"
+            end
+        end
         return "forest"
     end
 end
@@ -202,10 +212,11 @@ GLOBAL.EventTimer = {
 
 AddReplicableComponent("warningtimer")
 
+modimport("scripts/utils/utils") -- 模组工具
 modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
 modimport("main/modcompat") -- 检测其它模组
-modimport('keybind') -- 键位绑定优化
+modimport("keybind") -- 键位绑定优化
 
 ----------------------------------------鼠标跟随---------------------------------------
 

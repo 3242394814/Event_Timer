@@ -68,19 +68,18 @@ function WarningEvent:SetEventAnim(data)
         end
     end
     if data.overridesymbol then
-        for _, v in pairs(data.overridesymbol) do
-            self.anim:GetAnimState():OverrideSymbol(v[1], v[2], v[3])
-        end
+        self.anim:GetAnimState():OverrideSymbol(data.overridesymbol[1], data.overridesymbol[2], data.overridesymbol[3])
     end
     if data.overridebuild then
-        for _, b in pairs(data.overridebuild) do
-            self.anim:GetAnimState():AddOverrideBuild(b)
-        end
+        local _, b = next(data.overridebuild)
+        self.anim:GetAnimState():AddOverrideBuild(b)
+    end
+    if data.multcolour then
+        self.anim:GetAnimState():SetMultColour(data.multcolour[1], data.multcolour[2], data.multcolour[3], data.multcolour[4])
     end
     if data.orientation then
         self.anim:GetAnimState():SetOrientation(data.orientation)
     end
-
     if data.offset then
         self.anim:SetPosition(-45 + data.offset.x, -25 + data.offset.y)
     end

@@ -76,6 +76,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                 data:imagechangefn()
             end
 
+            -- 移除背景，暂未使用
             if data.nobackground and widget.destitem.background then
                 widget.destitem.background:Kill()
             end
@@ -117,14 +118,14 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                     end
                 end
                 if data.anim.overridesymbol then
-                    for _, v in pairs(data.anim.overridesymbol) do
-                        widget.destitem.anim:GetAnimState():OverrideSymbol(v[1], v[2], v[3])
-                    end
+                    widget.destitem.anim:GetAnimState():OverrideSymbol(data.anim.overridesymbol[1], data.anim.overridesymbol[2], data.anim.overridesymbol[3])
                 end
                 if data.anim.overridebuild then
-                    for _, b in pairs(data.anim.overridebuild) do
-                        widget.destitem.anim:GetAnimState():AddOverrideBuild(b)
-                    end
+                    local _, b = next(data.overridebuild)
+                    widget.destitem.anim:GetAnimState():AddOverrideBuild(b)
+                end
+                if data.anim.multcolour then
+                    widget.destitem.anim:GetAnimState():SetMultColour(data.anim.multcolour[1], data.anim.multcolour[2], data.anim.multcolour[3], data.anim.multcolour[4])
                 end
                 if data.anim.orientation then
                     widget.destitem.anim:GetAnimState():SetOrientation(data.anim.orientation)

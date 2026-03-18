@@ -101,8 +101,9 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
     --     },
     --     overridebuild   --类型是数组表，为事件的额外材质(必须搭配动画使用，表内依次填入build名称即可) 参数等同 AddOverrideBuild
     --     overridesymbol  --类型是键值表，替换事件的symbol(必须搭配动画使用，表内依次填入包含原有symbol与目标build和目标symbol组成的表) 参数等同 OverrideSymbol
+    --     multcolour      --类型是数组表，设置动画的多颜色参数(必须搭配动画使用，表内依次填入包含r、g、b值的数组) 参数等同 SetMultColour
     --     hidesymbol      --类型是数组表，隐藏事件的symbol(必须搭配动画使用，表内依次填入symbol名称) 参数等同 HideSymbol
-    --     overridebuild   --设置动画的方向 参数等同 SetOrientation
+    --     orientation     --设置动画的方向 参数等同 SetOrientation
     -- },
 
 

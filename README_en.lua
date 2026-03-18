@@ -114,8 +114,9 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
     --     },
     --     overridebuild   -- array: extra builds (must be used with animation). Same as AddOverrideBuild
     --     overridesymbol  -- map: symbol replacements (must be used with animation). Same as OverrideSymbol
+    --     multcolour      -- array: set the multi-color of the animation. Same as SetMultColour
     --     hidesymbol      -- array: symbols to hide (must be used with animation). Same as HideSymbol
-    --     overridebuild   -- Set the direction of the animation. Same as SetOrientation
+    --     orientation     -- Set the direction of the animation. Same as SetOrientation
     -- },
 
     -- animchangefn: client-side optional function similar to imagechangefn. Select different anim tables depending on conditions.

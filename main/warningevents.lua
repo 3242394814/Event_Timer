@@ -1,4 +1,5 @@
 local modimport = modimport
+local MOD_util = MOD_util
 local TimeToString = TimeToString
 local StringToTime = StringToTime
 local SyncTimer = GetModConfigData("SyncTimer")
@@ -184,24 +185,40 @@ if Ismodloaded("workshop-3322803908") then
 end
 
 -- 猎犬/洞穴蠕虫/鳄狗/巨大洞穴蠕虫 Anim刷新
-local HoundedAnimChange_task = nil
+local HoundedAnimChangeFn
 local function HoundedAnimChange(self)
     if TheNet:IsDedicated() then
         return
     end
 
     local last_anim
-    if not HoundedAnimChange_task then
-        HoundedAnimChange_task = TheWorld:DoPeriodicTask(1, function()
+    if not HoundedAnimChangeFn then
+        HoundedAnimChangeFn = function()
             local text = ThePlayer and ThePlayer.HUD and ThePlayer.HUD.WarningEventTimeData and ThePlayer.HUD.WarningEventTimeData.hounded_text
             local is_worm_boss = text and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
-
-            if TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
+            local worldtype = GetWorldtypeStr()
+            if worldtype == "shipwrecked" then
                 self.anim = self.islandanim
             elseif is_worm_boss then
                 self.anim = self.wormbossanim
-            elseif TheWorld:HasTag("cave") then
+            elseif worldtype == "cave" then
                 self.anim = self.caveanim
+            elseif worldtype == "porkland" then
+                self.anim = {
+                    scale = 0.08,
+                    build = "bat_vamp_build",
+                    bank = "bat", -- 云霄国度是 bat_vamp
+                    animation = "fly_loop",
+                    loop = true,
+                    uioffset = {
+                        x = 10,
+                        y = -15,
+                    },
+                    offset = {
+                        x = 0,
+                        y = -15,
+                    }
+                }
             else
                 self.anim = self.forestanim
             end
@@ -210,10 +227,19 @@ local function HoundedAnimChange(self)
                 last_anim = self.anim
                 ThePlayer.HUD.hounded:SetEventAnim(self.anim)
             end
-        end)
+        end
+        HoundedAnimChangeFn()
     end
 end
 
+-- 监听热带冒险的区域变化事件
+MOD_util:AddPlayerPostInit(function(world, player)
+    player:ListenForEvent("regionchange_client", function(inst, data)
+        if HoundedAnimChangeFn then
+            HoundedAnimChangeFn()
+        end
+    end)
+end)
 
 -- 远古遗迹当前阶段
 local function NightmareWild()
@@ -348,13 +374,14 @@ WarningEvents = {
         imagechangefn = function(self)
             local text = ThePlayer.HUD.WarningEventTimeData.hounded_text
             local is_worm_boss = text and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
-            if TheWorld:HasTag("porkland") then
-                self.image = self.porklandimage
-            elseif TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
+            local worldtype = GetWorldtypeStr()
+            if worldtype == "porkland" then
+                self.image = nil
+            elseif worldtype == "shipwrecked" then
                 self.image = self.islandimage
             elseif is_worm_boss then
                 self.image = self.wormbossimage
-            elseif TheWorld:HasTag("cave") then
+            elseif worldtype == "cave" then
                 self.image = self.caveimage
             else
                 self.image = self.forestimage
@@ -382,6 +409,14 @@ WarningEvents = {
             build = "hound_ocean",
             animation = "idle",
             loop = true,
+            uioffset = {
+                x = 0,
+                y = 0,
+            },
+            offset = {
+                x = 0,
+                y = 0,
+            }
         },
         islandanim = {
             scale = 0.09,
@@ -393,6 +428,10 @@ WarningEvents = {
                 x = 6,
                 y = 0,
             },
+            offset = {
+                x = 0,
+                y = 0,
+            }
         },
         caveanim = {
             scale = 0.066,
@@ -400,6 +439,14 @@ WarningEvents = {
             build = "worm",
             animation = "atk",
             loop = true,
+            uioffset = {
+                x = 0,
+                y = 0,
+            },
+            offset = {
+                x = 0,
+                y = 0,
+            }
         },
         wormbossanim = {
             scale = 0.066,
@@ -408,6 +455,14 @@ WarningEvents = {
             animation = "head_idle_loop",
             orientation = 1,
             loop = true,
+            uioffset = {
+                x = 0,
+                y = 0,
+            },
+            offset = {
+                x = 0,
+                y = 0,
+            }
         },
         DisableShardRPC = true,
         announcefn = function()
@@ -428,6 +483,7 @@ WarningEvents = {
             elseif JustEntered(time) then
                 return true, WarningEvents.hounded.announcefn, 10, nil, 1
             elseif ready_attack(time) then
+                TheWorld:DoTaskInTime(time + 1, HoundedAnimChangeFn or function() end) -- 本次袭击结束后更新一下Anim
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[is_worm_boss and "worm_boss" or GetWorldtypeStr()])), 10, time, 3
             end
             return false
@@ -1538,7 +1594,7 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
         end,
         gettextfn = function(time)
             if not TheWorld.components.chessnavy then return end
-            return time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time)) or STRINGS.eventtimer.chessnavy.readytext
+            return time and time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time)) or STRINGS.eventtimer.chessnavy.readytext
         end,
         anim = {
             scale = 0.09,
@@ -1655,7 +1711,7 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
         end,
         gettextfn = function(time)
             if not TheWorld.components.krakener then return end
-            if time > 0 then
+            if time and time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.krakener.cooldown), TimeToString(time))
             end
             return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
@@ -1700,7 +1756,7 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
             if self.shark then
                 return ReplacePrefabName(STRINGS.eventtimer.tigersharker.exists)
             elseif self:CanSpawn(true, true) then
-                if time > 0 then
+                if time and time > 0 then
                     return string.format(ReplacePrefabName(STRINGS.eventtimer.tigersharker.cooldown), TimeToString(time))
                 else
                     return STRINGS.eventtimer.tigersharker.readytext
@@ -1845,7 +1901,7 @@ or Ismodloaded("workshop-3322803908") and
             if not (stolen_oincs and active_bandit) then return end
             if active_bandit == "true" then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.banditmanager.readytext), stolen_oincs)
-            else
+            elseif time then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.banditmanager.cooldown), TimeToString(time), stolen_oincs, active_bandit)
             end
         end,
