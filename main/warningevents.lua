@@ -228,8 +228,8 @@ local function HoundedAnimChange(self)
                 ThePlayer.HUD.hounded:SetEventAnim(self.anim)
             end
         end
-        HoundedAnimChangeFn()
     end
+    HoundedAnimChangeFn()
 end
 
 -- 监听热带冒险的区域变化事件
@@ -483,7 +483,6 @@ WarningEvents = {
             elseif JustEntered(time) then
                 return true, WarningEvents.hounded.announcefn, 10, nil, 1
             elseif ready_attack(time) then
-                TheWorld:DoTaskInTime(time + 1, HoundedAnimChangeFn or function() end) -- 本次袭击结束后更新一下Anim
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[is_worm_boss and "worm_boss" or GetWorldtypeStr()])), 10, time, 3
             end
             return false
