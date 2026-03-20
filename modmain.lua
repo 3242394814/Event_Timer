@@ -86,7 +86,7 @@ function Import(modulename, env)
 	end
 end
 
-Upvaluehelper = Import(MODROOT .. "scripts/utils/bbgoat_upvaluehelper.lua")
+Upvaluehelper = Import(MODROOT .. "scripts/bbgoat_utils/bbgoat_upvaluehelper.lua")
 
 local STRINGS = GLOBAL.STRINGS
 local TimerMode = GetModConfigData("BossTimer")
@@ -212,7 +212,7 @@ GLOBAL.EventTimer = {
 
 AddReplicableComponent("warningtimer")
 
-modimport("scripts/utils/utils") -- 模组工具
+modimport("scripts/bbgoat_utils/utils") -- 模组工具
 modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
 modimport("main/modcompat") -- 检测其它模组

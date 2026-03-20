@@ -1,0 +1,1 @@
+MOD_util = Import(MODROOT .. "scripts/bbgoat_utils/MOD_util.lua", env)
