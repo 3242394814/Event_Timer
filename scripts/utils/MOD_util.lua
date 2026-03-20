@@ -36,4 +36,77 @@ function MOD_util:Warning(str, level)
     print("[警告] " .. tostring(str) .. "\n本函数调用于 " .. tostring(filename) .. ":" .. tostring(line))
 end
 
+----------------------------------------兼容萌萌的新的模组设置---------------------------------------
+
+local status, settingscreen = GLOBAL.pcall(require, "screens/settingsscreen")
+--获取设置
+function MOD_util:GetMOption(key, default)
+    if GLOBAL.rawget(GLOBAL, "m_options") and GLOBAL.m_options[key] ~= nil then
+        return GLOBAL.m_options[key]
+    else
+        return default
+    end
+end
+
+--修改设置 自带判空
+function MOD_util:ChangeMOption(key, v)
+    if not GLOBAL.rawget(GLOBAL, "m_options") then return end
+    GLOBAL.m_options[key] = v
+end
+
+--模组添加设置
+function MOD_util:CanAddSetting()
+    return status, settingscreen
+end
+
+function MOD_util:CreatePage(pagename, pagedata, forcecreate)
+    if not MOD_util:CanAddSetting() then
+        return
+    end
+    settingscreen:CreatePage(pagename, pagedata, forcecreate)
+end
+
+--
+function MOD_util:StandardPage(pagename, buttonname, order, pagetitle)
+    if not MOD_util:CanAddSetting() then
+        return
+    end
+    settingscreen:StandardPage(pagename, buttonname, order, pagetitle)
+end
+
+function MOD_util:AddEnableDisableOption(pagename, key, default, description, hover)
+    if not MOD_util:CanAddSetting() then
+        return
+    end
+    if default == nil then
+        default = true
+    end
+    settingscreen:AddEnableDisableOption(pagename, key, default, description, hover)
+end
+
+function MOD_util:AddKeyBinds(pagename, key, default, description, hover)
+    if not MOD_util:CanAddSetting() then
+        return
+    end
+    if default == nil then
+        default = true
+    end
+    settingscreen:AddKeyBinds(pagename, key, default, description, hover)
+end
+
+function MOD_util:AddOption(pagename, key, options, default, description, hover)
+    if not MOD_util:CanAddSetting() then
+        return
+    end
+    if default == nil then
+        default = true
+    end
+    settingscreen:AddOption(pagename, key, options, default, description, hover)
+end
+
+function MOD_util:GetKeyFromConfig(name)
+    local a = GetModConfigData(name)
+    return a and GLOBAL.rawget(GLOBAL, a)
+end
+
 return MOD_util
