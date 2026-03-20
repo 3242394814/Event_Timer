@@ -121,7 +121,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                     widget.destitem.anim:GetAnimState():OverrideSymbol(data.anim.overridesymbol[1], data.anim.overridesymbol[2], data.anim.overridesymbol[3])
                 end
                 if data.anim.overridebuild then
-                    local _, b = next(data.overridebuild)
+                    local _, b = next(data.anim.overridebuild)
                     widget.destitem.anim:GetAnimState():AddOverrideBuild(b)
                 end
                 if data.anim.multcolour then
