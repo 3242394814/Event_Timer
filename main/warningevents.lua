@@ -223,8 +223,8 @@ local function HoundedAnimChange(self)
                 self.anim = self.forestanim
             end
 
-            if self.anim ~= last_anim and ThePlayer and ThePlayer.HUD and ThePlayer.HUD.hounded then
-                last_anim = self.anim
+            if (self.anim and self.anim.bank ~= last_anim) and ThePlayer and ThePlayer.HUD and ThePlayer.HUD.hounded then
+                last_anim = self.anim.bank
                 ThePlayer.HUD.hounded:SetEventAnim(self.anim)
             end
         end
