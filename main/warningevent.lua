@@ -313,6 +313,14 @@ AddClassPostConstruct("screens/redux/pausescreen", function(self)
     end
 end)
 
+local function canactive()
+    local ActiveScreen = TheFrontEnd and TheFrontEnd:GetActiveScreen()
+    if not ActiveScreen then return false end
+    if not (ActiveScreen.IsEditing and ActiveScreen:IsEditing()) then
+        return true
+    end
+    return false
+end
 
 -- 使用快捷键开关计时器面板
 local down_handler = nil -- 按键事件处理器
@@ -322,7 +330,7 @@ env.KeyBind = function(_, key)
 
   -- 新建绑定或无绑定
   local function f(_key, down)
-    return (_key == key and down ) and ThePlayer and ThePlayer.HUD.EventTimerButton:ToggleEventTimerUI()
+    return (_key == key and down ) and canactive() and ThePlayer and ThePlayer.HUD.EventTimerButton:ToggleEventTimerUI()
   end
 
   down_handler = key and (key >= 1000 and TheInput:AddMouseButtonHandler(f) or TheInput:AddKeyHandler(f) or nil)
