@@ -48,11 +48,13 @@ function ShowAllEvent()
     end
 
     for _, tb in pairs(WarningEvents) do
-        tb.gettimefn = function(...)
-            return 666
-        end
-        tb.gettextfn = function(...)
-            return "测试测试(世界233)\n第一行长文字123\n第二行长文字长文字长文字长文字\n第三行最长最长最长最长最长最长的文字"
+        if not tb.playerly then
+            tb.gettimefn = function(...)
+                return 666
+            end
+            tb.gettextfn = function(...)
+                return "测试测试(世界233)\n第一行长文字123\n第二行长文字长文字长文字长文字\n第三行最长最长最长最长最长最长的文字"
+            end
         end
     end
 end

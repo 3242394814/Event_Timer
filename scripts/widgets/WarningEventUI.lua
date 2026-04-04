@@ -13,11 +13,35 @@ local WarningEventHUD = Class(Widget, function(self, owner)
     Widget._ctor(self, "WarningEventHUD")
     self.owner = owner
     self.isopen = true
-    self:SetScaleMode(SCALEMODE_FIXEDPROPORTIONAL)
-    self:SetMaxPropUpscale(MAX_HUD_SCALE)
-    self:SetPosition(0, 0, 0)
-    self:SetVAnchor(ANCHOR_MIDDLE)
-    self:SetHAnchor(ANCHOR_MIDDLE)
+    self:SetScaleMode(SCALEMODE_PROPORTIONAL) -- 等比缩放模式
+    self:SetMaxPropUpscale(MAX_HUD_SCALE) -- 设置界面最大比例上限
+    self:SetPosition(0, 0, 0) -- 设置坐标
+    self:SetVAnchor(ANCHOR_MIDDLE) -- 垂直居中对齐
+    self:SetHAnchor(ANCHOR_MIDDLE) -- 水平居中对齐
+
+    self.scalingroot = self:AddChild(Widget("warningeventscalingroot"))
+    self.scalingroot:SetScale(TheFrontEnd:GetHUDScale())
+    --监听从暂停状态恢复到继续状态，更新尺寸
+    self.inst:ListenForEvent(
+        "continuefrompause",
+        function()
+            if self.isopen then
+                self.scalingroot:SetScale(TheFrontEnd:GetHUDScale())
+            end
+        end,
+        TheWorld
+    )
+    --监听界面尺寸变化，更新尺寸
+    self.inst:ListenForEvent(
+        "refreshhudsize",
+        function(hud, scale)
+            if self.isopen then
+                self.scalingroot:SetScale(scale)
+            end
+        end,
+        owner.inst
+    )
+
     -- TEMPLATES.RectangleWindow() 方法的构造方法参数如下
     -- TEMPLATES.RectangleWindow(sizeX, sizeY, title_text, bottom_buttons, button_spacing, body_text)
     -- sizeX: 宽
@@ -26,7 +50,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
     -- bottom_buttons 底部按钮
     -- button_spacing 按钮间距
     -- body_text 面板的文本
-    self.panel = self:AddChild(TEMPLATES.RectangleWindow(380, 480, STRINGS.eventtimer.ui_title,
+    self.panel = self.scalingroot:AddChild(TEMPLATES.RectangleWindow(464, 520, STRINGS.eventtimer.ui_title,
     {
         {
             text = STRINGS.UI.OPTIONS.CLOSE,
@@ -83,7 +107,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
 
             if data.image and data.image.atlas and data.image.tex then -- 设置图片
                 local pos = { -- 默认位置
-                    x = -140,
+                    x = -180,
                     y = 0
                 }
                 if data.image.uioffset then -- 偏移位置
@@ -99,7 +123,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                 widget.destitem.image:SetScale(data.image.scale or 0.099)
             elseif data.anim then -- 设置动画
                 local pos = { -- 默认位置
-                    x = -140,
+                    x = -180,
                     y = -15,
                 }
                 if data.anim.uioffset then -- 偏移位置
@@ -138,7 +162,7 @@ local WarningEventHUD = Class(Widget, function(self, owner)
                     widget.destitem.checkbox = widget.destitem:AddChild(ImageButton(
                         "images/global_redux.xml","checkbox_normal.tex", "checkbox_focus.tex", "checkbox_focus_check.tex", nil, nil, {1,1}, {0,0}
                     ))
-                    widget.destitem.checkbox:SetPosition(160, 0)
+                    widget.destitem.checkbox:SetPosition(184, 0)
                     widget.destitem.checkbox:SetScale(1)
                 end
 
@@ -186,13 +210,14 @@ local WarningEventHUD = Class(Widget, function(self, owner)
 
     -- 将滚动条添加到self.panel里去
     self.scrollpanel = self.panel:AddChild(TEMPLATES.ScrollingGrid({}, {
-        num_columns = 1,             -- 有几个滚动条
-        num_visible_rows = 4,        -- 滚动条内最多显示多少行
-        item_ctor_fn = DestItemCtor, -- 每一项的构造方法
-        apply_fn = DestApply,        -- 给每一项赋值，添加事件等
-        widget_width = 370,          -- 每一项的宽
-        widget_height = 100,          -- 每一项的高
-        end_offset = nil,
+        num_columns = 1,              -- 有几个滚动条
+        num_visible_rows = 4,         -- 滚动条内最多显示多少行
+        item_ctor_fn = DestItemCtor,  -- 每一项的构造方法
+        apply_fn = DestApply,         -- 给每一项赋值，添加事件等
+        widget_width = 470,           -- 每一项的宽
+        widget_height = 110,          -- 每一项的高
+        peek_percent = 0,             -- 在底部可以看到多少行，相当于拉到底了还能往上拉多少
+        allow_bottom_empty_row = true -- 是否允许底部有空行
     }))
     -----------------------------------------------------------------------------------
     self:UpdateDestItem() -- 立刻更新一次数据，防止暂停时没数据
@@ -244,13 +269,13 @@ end
 -- 定义每一项内的控件布局
 function WarningEventHUD:InitDestItem()
     local dest = Widget("destination")
-    local width, height = 370, 100
+    local width, height = 470, 110
     dest.backing = dest:AddChild(TEMPLATES.ListItemBackground(width, height, function() end))
     dest.backing.move_on_click = true -- 按下后有视觉反馈
 
     -- 图片/动画背景
     dest.background = dest:AddChild(Image("images/scrapbook.xml", "inv_item_background.tex"))
-    dest.background:SetPosition(-140, 0, 0)
+    dest.background:SetPosition(-180, 0, 0)
     dest.background:SetScale(0.5, 0.5)
 
     -- TEXT控件
@@ -259,15 +284,15 @@ function WarningEventHUD:InitDestItem()
     dest.describe:SetVAlign(ANCHOR_MIDDLE) -- 设置上下对齐
     dest.describe:SetHAlign(ANCHOR_MIDDLE) -- 设置左右对齐
     dest.describe:SetPosition(10, 0, 0) -- 设置坐标 X，Y，Z
-    dest.describe:SetRegionSize(350, 100) -- 设置文字区域大小
-    dest.describe:SetScale(0.7, 0.7) -- 设置文字大小
+    dest.describe:SetRegionSize(400, 100) -- 设置文字区域大小
+    dest.describe:SetScale(0.8, 0.8) -- 设置文字大小
 
     -- 复选框
     dest.checkbox = dest:AddChild(ImageButton(
         "images/global_redux.xml","checkbox_normal.tex", "checkbox_focus.tex", "checkbox_focus_check.tex", nil, nil, {1,1}, {0,0}
     ))
-    dest.checkbox:SetPosition(160, 0)
-    dest.checkbox:SetScale(0.8)
+    dest.checkbox:SetPosition(184, 0)
+    dest.checkbox:SetScale(1)
 
     -- 将定义好的组件返回
     return dest
