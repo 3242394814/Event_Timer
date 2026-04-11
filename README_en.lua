@@ -2,14 +2,16 @@
 
 -- How to add your event to this mod
 
--- Add a table to GLOBAL.WarningEvents. The event name can be anything you like.
+-- First, add a line to your mod:
+GLOBAL.WarningEvents = rawget(GLOBAL, "WarningEvents") or {}
+
+-- Then, add a table to GLOBAL.WarningEvents. The event name should be the name of the component that handles the event. 
+-- For example, if the event is the hound attack countdown, the component name is "scripts\components\hounded.lua", and the event name should be "hounded".
 -- Example and field explanations are below.
 
-local TimeToString = GLOBAL.EventTimer.env.TimeToString -- Get the global events timer mod's time formatting function (converts a raw number into "Xday Xmin Xsec")
-local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- Global events timer mod's get-upvalue helper. File located at ./scripts/utils/bbgoat_upvaluehelper.lua
-
--- Full example
-GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names are arbitrary — avoid conflicts with the base mod.
+local TimeToString = GLOBAL.EventTimer.env.TimeToString -- Get the global events timer mod's time formatting function (converts a raw number into "X day X min X sec")
+local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- Global events timer mod's get-upvalue helper. File located at ./scripts/bbgoat_utils/bbgoat_upvaluehelper.lua
+GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". avoid conflicts with the base mod.
     gettimefn = function() -- gettimefn: runs on the server. Returns a number representing how many seconds remain on the countdown.
         -- The persistent countdown in the top-left of the screen uses this value.
         -- If this is missing the event cannot be pinned to the top-left.
@@ -198,7 +200,7 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
 
 
 -- Minimal example
-GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names are arbitrary — avoid conflicts with the base mod.
+GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". avoid conflicts with the base mod.
     -- gettimefn: server-side. Return a number representing how many seconds remain.
     gettimefn = function()
         if GLOBAL.TheWorld.components.hounded then
@@ -222,5 +224,5 @@ GLOBAL.WarningEvents.hounded = { -- This event is named "hounded". Event names a
 -- gettimefn must return a number (seconds). The value is saved to GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_time
 -- gettextfn must return a string. The value is saved to GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_text
 
--- Finally, enable this mod and your mod together. Your mod must load after this mod.
+-- Finally, enable this mod and your mod together.
 -- The events of this mod are recorded in main/warningevents.lua

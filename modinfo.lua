@@ -17,8 +17,8 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊，Jerry"
-version = "0.1.13" -- 模组版本
-version_compatible = "0.1.12" -- 最低兼容版本
+version = "0.1.14" -- 模组版本
+version_compatible = "0.1.14" -- 最低兼容版本
 api_version = 10
 priority = -1 -- 模组加载优先级
 dst_compatible = true -- 兼容联机版
@@ -73,16 +73,16 @@ end
 
 configuration_options = {
     {
-        name = "lang",
+        name = "language",
         label = en_zh("Language", "语言"),
         hover = en_zh("Select the language you want to use", "选择你想要使用的语言"),
         options =
         {
-            {description = "English(英语)", data = "en", hover = ""},
             {description = "中文(Chinese)", data = "zh", hover = ""},
-            {description = en_zh("Auto", "自动"), data = "auto", hover = en_zh("Automatically set according to the game language", "根据游戏语言自动设置")},
+            {description = "English(英语)", data = "en", hover = ""},
+            -- {description = en_zh("Auto", "自动"), data = "auto", hover = en_zh("Automatically set according to the game language", "根据游戏语言自动设置")},
         },
-        default = "auto",
+        default = "zh",
     },
     {
         name = "hotkey",

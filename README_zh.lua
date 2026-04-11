@@ -1,17 +1,18 @@
 -- 如何把你的事件加入到本模组中？
 
--- 只需要在GLOBAL.WarningEvents中添加一个表，名称随意。
--- 示例与各项说明如下
+-- 首先在你的模组里写上一行
+GLOBAL.WarningEvents = rawget(GLOBAL, "WarningEvents") or {}
+
+-- 接着在GLOBAL.WarningEvents中添加一个表，名称建议使用负责处理对应事件的组件名，比如猎犬事件倒计时是 scripts\components\hounded.lua 文件处理的，事件名就取 hounded
+-- 具体参考下面的代码
 
 local TimeToString = GLOBAL.EventTimer.env.TimeToString -- 获取全局事件计时器模组的格式化时间函数(将纯数字转换为X天X分X秒)
-local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- 全局事件计时器模组的getupvalue工具，文件位于 当前目录\scripts\utils\bbgoat_upvaluehelper.lua
-
--- 完整版示例
-GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称可以随便填，注意你的事件名不要和原模组的冲突
+local Upvaluehelper = GLOBAL.EventTimer.env.Upvaluehelper -- 全局事件计时器模组的getupvalue工具，文件位于 当前目录\scripts\bbgoat_utils\bbgoat_upvaluehelper.lua
+GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，注意你的事件名不要和原模组的冲突，否则会覆盖原模组的事件倒计时
     gettimefn = function() -- gettimefn：服务器执行的函数，返回一个数字表示倒计时还有多少秒。屏幕左上角的常驻倒计时显示的数字来自于此，若没有此项则事件不能被勾选并常驻屏幕左上角
         if GLOBAL.TheWorld.components.hounded then
             local data = GLOBAL.TheWorld.components.hounded:OnSave()
-            return data and data.timetoattack -- 返回猎犬袭击的倒计时时间。类型必须为number。 同时保存在客户端的 GLOBAL.ThePlayer.HUD.WarningEventTimeData.hounded_time 表中（GLOBAL.ThePlayer.HUD.WarningEventTimeData是固定的前缀，hounded为这个事件的名称，_time是固定后缀
+            return data and data.timetoattack -- 返回猎犬袭击的倒计时时间。类型必须为number。 同时保存在客户端的 GLOBAL.ThePlayer.HUD.WarningEventTimeData.hounded_time 表中（GLOBAL.ThePlayer.HUD.WarningEventTimeData是固定的前缀，hounded为这个事件的名称，_time是固定后缀）
         end
     end,
              -- 此处传入的time是上方gettimefn返回的数字
@@ -176,15 +177,15 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
 }
 
 -- 最小化示例
-GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称可以随便填，注意你的事件名不要和原模组的冲突
+GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，注意你的事件名不要和原模组的冲突，否则会覆盖原模组的事件倒计时
     -- gettimefn：服务器执行的函数，返回一个数字表示倒计时还有多少秒。
     gettimefn = function()
         if GLOBAL.TheWorld.components.hounded then
             local data = GLOBAL.TheWorld.components.hounded:OnSave()
-            return data and data.timetoattack
+            return data and data.timetoattack -- 返回猎犬袭击的倒计时时间。类型必须为number。 同时保存在客户端的 GLOBAL.ThePlayer.HUD.WarningEventTimeData.hounded_time 表中（GLOBAL.ThePlayer.HUD.WarningEventTimeData是固定的前缀，hounded为这个事件的名称，_time是固定后缀
         end
     end,
-    anim = {
+    anim = { -- 事件图标动画
         scale = 0.099, -- 缩放比例
         bank = "hound", -- 库名
         build = "hound_ocean", -- 材质
@@ -199,5 +200,4 @@ GLOBAL.WarningEvents.hounded = { -- 这个事件名称为 hounded，事件名称
 -- gettextfn 必须返回 string，保存到 GLOBAL.ThePlayer.HUD.WarningEventTimeData.<event>_text
 
 -- 最后，将本模组和你的模组一起启用即可
--- 注意，你的模组加载应晚于本模组
 -- 本模组的各事件记录在 main/warningevents.lua 里

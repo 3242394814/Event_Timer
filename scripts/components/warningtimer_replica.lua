@@ -76,13 +76,18 @@ end)
 
 local client_prediction_tasks = {}
 function WarningTimer:OnWarningEventDirty(inst, warningevent, type, fromserver)
+    local time = inst.replica.warningtimer[warningevent .. "_time"]:value()
+
     if type == "text" then
-        eventstime[warningevent .. "_text"] = inst.replica.warningtimer[warningevent .. "_text"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text"]:value()
-                                            or inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value() ~= "" and inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value()
+        local text= inst.replica.warningtimer[warningevent .. "_text"]:value()
+        local text_shardrpc = inst.replica.warningtimer[warningevent .. "_text_shardrpc"]:value()
+        eventstime[warningevent .. "_text"] = text ~= "" and text
+                                            or text_shardrpc ~= "" and (not time > 0) and text_shardrpc
                                             or ""
     else
-        eventstime[warningevent .. "_time"] = inst.replica.warningtimer[warningevent .. "_time"]:value() > 0 and inst.replica.warningtimer[warningevent .. "_time"]:value()
-                                            or inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value() ~= 0 and inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value()
+        local time_shardrpc = inst.replica.warningtimer[warningevent .. "_time_shardrpc"]:value()
+        eventstime[warningevent .. "_time"] = time > 0 and time
+                                            or time_shardrpc ~= 0 and time_shardrpc
                                             or 0
     end
 

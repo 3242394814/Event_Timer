@@ -346,7 +346,9 @@ local function ready_attack(time)
     return false
 end
 
-WarningEvents = {
+WarningEvents = rawget(_G, "WarningEvents") or {}
+local GameEvents
+GameEvents = {
 
     ---------------------------------------- Forest ---------------------------------------
 
@@ -477,11 +479,11 @@ WarningEvents = {
             local is_worm_boss = text ~= "" and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
 
             if time > 2 and time <= 90 then
-                return true, WarningEvents.hounded.announcefn, time, nil, 2
+                return true, GameEvents.hounded.announcefn, time, nil, 2
             elseif JustEntered(time) and time < 960 then
-                return true, WarningEvents.hounded.announcefn, 10, nil, 2
+                return true, GameEvents.hounded.announcefn, 10, nil, 2
             elseif JustEntered(time) then
-                return true, WarningEvents.hounded.announcefn, 10, nil, 1
+                return true, GameEvents.hounded.announcefn, 10, nil, 1
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.hounded.attack[is_worm_boss and "worm_boss" or GetWorldtypeStr()])), 10, time, 3
             end
@@ -539,9 +541,9 @@ WarningEvents = {
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.deerclopsspawner_time
             if time > 2 and time <= 60 then
-                return true, WarningEvents.deerclopsspawner.announcefn, time, nil, 2
+                return true, GameEvents.deerclopsspawner.announcefn, time, nil, 2
             elseif time == 480 or JustEntered(time) then
-                return true, WarningEvents.deerclopsspawner.announcefn, 10, nil, 2
+                return true, GameEvents.deerclopsspawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.attack)), 10, time, 3
             end
@@ -636,7 +638,7 @@ WarningEvents = {
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.sinkholespawner_time
             if time > 2 and time <= 60 then
-                return true, WarningEvents.sinkholespawner.announcefn, math.min(20, time), nil, 2
+                return true, GameEvents.sinkholespawner.announcefn, math.min(20, time), nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.attack)), 10, time, 3
             end
@@ -695,9 +697,9 @@ WarningEvents = {
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.beargerspawner_time
             if time > 2 and time <= 60 then
-                return true, WarningEvents.beargerspawner.announcefn, time, nil, 2
+                return true, GameEvents.beargerspawner.announcefn, time, nil, 2
             elseif time == 480 or JustEntered(time) then
-                return true, WarningEvents.beargerspawner.announcefn, 10, nil, 2
+                return true, GameEvents.beargerspawner.announcefn, 10, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.attack)), 10, time, 3
             end
@@ -1582,6 +1584,9 @@ WarningEvents = {
         end
     },
 }
+for k, v in pairs(GameEvents) do
+    WarningEvents[k] = v
+end
 
 local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
     ---------------------------------------- IA-SW ---------------------------------------
@@ -1848,6 +1853,11 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
 for k, v in pairs(ShipwreckedEvents) do
     WarningEvents[k] = v
 end
+AddPrefabPostInit("world", function ()
+    if rawget(_G, "IA_SW_ENABLED") then
+        WarningEvents.volcanomanager.DisableShardRPC = TheWorld:HasTag("volcano") -- 火山世界不同步火山爆发倒计时，海难世界同步
+    end
+end)
 
 local HamletEvents = rawget(_G, "IA_HAM_ENABLED") and
 {   ---------------------------------------- IA-HAM ---------------------------------------
@@ -2268,9 +2278,9 @@ AddShardModRPCHandler("EventTimer", "event_time_shardrpc", function(shardid, eve
 end)
 
 AddShardModRPCHandler("EventTimer", "event_text_shardrpc", function(shardid, event, textdata, worldtype)
+    if not rawget(_G, "TheWorld") then return end
     if TheShard:GetShardId() == tostring(shardid) then return end
     if not SyncTimer then return end -- 未开启同步功能，取消同步
-    if not rawget(_G, "TheWorld") then return end
     local event_text_shardrpc = event .. "_text_shardrpc"
 
     local warningtimer = TheWorld.net.components.warningtimer

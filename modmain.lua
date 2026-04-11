@@ -41,10 +41,7 @@ Assets = {
 
 ----------------------------------------语言检测---------------------------------------
 
-ModLanguage = GetModConfigData("lang") or "auto"
-if ModLanguage == "auto" then
-    ModLanguage = GLOBAL.LanguageTranslator.defaultlang
-end
+ModLanguage = GetModConfigData("language")
 
 local _languages = {
 	-- de = "de", --german
@@ -210,13 +207,13 @@ GLOBAL.EventTimer = {
 
 ----------------------------------------加载模组---------------------------------------
 
-AddReplicableComponent("warningtimer")
-
 modimport("scripts/bbgoat_utils/utils") -- 模组工具
 modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
 modimport("main/modcompat") -- 检测其它模组
 modimport("keybind") -- 键位绑定优化
+
+AddReplicableComponent("warningtimer") -- 事件计时组件
 
 ----------------------------------------鼠标跟随---------------------------------------
 
