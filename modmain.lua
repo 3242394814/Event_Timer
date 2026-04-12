@@ -1,3 +1,10 @@
+-- 以防万一
+GLOBAL.setmetatable(env, {
+    __index = function(t, k)
+        return GLOBAL.rawget(GLOBAL, k)
+    end
+})
+
 ----------------------------------------加载资源---------------------------------------
 
 Assets = {
@@ -74,16 +81,6 @@ end
 modimport("Languages/" .. ModLanguage) -- 加载翻译
 
 ----------------------------------------定义模组环境函数---------------------------------------
-
-function Import(modulename, env)
-	local f = GLOBAL.kleiloadlua(modulename)
-	if f and type(f) == "function" then
-        GLOBAL.setfenv(f, env or GLOBAL)
-        return f()
-	end
-end
-
-Upvaluehelper = Import(MODROOT .. "scripts/bbgoat_utils/bbgoat_upvaluehelper.lua")
 
 local STRINGS = GLOBAL.STRINGS
 local TimerMode = GetModConfigData("BossTimer")

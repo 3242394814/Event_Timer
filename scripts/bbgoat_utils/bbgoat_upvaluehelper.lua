@@ -1,7 +1,7 @@
 -- 此lua文件由冰冰羊参考其它模组的upvaluehelper代码制作，并进行了功能完善，如果你想使用我这个版本的upvaluehelper，建议去模组Chinese++ Pro模组的scripts/utils文件夹下获取最新版的
 -- 创意工坊：https://steamcommunity.com/sharedfiles/filedetails/?id=2941527805
 -- GitLab：https://gitlab.com/bbgoat/chinese-pro/-/blob/Beta/scripts/utils/bbgoat_upvaluehelper.lua
--- 本文件更新时间：2025年11月21日
+-- 本文件更新时间：2026年4月8日
 
 -- 加载此文件可使用下面的示例代码
 --[[
@@ -285,12 +285,17 @@ local function Getmoddata(name, cat, id, ...)
     end
 
     if ... then
-        if result and type(result) == "table" then
-            for _,v in ipairs(result) do
-                if type(v) == "function" then
-                    local val = GetUpvalue(v, ...)
-                    if val then return val end
+        if result then
+            if type(result) == "table" then
+                for _,v in ipairs(result) do
+                    if type(v) == "function" then
+                        local val = GetUpvalue(v, ...)
+                        if val then return val end
+                    end
                 end
+            elseif type(result) == "function" then
+                local val = GetUpvalue(result, ...)
+                if val then return val end
             end
         end
     else

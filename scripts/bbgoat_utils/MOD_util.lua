@@ -66,7 +66,6 @@ function MOD_util:CreatePage(pagename, pagedata, forcecreate)
     settingscreen:CreatePage(pagename, pagedata, forcecreate)
 end
 
---
 function MOD_util:StandardPage(pagename, buttonname, order, pagetitle)
     if not MOD_util:CanAddSetting() then
         return
