@@ -143,7 +143,9 @@ function BindButton:PopupKeyBindDialog()
     return true
   end
 
-  TheFrontEnd:PushScreen(dialog)
+  if TheFrontEnd then
+    TheFrontEnd:PushScreen(dialog)
+  end
 end
 
 -- unique child widget name to avoid being messed up by other mods
