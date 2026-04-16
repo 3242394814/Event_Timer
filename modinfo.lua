@@ -17,7 +17,7 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊，Jerry"
-version = "0.1.14" -- 模组版本
+version = "0.1.15" -- 模组版本
 version_compatible = "0.1.14" -- 最低兼容版本
 api_version = 10
 priority = -1 -- 模组加载优先级
@@ -71,7 +71,15 @@ for i = 1, #numpad do
   keys[#keys + 1] = { description = 'Numpad ' .. key, data = 'KEY_KP_' .. key:upper() }
 end
 
+---@param label string|nil 标题
+---@param client_config boolean|nil 是否仅显示在客户端设置页面上
+---@return table
+local function SkipSpace(label, client_config)
+	return { name = "",label = label, hover = "", options = { { description = "", data = false }, }, default = false, client = client_config}
+end
+
 configuration_options = {
+    SkipSpace(en_zh("Server Settings", "服务端设置")),
     {
         name = "language",
         label = en_zh("Language", "语言"),
@@ -83,25 +91,6 @@ configuration_options = {
             -- {description = en_zh("Auto", "自动"), data = "auto", hover = en_zh("Automatically set according to the game language", "根据游戏语言自动设置")},
         },
         default = "zh",
-    },
-    {
-        name = "hotkey",
-        label = en_zh("Panel Hotkey", "计时器面板快捷键"),
-        hover = en_zh("Hotkey to toggle the timer panel", "开关计时器面板的快捷键"),
-        options = keys,
-        default = "KEY_DISABLED",
-        client = true,
-    },
-    {
-        name = "UIButton",
-        label = en_zh("Panel Toggle Button Visibility", "面板开关按钮何时显示"),
-        hover = en_zh("Choose when the event timer panel toggle button appears", "选择事件计时器面板的开关在什么情况下显示"),
-        options = {
-            {description = en_zh("Always Visible", "始终显示"), data = "always"},
-            {description = en_zh("Pause Menu", "在暂停页面显示"), hover = en_zh("Visible when you press ESC to open the pause menu", "按ESC打开暂停页面时显示"), data = "pause_screen"},
-        },
-        default = "always",
-        client = true,
     },
     {
         name = "UpdateTime",
@@ -124,14 +113,6 @@ configuration_options = {
         default = 1,
     },
     {
-        name = "ClientPrediction",
-        label = en_zh("Client Predicted Countdown", "客户端预测倒计时"),
-        hover = en_zh("If the server update interval is longer than 1 second, use client prediction to fill the gaps","如果服务器的数据更新频率在1秒以上，则使用客户端预测填补空缺的刷新周期"),
-        options = toggle,
-        default = true,
-        client = true,
-    },
-    {
         name = "BossTimer",
         label = en_zh("Boss Timing Format", "Boss计时格式"),
         options =
@@ -142,6 +123,33 @@ configuration_options = {
         default = 1,
     },
     {
+        name = "SyncTimer",
+        label = en_zh("Sync Timer", "跨世界同步计时"),
+        options = toggle,
+        default = true,
+    },
+
+    SkipSpace(en_zh("Client Settings", "客户端设置"), true),
+    {
+        name = "UIButton",
+        label = en_zh("Panel Toggle Button Visibility", "面板开关按钮何时显示"),
+        hover = en_zh("Choose when the event timer panel toggle button appears", "选择事件计时器面板的开关在什么情况下显示"),
+        options = {
+            {description = en_zh("Always Visible", "始终显示"), data = "always"},
+            {description = en_zh("Pause Menu", "在暂停页面显示"), hover = en_zh("Visible when you press ESC to open the pause menu", "按ESC打开暂停页面时显示"), data = "pause_screen"},
+        },
+        default = "always",
+        client = true,
+    },
+    {
+        name = "hotkey",
+        label = en_zh("Panel Hotkey", "计时器面板快捷键"),
+        hover = en_zh("Hotkey to toggle the timer panel", "开关计时器面板的快捷键"),
+        options = keys,
+        default = "KEY_DISABLED",
+        client = true,
+    },
+    {
         name = "ShowTips",
         label = en_zh("Highlight Tips", "醒目提示"),
         hover = en_zh("Show a noticeable alert when entering the game or when an event countdown is about to end", "当进入游戏时/事件倒计时即将结束时发出醒目提示"),
@@ -150,9 +158,11 @@ configuration_options = {
         client = true,
     },
     {
-        name = "SyncTimer",
-        label = en_zh("Sync Timer", "跨世界同步计时"),
+        name = "ClientPrediction",
+        label = en_zh("Client Predicted Countdown", "客户端预测倒计时"),
+        hover = en_zh("If the server update interval is longer than 1 second, use client prediction to fill the gaps","如果服务器的数据更新频率在1秒以上，则使用客户端预测填补空缺的刷新周期"),
         options = toggle,
         default = true,
+        client = true,
     },
 }

@@ -194,12 +194,14 @@ end
 local env = env
 GLOBAL.EventTimer = {
     env = env,
-    UIButton = GetModConfigData("UIButton", true), -- UI开关何时显示
+    -- 服务端设置
     UpdateTime = GetModConfigData("UpdateTime", false), -- 服务器数据更新频率
-    ClientPrediction = GetModConfigData("ClientPrediction", true), -- 客户端预测倒计时
-    TimerMode = GetModConfigData("BossTimer"), -- 倒计时格式-服务器设置
-    TimerTips = GetModConfigData("ShowTips", true), -- 醒目提示
+    TimerMode = TimerMode, -- 倒计时格式
     SyncTimer = GetModConfigData("SyncTimer", false), -- 跨世界同步计时
+    -- 客户端设置
+    UIButton = GetModConfigData("UIButton", true), -- UI开关何时显示
+    ClientPrediction = GetModConfigData("ClientPrediction", true), -- 客户端预测倒计时
+    TimerTips = GetModConfigData("ShowTips", true), -- 醒目提示
 }
 
 ----------------------------------------加载模组---------------------------------------
