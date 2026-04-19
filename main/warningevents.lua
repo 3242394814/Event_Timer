@@ -331,10 +331,10 @@ local function StringToFunction(str)
     end
 end
 
--- 如果event_time > 0，在刚进入游戏的1~10秒内返回true
+-- 如果event_time > 0，在刚进入游戏的10秒内返回true
 local function JustEntered(event_time)
     if not checknumber(event_time) then return end
-    return GetTime() > 1 and GetTime() < 10 and event_time > 0
+    return GetTime() < 10 and event_time > 0
 end
 
 -- 当time在0~2秒时返回true
@@ -638,7 +638,7 @@ GameEvents = {
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.sinkholespawner_time
             if time > 2 and time <= 60 then
-                return true, GameEvents.sinkholespawner.announcefn, math.min(20, time), nil, 2
+                return true, GameEvents.sinkholespawner.announcefn, time, nil, 2
             elseif ready_attack(time) then
                 return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.attack)), 10, time, 3
             end
@@ -980,10 +980,8 @@ GameEvents = {
         DisableShardRPC = true,
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.piratespawner_text
-            if text then
-                text = string.gsub(text, "\n", ", ")
-                return text
-            end
+            text = string.gsub(text, "\n", ", ")
+            return text
         end,
         tipsfn = nil -- 开始袭击的时候对应的玩家会说台词，不需要我来提醒
     },
@@ -996,6 +994,15 @@ GameEvents = {
                 return
             end
             return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
+        end,
+        gettextfn = function(time)
+            local self = TheWorld.components.forestdaywalkerspawner
+            if not self then return end
+            if self.bigjunk ~= nil then
+                return ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.ready)
+            elseif self.daywalker ~= nil then
+                return ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.exists)
+            end
         end,
         anim = {
             scale = 0.05,
@@ -1011,14 +1018,18 @@ GameEvents = {
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.forestdaywalkerspawner_time
-            if time and time > 0 then
+            local text = ThePlayer.HUD.WarningEventTimeData.forestdaywalkerspawner_text
+            if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.cooldown), TimeToString(time))
+            else
+                text = string.gsub(text,"\n",": ")
+                return text
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WarningEventTimeData.forestdaywalkerspawner_time
-            if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.tips)), 10, time, 2
+            local text = ThePlayer.HUD.WarningEventTimeData.forestdaywalkerspawner_text
+            if string.find(text, ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.ready)) then
+                return true, not (GetTime() < 10) and StringToFunction(ReplacePrefabName(STRINGS.eventtimer.forestdaywalkerspawner.tips)), 10, nil, 2
             end
             return false
         end
@@ -1043,10 +1054,8 @@ GameEvents = {
         -- DisableShardRPC = true, -- 其它世界有宝藏吗？没有！
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.messagebottlemanager_text
-            if text then
-                text = string.gsub(text, "\n", ": ")
-                return text
-            end
+            text = string.gsub(text, "\n", ": ")
+            return text
         end,
     },
     lunarthrall_plantspawner = { -- 致命亮茄信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
@@ -1075,10 +1084,8 @@ GameEvents = {
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.lunarthrall_plantspawner_text
-            if text then
-                text = string.gsub(text,"\n",", ")
-                return STRINGS.NAMES.LUNARTHRALL_PLANT .. ": " .. text
-            end
+            text = string.gsub(text,"\n",", ")
+            return STRINGS.NAMES.LUNARTHRALL_PLANT .. ": " .. text
         end,
     },
     lunar_riftspawner = { -- 月亮裂隙生成倒计时（为了跨世界同步数据修改了事件名。原事件名 riftspawner）
@@ -1220,10 +1227,8 @@ GameEvents = {
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.rift_portal_text
-            if text then
-                text = string.gsub(text,"\n",", ")
-                return STRINGS.eventtimer.rift_portal.name .. ": " .. text
-            end
+            text = string.gsub(text,"\n",", ")
+            return STRINGS.eventtimer.rift_portal.name .. ": " .. text
         end,
     },
 
@@ -1259,13 +1264,11 @@ GameEvents = {
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.shadowrift_portal_text
-            if text then
-                text = string.gsub(text,"\n",", ")
-                return STRINGS.eventtimer.shadowrift_portal.name .. ": " .. text
-            end
+            text = string.gsub(text,"\n",", ")
+            return STRINGS.eventtimer.shadowrift_portal.name .. ": " .. text
         end,
     },
-    daywalkerspawner = { -- 梦魇疯猪，参考了 饥饥事件计时器 的代码 https://steamcommunity.com/sharedfiles/filedetails/?id=3511498282 @不要看上我的菊
+    daywalkerspawner = { -- 梦魇疯猪
         gettimefn = function()
             local self = TheWorld.components.daywalkerspawner
             if not self then return end
@@ -1274,6 +1277,13 @@ GameEvents = {
                 return
             end
             return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
+        end,
+        gettextfn = function(time)
+            local self = TheWorld.components.daywalkerspawner
+            if not self then return end
+            if self.daywalker ~= nil then
+                return ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.ready)
+            end
         end,
         anim = {
             scale = 0.05,
@@ -1288,14 +1298,18 @@ GameEvents = {
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.daywalkerspawner_time
-            if time and time > 0 then
+            local text = ThePlayer.HUD.WarningEventTimeData.daywalkerspawner_text
+            if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.cooldown), TimeToString(time))
+            else
+                text = string.gsub(text,"\n",": ")
+                return text
             end
         end,
         tipsfn = function()
-            local time = ThePlayer.HUD.WarningEventTimeData.daywalkerspawner_time
-            if ready_attack(time) then
-                return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.tips)), 10, time, 2
+            local text = ThePlayer.HUD.WarningEventTimeData.daywalkerspawner_text
+            if string.find(text, ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.ready)) then
+                return true, not (GetTime() < 10) and StringToFunction(ReplacePrefabName(STRINGS.eventtimer.daywalkerspawner.tips)), 10, nil, 2
             end
             return false
         end
@@ -1378,10 +1392,8 @@ GameEvents = {
         },
         announcefn = function()
             local text = ThePlayer.HUD.WarningEventTimeData.shadowthrallmanager_text
-            if text then
-                text = string.gsub(text,"\n",", ")
-                return STRINGS.NAMES.SHADOWTHRALL_MOUTH .. ": " .. text
-            end
+            text = string.gsub(text,"\n",", ")
+            return STRINGS.NAMES.SHADOWTHRALL_MOUTH .. ": " .. text
         end,
     },
     toadstoolspawner = {
@@ -1429,7 +1441,7 @@ GameEvents = {
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.atrium_gate_time
             local text = ThePlayer.HUD.WarningEventTimeData.atrium_gate_text
-            if text and string.find(text, ReplacePrefabName("<prefab=atrium_gate>")) then
+            if string.find(text, ReplacePrefabName("<prefab=atrium_gate>")) then
                 return time and string.format(ReplacePrefabName(STRINGS.eventtimer.atrium_gate.cooldown), TimeToString(time))
             else
                 return time and string.format(STRINGS.eventtimer.atrium_gate.destabilizing, TimeToString(time))
@@ -1466,7 +1478,7 @@ GameEvents = {
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.nightmareclock_time
             local text = ThePlayer.HUD.WarningEventTimeData.nightmareclock_text
-            if text and string.find(text, STRINGS.eventtimer.nightmareclock.phase_locked_text) then
+            if string.find(text, STRINGS.eventtimer.nightmareclock.phase_locked_text) then
                 return STRINGS.eventtimer.nightmareclock.phase_locked
             end
             if TheWorld.state.nightmarephase == "none" then
@@ -1494,7 +1506,7 @@ GameEvents = {
         DisableShardRPC = true, -- 我觉得同步这个意义不大
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.quaker_time
-            if time and time > 0 then
+            if time > 0 then
                 return string.format(STRINGS.eventtimer.quaker.cooldown, TimeToString(time))
             end
         end,
@@ -1613,7 +1625,7 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.chessnavy_time
-            if time and time > 0 then
+            if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time))
             end
             return ReplacePrefabName(STRINGS.eventtimer.chessnavy.ready)
@@ -1733,7 +1745,7 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.krakener_time
-            if time and time > 0 then
+            if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.krakener.cooldown), TimeToString(time))
             end
             return ReplacePrefabName(STRINGS.eventtimer.krakener.ready)
@@ -1788,7 +1800,7 @@ local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
                 return ReplacePrefabName(STRINGS.eventtimer.tigersharker.exists)
             elseif nospawn then
                 return ReplacePrefabName(STRINGS.eventtimer.tigersharker.nospawn)
-            elseif time and time > 0 then
+            elseif time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.tigersharker.cooldown), TimeToString(time))
             else
                 return ReplacePrefabName(STRINGS.eventtimer.tigersharker.ready)
@@ -1888,7 +1900,7 @@ or Ismodloaded("workshop-3322803908") and
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.pugalisk_fountain_time
-            if time and time > 0 then
+            if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.pugalisk_fountain.cooldown), TimeToString(time))
             end
         end,
@@ -1967,7 +1979,7 @@ or Ismodloaded("workshop-3322803908") and
         },
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.aporkalypse_time
-            if time and time > 0 then
+            if time > 0 then
                 return string.format(STRINGS.eventtimer.aporkalypse.cooldown, TimeToString(time))
             end
         end,
@@ -1979,7 +1991,7 @@ or Ismodloaded("workshop-3322803908") and
             elseif time == 480 then
                 return true, string.format(STRINGS.eventtimer.aporkalypse.tips, TimeToString(time)), 10, nil, 2
             elseif time == 0 then -- 这个写法比较特殊..为了保证大灾变确实开始了
-                return true, not (GetTime() > 1 and GetTime() < 10) and StringToFunction(STRINGS.eventtimer.aporkalypse.tips_ready), 5, 1, 3 -- 延迟1秒是因为大灾变在1秒后才真正开始
+                return true, not (GetTime() < 10) and StringToFunction(STRINGS.eventtimer.aporkalypse.tips_ready), 5, 1, 3 -- 延迟1秒是因为大灾变在1秒后才真正开始
             end
             return false
         end
@@ -2059,13 +2071,15 @@ or Ismodloaded("workshop-3322803908") and
         DisableShardRPC = true,
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.batted_time
-            if time and time > 0 then
+            if time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.batted.cooldown), TimeToString(time))
             end
         end,
         tipsfn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.batted_time
-            if time == 60 or (JustEntered(time) and time < 960) then
+            if time > 2 and time <= 90 then
+                return true, WarningEvents.batted.announcefn, time, nil, 2
+            elseif JustEntered(time) and time < 960 then
                 return true, WarningEvents.batted.announcefn, 10, nil, 2
             elseif JustEntered(time) then
                 return true, WarningEvents.batted.announcefn, 10, nil, 1
@@ -2106,9 +2120,9 @@ or Ismodloaded("workshop-3322803908") and
         announcefn = function()
             local time = ThePlayer.HUD.WarningEventTimeData.rocmanager_time
             local text = ThePlayer.HUD.WarningEventTimeData.rocmanager_text
-            if text and string.find(text, ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)) then
+            if string.find(text, ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)) then
                 return ReplacePrefabName(STRINGS.eventtimer.rocmanager.exists)
-            elseif time and time > 0 then
+            elseif time > 0 then
                 return string.format(ReplacePrefabName(STRINGS.eventtimer.rocmanager.cooldown), TimeToString(time))
             end
         end,

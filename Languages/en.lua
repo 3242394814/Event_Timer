@@ -97,7 +97,9 @@ STRINGS.eventtimer = {
         cooldown = "Pirate Raid may occur in %s\nDecay rate: %sx"
     },
     forestdaywalkerspawner = {
-        cooldown = "<prefab=daywalker2 will respawn in %s.",
+        cooldown = "<prefab=daywalker2> will respawn in %s.",
+        ready = "<prefab=daywalker2> ready to spawn.",
+        exists = "<prefab=daywalker2> is present.",
         tips = "<prefab=daywalker2> has respawned!",
     },
     riftspawner = {
@@ -128,6 +130,7 @@ STRINGS.eventtimer = {
     },
     daywalkerspawner = {
         cooldown = "<prefab=daywalker> will respawn in %s.",
+        ready = "<prefab=daywalker> is ready.",
         tips = "<prefab=daywalker> has respawned!",
     },
     shadowthrallmanager = {

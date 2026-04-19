@@ -98,6 +98,8 @@ STRINGS.eventtimer = {
     },
     forestdaywalkerspawner = { -- 拾荒疯猪
         cooldown = "<prefab=daywalker2>会重生于%s后",
+        ready = "<prefab=daywalker2>正在等你去挖出",
+        exists = "<prefab=daywalker2>正在出没",
         tips = "<prefab=daywalker2>已刷新！",
     },
     riftspawner = { -- 裂隙生成倒计时
@@ -129,6 +131,7 @@ STRINGS.eventtimer = {
     },
     daywalkerspawner = { -- 梦魇疯猪
         cooldown = "<prefab=daywalker>会重生于%s后",
+        ready = "<prefab=daywalker>已刷新",
         tips = "<prefab=daywalker>已刷新！",
     },
     shadowthrallmanager = { -- 梦魇裂隙/墨荒
