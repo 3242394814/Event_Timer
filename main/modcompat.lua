@@ -134,9 +134,8 @@ MOD_util:CreatePage(pagename, {
                 if table.typecheckedgetfield(ThePlayer, "table","HUD", "EventTimerButton", "openbutton") and EventTimer.UIButton == "always" then
                     local x, y = -55, 200
                     ThePlayer.HUD.EventTimerButton.openbutton:SetPosition(x, y, 0)
-                    local save_data = RW_Data:LoadData()
-                    save_data.pos = nil -- 删除记录也能恢复默认位置
-                    RW_Data:SaveData(save_data)
+                    RW_Data:SetValue("pos", nil) -- 删除记录也能恢复默认位置
+                    RW_Data:Save()
                 end
             end
         },

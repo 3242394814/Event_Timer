@@ -1,6 +1,5 @@
 local RW_Data = EventTimer.env.RW_Data
 local TimeToString = EventTimer.env.TimeToString
-local save_data = RW_Data:LoadData()
 
 local Image = require "widgets/image"
 local ImageButton = require "widgets/imagebutton"
@@ -179,14 +178,14 @@ local WarningEventHUD = Class(Widget, function(self, owner)
 
                     -- 根据切换结果设置 checkbox 状态
                     if ThePlayer.HUD[data.name].force then
-                        save_data[data.name] = true
+                        RW_Data:SetValue(data.name, true)
                         widget.destitem.checkbox:SetTextures( "images/global_redux.xml", "checkbox_normal_check.tex", "checkbox_focus_check.tex", "checkbox_focus.tex" )
                     else
-                        save_data[data.name] = false
+                        RW_Data:SetValue(data.name, nil)
                         widget.destitem.checkbox:SetTextures( "images/global_redux.xml", "checkbox_normal.tex", "checkbox_focus.tex", "checkbox_focus_check.tex" )
                     end
 
-                    RW_Data:SaveData(save_data)
+                    RW_Data:Save()
                 end)
             elseif widget.destitem.checkbox then
                 widget.destitem.checkbox:Kill()

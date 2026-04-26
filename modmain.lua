@@ -166,29 +166,6 @@ function GetWorldtypeStr()
     end
 end
 
--- 存取数据
-local DATA_FILE = 'mod_config_data/Events_Timer.json'
-RW_Data = {}
-
-function RW_Data:SaveData(data)
-	local str = GLOBAL.json.encode(data)
-	GLOBAL.SavePersistentString(DATA_FILE, str)
-end
-
-function RW_Data:LoadData()
-	local data
-	GLOBAL.TheSim:GetPersistentString(DATA_FILE, function(load_success, str)
-		if load_success then
-			if string.len(str) > 0 and not string.find(str,"return") then
-				data = GLOBAL.json.decode(str) or {}
-			else
-				data = {}
-			end
-		end
-	end)
-	return data or {}
-end
-
 ----------------------------------------模组环境映射到全局环境---------------------------------------
 
 local env = env
@@ -207,6 +184,9 @@ GLOBAL.EventTimer = {
 ----------------------------------------加载模组---------------------------------------
 
 modimport("scripts/bbgoat_utils/utils") -- 模组工具
+RW_Data = PersistentData('mod_config_data/Events_Timer.json') -- 存取数据
+RW_Data:Load()
+
 modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
 modimport("main/modcompat") -- 检测其它模组

@@ -92,11 +92,10 @@ local function AddWarningEvents(self)
 
     -- 屏幕左上角倒计时
     self.WarningEventTimeData = {}
-    local save_data = RW_Data:LoadData()
     for warningevent, data in pairs(WarningEvents) do
         self[warningevent] = self:AddChild(WarningEvent(data.anim, data.image))
         self[warningevent]:Hide()
-        self[warningevent].force = save_data[warningevent] -- 读取存储的数据来决定是否显示计时器在屏幕左上角
+        self[warningevent].force = RW_Data:GetValue(warningevent) -- 读取存储的数据来决定是否显示计时器在屏幕左上角
     end
 
     function self:UpdateWarningEvents()
@@ -201,9 +200,9 @@ local EventUIButton = Class(Button, function(self, owner)
     self.openbutton = self:AddChild(UIAnimButton("pocketwatch","pocketwatch_marble","cooldown_long"))
 
     -- 设置位置
-    local save_data = RW_Data:LoadData()
-    if save_data.pos and save_data.pos.x and save_data.pos.y then
-        self.openbutton:SetPosition(save_data.pos.x, save_data.pos.y, 0)
+    local data_pos = RW_Data:GetValue("pos")
+    if data_pos and data_pos.x and data_pos.y then
+        self.openbutton:SetPosition(data_pos.x, data_pos.y, 0)
     else
         self.openbutton:SetPosition(-55, 200, 0)
     end
@@ -244,10 +243,9 @@ local EventUIButton = Class(Button, function(self, owner)
             _self.hovertext_root:SetPosition(world_pos.x, world_pos.y + 70)
             _self.hovertext:Show()
 
-            save_data = RW_Data:LoadData()
-            save_data.pos = { x = pos.x, y = pos.y}
-            RW_Data:SaveData(save_data)
-            save_data = nil
+            data_pos = { x = pos.x, y = pos.y}
+            RW_Data:SetValue("pos", data_pos)
+            RW_Data:Save()
         end
     end
 

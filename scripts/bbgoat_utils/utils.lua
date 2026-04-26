@@ -6,6 +6,12 @@ function Import(file_name, file_env)
 	end
 end
 
-Upvaluehelper = Import(MODROOT .. "scripts/bbgoat_utils/bbgoat_upvaluehelper.lua", GLOBAL)
-MOD_util = Import(MODROOT .. "scripts/bbgoat_utils/MOD_util.lua")
-BBGOAT_util = Import(MODROOT .. "scripts/bbgoat_utils/BBGOAT_util.lua")
+local function require_util(file_name, file_env)
+	file_name = MODROOT .. "scripts/bbgoat_utils/" .. file_name
+	return Import(file_name, file_env)
+end
+
+PersistentData = require_util("persistentdata.lua")
+Upvaluehelper = require_util("bbgoat_upvaluehelper.lua", GLOBAL)
+MOD_util = require_util("MOD_util.lua")
+BBGOAT_util = require_util("BBGOAT_util.lua")
