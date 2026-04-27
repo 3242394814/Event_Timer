@@ -147,7 +147,7 @@ end
 function GetWorldtypeStr()
     if GLOBAL.TheWorld:HasTag("porkland") then
         return "porkland"
-    elseif GLOBAL.TheWorld:HasTag("island") then
+    elseif GLOBAL.TheWorld:HasTag("island") or GLOBAL.TheWorld:HasTag("volcano") then
         return "shipwrecked"
     elseif GLOBAL.TheWorld:HasTag("cave") then
         return "cave"
