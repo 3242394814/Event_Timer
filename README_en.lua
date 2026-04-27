@@ -3,7 +3,7 @@
 -- How to add your event to this mod
 
 -- First, add a line to your mod:
-GLOBAL.WarningEvents = rawget(GLOBAL, "WarningEvents") or {}
+GLOBAL.WarningEvents = GLOBAL.rawget(GLOBAL, "WarningEvents") or {}
 
 -- Then, add a table to GLOBAL.WarningEvents. The event name should be the name of the component that handles the event. 
 -- For example, if the event is the hound attack countdown, the component name is "scripts\components\hounded.lua", and the event name should be "hounded".

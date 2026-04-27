@@ -1,7 +1,7 @@
 -- 如何把你的事件加入到本模组中？
 
 -- 首先在你的模组里写上一行
-GLOBAL.WarningEvents = rawget(GLOBAL, "WarningEvents") or {}
+GLOBAL.WarningEvents = GLOBAL.rawget(GLOBAL, "WarningEvents") or {}
 
 -- 接着在GLOBAL.WarningEvents中添加一个表，名称建议使用负责处理对应事件的组件名，比如猎犬事件倒计时是 scripts\components\hounded.lua 文件处理的，事件名就取 hounded
 -- 具体参考下面的代码
