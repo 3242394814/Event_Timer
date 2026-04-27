@@ -1,0 +1,23 @@
+{
+    "Lua.diagnostics.globals": [
+        "TimeToString",
+        "StringToTime",
+        "SyncTimer",
+        "Upvaluehelper",
+        "ReplacePrefabName",
+        "Extract_by_format",
+        "GetWorldtypeStr",
+        "AddPrefabPostInit",
+        "AddComponentPostInit",
+        "Ismodloaded",
+        "GetWorldSettingsTimeLeft",
+        "CombineLines",
+        "CalcTimeOfDay",
+        "ChangeanimByWintersFeast",
+        "ChangeimageByWorld",
+        "ChangeanimByWorld",
+        "StringToFunction",
+        "JustEntered",
+        "ready_attack",
+    ]
+}

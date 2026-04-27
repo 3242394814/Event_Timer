@@ -78,12 +78,15 @@ else
     ModLanguage = "en"
 end
 
-modimport("Languages/" .. ModLanguage) -- 加载翻译
+modimport("Languages/" .. ModLanguage) -- 加载模组字符串
+modimport("scripts/bbgoat_utils/utils") -- 加载模组工具
+modimport("main/timerprefab")
 
 ----------------------------------------定义模组环境函数---------------------------------------
 
 local STRINGS = GLOBAL.STRINGS
 local TimerMode = GetModConfigData("BossTimer")
+local SyncTimer = GetModConfigData("SyncTimer")
 
 -- 填充Prefab名字
 --- @param str string
@@ -166,6 +169,147 @@ function GetWorldtypeStr()
     end
 end
 
+----------------------------------------事件计时需要用到的函数---------------------------------------
+
+-- 从worldsettingstimer或TimerPrefabs获取倒计时
+local function GetWorldSettingsTimeLeft(name, prefab)
+    return function()
+        local ent = TheWorld
+        if prefab then
+            ent = TimerPrefabs[prefab]
+        end
+        if ent and ent.components.worldsettingstimer then
+            if not ent.components.worldsettingstimer:IsPaused(name) then
+                local time = ent.components.worldsettingstimer:GetTimeLeft(name)
+                return time and time < 65535 and time
+            end
+        end
+    end
+end
+
+-- 合并字符串
+local function CombineLines(...)
+    local lines, argnum = nil, select("#",...)
+
+    for i = 1, argnum do
+        local v = select(i, ...)
+
+        if v ~= nil then
+            lines = lines or {}
+            lines[#lines+1] = tostring(v)
+        end
+    end
+
+    return (lines and table.concat(lines, "\n")) or nil
+end
+
+local CalcTimeOfDay -- 今天还剩多少时间
+if TheNet:GetIsServer() then
+    AddComponentPostInit("clock", function(self)
+        CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay")
+    end)
+end
+
+-- 根据冬季盛宴活动决定anim
+local function ChangeanimByWintersFeast(self)
+    if GLOBAL.IsSpecialEventActive(GLOBAL.SPECIAL_EVENTS.WINTERS_FEAST) then
+        self.anim = self.winterfeastanim
+    else
+        self.anim = self.defaultanim
+    end
+end
+
+-- 根据世界类型决定image
+local function ChangeimageByWorld(self)
+    local worldtype = GetWorldtypeStr()
+    if worldtype == "porkland" then
+        self.image = self.porklandimage
+    elseif worldtype == "shipwrecked" then
+        self.image = self.islandimage
+    elseif worldtype == "cave" then
+        self.image = self.caveimage
+    else
+        self.image = self.forestimage
+    end
+end
+
+-- 根据世界类型决定anim
+local function ChangeanimByWorld(self)
+    local worldtype = GetWorldtypeStr()
+    if worldtype == "porkland" then
+        self.anim = self.porklandanim
+    elseif worldtype == "shipwrecked" then
+        self.anim = self.islandanim
+    elseif worldtype == "cave" then
+        self.anim = self.caveanim
+    else
+        self.anim = self.forestanim
+    end
+end
+
+-- 将字符串打包为一个返回该字符串的函数
+local function StringToFunction(str)
+    return function()
+        return str
+    end
+end
+
+-- 如果event_time > 0，在刚进入游戏的10秒内返回true
+local function JustEntered(event_time)
+    if not GLOBAL.checknumber(event_time) then return end
+    return GLOBAL.GetTime() < 10 and event_time > 0
+end
+
+-- 当time在0~2秒时返回true
+local function ready_attack(time)
+    if not GLOBAL.checknumber(time) then return end
+    if time < 2 and time > 0 then
+        return true
+    end
+    return false
+end
+
+-- 获取事件计时
+local file_env = {
+    TimeToString = TimeToString, -- 格式化时间
+    StringToTime = StringToTime, -- 将字符串转换为时间
+    SyncTimer = SyncTimer, -- 跨世界同步计时
+    Upvaluehelper = Upvaluehelper,
+    MOD_util = MOD_util,
+    ReplacePrefabName = ReplacePrefabName, -- 填充Prefab名字
+    Extract_by_format = Extract_by_format, -- 反向提取信息
+    GetWorldtypeStr = GetWorldtypeStr, -- 根据世界类型返回一段字符串
+    AddPrefabPostInit = AddPrefabPostInit,
+    AddComponentPostInit = AddComponentPostInit,
+    ---
+    GetWorldSettingsTimeLeft = GetWorldSettingsTimeLeft, -- 从worldsettingstimer或TimerPrefabs获取倒计时
+    CombineLines = CombineLines, -- 合并字符串
+    CalcTimeOfDay = CalcTimeOfDay, -- 今天还剩多少时间
+    ---
+    ChangeanimByWintersFeast = ChangeanimByWintersFeast, -- 根据冬季盛宴活动决定anim
+    ChangeimageByWorld = ChangeimageByWorld, -- 根据世界类型决定image
+    ChangeanimByWorld = ChangeanimByWorld, -- 根据世界类型决定anim
+    StringToFunction = StringToFunction, -- 将字符串打包为一个返回该字符串的函数
+    JustEntered = JustEntered, -- 如果event_time > 0，在刚进入游戏的10秒内返回true
+    ready_attack = ready_attack, -- 当time在0~2秒时返回true
+}
+GLOBAL.setmetatable(file_env, {
+    __index = function(t, k)
+        return GLOBAL.rawget(GLOBAL, k)
+    end
+})
+local RequireEvent_list = {}
+function RequireEvent(file_name)
+    if not GLOBAL.checkstring(file_name) then return end
+
+    file_name = MODROOT .. "scripts/EventsTimer/" .. file_name .. ".lua"
+
+    if not RequireEvent_list[file_name] then
+	    RequireEvent_list[file_name] = { Import(file_name, file_env) }
+    end
+    return GLOBAL.unpack(RequireEvent_list[file_name])
+end
+
 ----------------------------------------模组环境映射到全局环境---------------------------------------
 
 local env = env
@@ -174,7 +318,7 @@ GLOBAL.EventTimer = {
     -- 服务端设置
     UpdateTime = GetModConfigData("UpdateTime", false), -- 服务器数据更新频率
     TimerMode = TimerMode, -- 倒计时格式
-    SyncTimer = GetModConfigData("SyncTimer", false), -- 跨世界同步计时
+    SyncTimer = SyncTimer, -- 跨世界同步计时
     -- 客户端设置
     UIButton = GetModConfigData("UIButton", true), -- UI开关何时显示
     ClientPrediction = GetModConfigData("ClientPrediction", true), -- 客户端预测倒计时
@@ -183,11 +327,10 @@ GLOBAL.EventTimer = {
 
 ----------------------------------------加载模组---------------------------------------
 
-modimport("scripts/bbgoat_utils/utils") -- 模组工具
 RW_Data = PersistentData('mod_config_data/Events_Timer.json') -- 存取数据
 RW_Data:Load()
 
-modimport("main/commands") -- 调试指令
+-- modimport("main/commands") -- 调试指令
 modimport("main/warningevent") -- 事件计时功能
 modimport("main/modcompat") -- 检测其它模组
 modimport("keybind") -- 键位绑定优化
