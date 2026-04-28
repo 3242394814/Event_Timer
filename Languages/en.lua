@@ -179,6 +179,9 @@ STRINGS.eventtimer = {
         ready = "<prefab=knightboat> is waiting for you to return to the crime scene",
         readytext = "Waiting for you to return to a crime scene.",
     },
+    volcanoactivity = {
+        eruption = "Volcanic eruption remaining time: %s",
+    },
     volcanomanager = {
         cooldown = "<prefab=volcano> will erupt in %s.",
         attack = "WARNING: The <prefab=volcano> is erupting!",

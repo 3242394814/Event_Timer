@@ -4,7 +4,7 @@ local RequireEvent = RequireEvent
 
 -- 判断某个模组是否加载
 local function Ismodloaded(name)
-	return KnownModIndex:IsModEnabledAny(name)
+	return GLOBAL.KnownModIndex:IsModEnabledAny(name)
 end
 
 GLOBAL.setfenv(1, GLOBAL)

@@ -1,6 +1,8 @@
 -- 以防万一
 GLOBAL.setmetatable(env, {
     __index = function(t, k)
+        -- local info = GLOBAL.debug.getinfo(2)
+        -- print("[全局事件计时器] 当前正在尝试从全局环境获取值", k, "调用于", info.source, info.currentline)
         return GLOBAL.rawget(GLOBAL, k)
     end
 })
@@ -176,9 +178,9 @@ end
 -- 从worldsettingstimer或TimerPrefabs获取倒计时
 local function GetWorldSettingsTimeLeft(name, prefab)
     return function()
-        local ent = TheWorld
+        local ent = GLOBAL.TheWorld
         if prefab then
-            ent = TimerPrefabs[prefab]
+            ent = GLOBAL.TimerPrefabs[prefab]
         end
         if ent and ent.components.worldsettingstimer then
             if not ent.components.worldsettingstimer:IsPaused(name) then
@@ -203,13 +205,6 @@ local function CombineLines(...)
     end
 
     return (lines and table.concat(lines, "\n")) or nil
-end
-
-local CalcTimeOfDay -- 今天还剩多少时间
-if TheNet:GetIsServer() then
-    AddComponentPostInit("clock", function(self)
-        CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay")
-    end)
 end
 
 -- 根据冬季盛宴活动决定anim
@@ -286,7 +281,6 @@ local file_env = {
     ---
     GetWorldSettingsTimeLeft = GetWorldSettingsTimeLeft, -- 从worldsettingstimer或TimerPrefabs获取倒计时
     CombineLines = CombineLines, -- 合并字符串
-    CalcTimeOfDay = CalcTimeOfDay, -- 今天还剩多少时间
     ---
     ChangeanimByWintersFeast = ChangeanimByWintersFeast, -- 根据冬季盛宴活动决定anim
     ChangeimageByWorld = ChangeimageByWorld, -- 根据世界类型决定image
@@ -295,6 +289,15 @@ local file_env = {
     JustEntered = JustEntered, -- 如果event_time > 0，在刚进入游戏的10秒内返回true
     ready_attack = ready_attack, -- 当time在0~2秒时返回true
 }
+if GLOBAL.TheNet:GetIsServer() then
+    AddComponentPostInit("clock", function(self)
+        file_env.CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay") -- 今天还剩多少时间
+    end)
+    AddPrefabPostInit("world", function(inst)
+        file_env.TheWorld = inst
+    end)
+end
+
 GLOBAL.setmetatable(file_env, {
     __index = function(t, k)
         return GLOBAL.rawget(GLOBAL, k)

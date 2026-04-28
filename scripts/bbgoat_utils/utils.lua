@@ -11,7 +11,7 @@ local function require_util(file_name, file_env)
 	return Import(file_name, file_env)
 end
 
-PersistentData = require_util("persistentdata.lua")
+PersistentData = require_util("persistentdata.lua", GLOBAL)
 Upvaluehelper = require_util("bbgoat_upvaluehelper.lua", GLOBAL)
 MOD_util = require_util("MOD_util.lua")
 BBGOAT_util = require_util("BBGOAT_util.lua")
