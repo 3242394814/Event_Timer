@@ -14,8 +14,8 @@ local WarningTips = Class(Widget, function(self, text, up_info, level)
     level = type(level) == "number" and level or 2
     local color = {
         [1] = RGB(255, 255, 255), -- 白色
-        [2] = WEBCOLOURS["ORANGE"],
-        [3] = WEBCOLOURS["RED"],
+        [2] = RGB(255, 165, 0), -- 黄色
+        [3] = RGB(255, 0, 0), -- 红色
     }
     self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", color[level] or color[2]))
     local w, h = self.text:GetRegionSize() -- 获取文字区域大小
