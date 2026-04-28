@@ -58,6 +58,7 @@ end
 local ShipwreckedEvents = rawget(_G, "IA_SW_ENABLED") and {
     ---------------------------------------- IA-SW ---------------------------------------
     chessnavy = RequireEvent("IslandAdventures/chessnavy"),
+    volcanoactivity = RequireEvent("IslandAdventures/volcanoactivity"),
     volcanomanager = RequireEvent("IslandAdventures/volcanomanager"),
     twisterspawner = RequireEvent("IslandAdventures/twisterspawner"),
     krakener = RequireEvent("IslandAdventures/krakener"),

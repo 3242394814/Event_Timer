@@ -30,6 +30,8 @@ Assets = {
 	Asset("IMAGE", "images/Dragonfly.tex"),
 	Asset("ATLAS", "images/Twister.xml"), -- 豹卷风
 	Asset("IMAGE", "images/Twister.tex"),
+    Asset("ATLAS", "images/Volcano_Active.xml"), -- 正在爆发的火山
+    Asset("IMAGE", "images/Volcano_Active.tex"),
     Asset("ATLAS", "images/scrapbook.xml"), -- 图标背景
     Asset("ATLAS", "images/lifeplant.xml"), -- 不老泉
     Asset("IMAGE", "images/lifeplant.tex"),

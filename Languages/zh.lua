@@ -179,7 +179,10 @@ STRINGS.eventtimer = {
         ready = "<prefab=knightboat>正在等待你回到罪行地点",
         readytext = "正在等待你回到罪行地点",
     },
-    volcanomanager = { -- 火山爆发倒计时 VOLCANOMANAGER
+    volcanoactivity = { -- 火山爆发剩余时间
+        eruption = "火山爆发剩余时间：%s",
+    },
+    volcanomanager = { -- 距离火山开始爆发的倒计时
         cooldown = "<prefab=volcano>将于%s后爆发。",
         attack = "警告：<prefab=volcano>爆发！！！",
     },

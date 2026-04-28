@@ -2,6 +2,9 @@ local info
 info ={
     gettimefn = GetWorldSettingsTimeLeft("klaussack_spawntimer"),
     gettextfn = function(time)
+        local self = TheWorld.components.klaussackspawner
+        if not self then return end
+
         local function sack_can_despawn(inst)
             if not IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) and
                 inst.components.entitytracker:GetEntity("klaus") == nil and
@@ -11,8 +14,6 @@ info ={
             return false
         end
 
-        local self = TheWorld.components.klaussackspawner
-        if not self then return end
         local sack = Upvaluehelper.GetUpvalue(self.GetDebugString, "_sack")
         if sack and sack:IsValid() and sack.despawnday and sack_can_despawn(sack) then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.klaussackspawner.despawntext), sack.despawnday)

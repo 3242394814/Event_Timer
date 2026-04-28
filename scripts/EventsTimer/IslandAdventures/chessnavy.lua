@@ -6,7 +6,6 @@ info = {
         end
     end,
     gettextfn = function(time)
-        if not TheWorld.components.chessnavy then return end
         return time and time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.chessnavy.cooldown), TimeToString(time)) or STRINGS.eventtimer.chessnavy.readytext
     end,
     anim = {
