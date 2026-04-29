@@ -6,6 +6,7 @@ info = {
         end
     end,
     gettextfn = function(time)
+        if not TheWorld.components.krakener then return end
         if time and time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.krakener.cooldown), TimeToString(time))
         end

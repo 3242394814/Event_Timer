@@ -11,7 +11,7 @@ info = {
         end
         return (self.days_to_spawn + 1) * TUNING.TOTAL_DAY_TIME - CalcTimeOfDay()
     end,
-    gettextfn = function(time)
+    gettextfn = function()
         local self = TheWorld.components.forestdaywalkerspawner
         if not self then return end
         if self.bigjunk ~= nil then
