@@ -38,7 +38,7 @@ local function OnUpdate(self)
             if time and time < 0 then time = 0 end -- 避免被负数影响
 
             -- 判断时间是否有变化
-            if valid_data[warningevent].time_last == time then
+            if not time or time == 0 or valid_data[warningevent].time_last == time then
                 valid_data[warningevent].time_sametick = (valid_data[warningevent].time_sametick) + 1
             else
                 valid_data[warningevent].time_sametick = 0
@@ -63,7 +63,6 @@ local function OnUpdate(self)
             else
                 self.inst.replica.warningtimer[warningevent .. "_time"]:set((time and time > 65535 and 65535) or time or 0)
             end
-
         end
         if data.gettextfn then
             local text = data.gettextfn(time)
