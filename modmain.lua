@@ -151,26 +151,34 @@ function Extract_by_format(text, format_str)
 end
 
 -- 根据世界类型返回一段字符串，兼容热带冒险
+local cache_world_type
 function GetWorldtypeStr()
-    if GLOBAL.TheWorld:HasTag("porkland") then
-        return "porkland"
-    elseif GLOBAL.TheWorld:HasTag("island") or GLOBAL.TheWorld:HasTag("volcano") then
-        return "shipwrecked"
-    elseif GLOBAL.TheWorld:HasTag("cave") then
-        return "cave"
-    else
-        local ThePlayer = GLOBAL.ThePlayer
-        if ThePlayer and TUNING.TROPICAL_ADVENTURE_ACTIVATED then
-            if ThePlayer.AwareInVolcanoArea and ThePlayer:AwareInVolcanoArea() then
-                return "shipwrecked"
-            elseif ThePlayer.AwareInShipwreckedArea and ThePlayer:AwareInShipwreckedArea() then
-                return "shipwrecked"
-            elseif ThePlayer.AwareInHamletArea and ThePlayer:AwareInHamletArea() then
-                return "porkland"
-            end
+    local ThePlayer = GLOBAL.ThePlayer
+    if TUNING.TROPICAL_ADVENTURE_ACTIVATED and ThePlayer then
+        if ThePlayer.AwareInVolcanoArea and ThePlayer:AwareInVolcanoArea() then
+            return "shipwrecked"
+        elseif ThePlayer.AwareInShipwreckedArea and ThePlayer:AwareInShipwreckedArea() then
+            return "shipwrecked"
+        elseif ThePlayer.AwareInHamletArea and ThePlayer:AwareInHamletArea() then
+            return "porkland"
         end
-        return "forest"
     end
+
+    if not cache_world_type then
+        local TheWorld = GLOBAL.TheWorld
+        if not TheWorld then return end
+
+        if TheWorld:HasTag("porkland") then
+            cache_world_type = "porkland"
+        elseif TheWorld:HasTag("island") or TheWorld:HasTag("volcano") then
+            cache_world_type = "shipwrecked"
+        elseif TheWorld:HasTag("cave") then
+            cache_world_type = "cave"
+        else
+            cache_world_type = "forest"
+        end
+    end
+    return cache_world_type
 end
 
 ----------------------------------------事件计时需要用到的函数---------------------------------------

@@ -38,7 +38,7 @@ info = {
     end,
     tipsfn = function()
         local time = ThePlayer.HUD.WarningEventTimeData.twisterspawner_time
-        if time > 2 and time <= 60 then
+        if time > 2 and time <= 60 and GetWorldtypeStr() == "shipwrecked" then
             return true, info.announcefn, time, nil, 2
         elseif time == 480 or JustEntered(time) then
             return true, info.announcefn, 10, nil, 2
