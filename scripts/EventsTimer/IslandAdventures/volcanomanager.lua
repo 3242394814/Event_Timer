@@ -1,7 +1,6 @@
 local info
 info = {
     postinitfn = function()
-        if not TheNet:GetIsServer() then return end
         AddPrefabPostInit("world", function()
             info.DisableShardRPC = TheWorld:HasTag("volcano") -- 火山世界不同步火山爆发倒计时，海难世界同步
             if GetWorldtypeStr() ~= "shipwrecked" then

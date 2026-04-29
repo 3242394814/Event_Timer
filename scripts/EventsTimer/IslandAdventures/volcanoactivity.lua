@@ -4,20 +4,23 @@ local _eruption_timer
 local info
 info = {
     postinitfn = function()
-        if not TheNet:GetIsServer() then return end
+        if TheNet:GetIsServer() then
+            local network_worlds = {
+                "shipwrecked",
+                "volcanoworld",
+            }
+            for i, world in ipairs(network_worlds) do
+                AddPrefabPostInit(world .. "_network", function()
+                    local self = TheWorld.net.components.volcanoactivity
+                    if not self then return end
+                    _eruption = Upvaluehelper.GetUpvalue(self.OnUpdate, "_eruption") -- 火山是否正在爆发
+                    _eruption_timer = Upvaluehelper.GetUpvalue(self.OnUpdate, "_eruption_timer")
 
-        local network_worlds = {
-            "shipwrecked",
-            "volcanoworld",
-        }
-        for i, world in ipairs(network_worlds) do
-            AddPrefabPostInit(world .. "_network", function()
-                local self = TheWorld.net.components.volcanoactivity
-                if not self then return end
-                _eruption = Upvaluehelper.GetUpvalue(self.OnUpdate, "_eruption") -- 火山是否正在爆发
-                _eruption_timer = Upvaluehelper.GetUpvalue(self.OnUpdate, "_eruption_timer")
-
-                info.DisableShardRPC = TheWorld:HasTag("volcano") -- 火山世界不同步倒计时，海难世界同步
+                    info.DisableShardRPC = TheWorld:HasTag("volcano") -- 火山世界不同步倒计时，海难世界同步
+                end)
+            end
+        else
+            AddPrefabPostInit("world", function()
                 if GetWorldtypeStr() ~= "shipwrecked" then
                     info.tipsfn = nil -- 非海难火山世界不提示火山爆发
                 end

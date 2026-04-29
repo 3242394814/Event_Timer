@@ -280,6 +280,7 @@ local file_env = {
     AddComponentPostInit = AddComponentPostInit,
     ---
     GetWorldSettingsTimeLeft = GetWorldSettingsTimeLeft, -- 从worldsettingstimer或TimerPrefabs获取倒计时
+    TimerPrefabs = GLOBAL.TimerPrefabs,
     CombineLines = CombineLines, -- 合并字符串
     ---
     ChangeanimByWintersFeast = ChangeanimByWintersFeast, -- 根据冬季盛宴活动决定anim
@@ -288,19 +289,46 @@ local file_env = {
     StringToFunction = StringToFunction, -- 将字符串打包为一个返回该字符串的函数
     JustEntered = JustEntered, -- 如果event_time > 0，在刚进入游戏的10秒内返回true
     ready_attack = ready_attack, -- 当time在0~2秒时返回true
+    ---
+    _G = GLOBAL,
+    TUNING = GLOBAL.TUNING,
+    TheNet = GLOBAL.TheNet,
+    string = GLOBAL.string,
+    rawget = GLOBAL.rawget,
+    setmetatable = GLOBAL.setmetatable,
+    STRINGS = GLOBAL.STRINGS,
+    math = GLOBAL.math,
+    type = GLOBAL.type,
+    ipairs = GLOBAL.ipairs,
+    pairs = GLOBAL.pairs,
+    json = GLOBAL.json,
+    tonumber = GLOBAL.tonumber,
+    checknumber = GLOBAL.checknumber,
+    GetTaskRemaining = GLOBAL.GetTaskRemaining,
+    IsSpecialEventActive = GLOBAL.IsSpecialEventActive,
+    SPECIAL_EVENTS = GLOBAL.SPECIAL_EVENTS,
+    AllPlayers = GLOBAL.AllPlayers,
+    GetTime = GLOBAL.GetTime,
 }
 if GLOBAL.TheNet:GetIsServer() then
     AddComponentPostInit("clock", function(self)
         file_env.CalcTimeOfDay = Upvaluehelper.GetUpvalue(self.Dump, "CalcTimeOfDay") -- 今天还剩多少时间
     end)
-    AddPrefabPostInit("world", function(inst)
-        file_env.TheWorld = inst
+else
+    MOD_util:AddPlayerPostInit(function(world, player)
+        file_env.ThePlayer = player
     end)
 end
 
 GLOBAL.setmetatable(file_env, {
     __index = function(t, k)
-        return GLOBAL.rawget(GLOBAL, k)
+        -- local info = GLOBAL.debug.getinfo(2)
+        -- print("[全局事件计时器] 当前正在尝试从全局环境获取值", k, "调用于", info.source, info.currentline)
+        local value = GLOBAL.rawget(GLOBAL, k)
+        if value and not(GLOBAL.type(value) == "number" or GLOBAL.type(value) == "string" or GLOBAL.type(value) == "boolean") then
+            GLOBAL.rawset(t, k, value)
+        end
+        return value
     end
 })
 local RequireEvent_list = {}

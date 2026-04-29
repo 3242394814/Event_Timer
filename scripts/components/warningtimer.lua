@@ -25,10 +25,10 @@ local function OnUpdate(self)
             valid_data[warningevent] = {
                 time_last = 0, -- 上次记录的时间
                 time_sametick = 0, -- 重复次数
-                time_valid = true, -- 数据是否有效(这个字段用于防止一直触发time = 0)
+                time_valid = false, -- 数据是否有效(这个字段用于防止一直触发time = 0)
 
                 text_sametick = 0,
-                text_valid = true,
+                text_valid = false,
             }
         end
 

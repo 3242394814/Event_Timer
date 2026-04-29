@@ -9,6 +9,7 @@ modimport("main/warningevents")
 local WarningEvent = require("widgets/warningevent")
 local WarningTips = require("widgets/warningtips")
 local game_ready = false
+local last_tips_cache = {} -- 记录事件是否提示过（如果保存在ThePlayer.HUD里 换人时会丢数据）
 
 local function AddWarningEvents(self)
     self.inst:DoTaskInTime(2,function()
@@ -144,9 +145,9 @@ local function AddWarningEvents(self)
 
             if data.tipsfn and game_ready then
                 local need_tips, tipstextfn, tipstime, delay, level = data.tipsfn() -- 加载事件列表的tips函数
-                self[warningevent].last_tips = self[warningevent].last_tips or false
-                if need_tips and not self[warningevent].last_tips then
-                    self[warningevent].last_tips = true
+                last_tips_cache[warningevent] = last_tips_cache[warningevent] or false
+                if need_tips and not last_tips_cache[warningevent] then
+                    last_tips_cache[warningevent] = true
                     if delay and TheWorld then
                         TheWorld:DoTaskInTime(delay, function() -- 延迟提示
                             self:ShowTips(tipstextfn, tipstime, level)
@@ -155,7 +156,7 @@ local function AddWarningEvents(self)
                         self:ShowTips(tipstextfn, tipstime, level)
                     end
                 elseif not need_tips then
-                    self[warningevent].last_tips = false
+                    last_tips_cache[warningevent] = false
                 end
             end
         end
