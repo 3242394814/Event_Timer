@@ -377,7 +377,8 @@ RW_Data = PersistentData('mod_config_data/Events_Timer.json') -- 存取数据
 RW_Data:Load()
 
 -- modimport("main/commands") -- 调试指令
-modimport("main/warningevent") -- 事件计时功能
+modimport("main/UI") -- 屏幕左上角倒计时/面板开关按钮/醒目提示UI
+modimport("main/warningevents") -- 事件列表
 modimport("main/modcompat") -- 检测其它模组
 modimport("keybind") -- 键位绑定优化
 

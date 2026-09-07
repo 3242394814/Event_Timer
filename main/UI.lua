@@ -1,11 +1,9 @@
 local AddClassPostConstruct = AddClassPostConstruct
 local AddPrefabPostInit = AddPrefabPostInit
-local modimport = modimport
 local RW_Data = RW_Data
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
-modimport("main/warningevents")
 local WarningEvent = require("widgets/warningevent")
 local WarningTips = require("widgets/warningtips")
 local game_ready = false
@@ -185,7 +183,7 @@ end
 
 ---------------------------------------------------------------------------------------------------------------
 
-local TarnsferPanel = require("widgets/WarningEventUI")
+local TarnsferPanel = require("widgets/WarningEventPanel")
 local UIAnimButton = require("widgets/uianimbutton")
 local Button = require("widgets/button")
 local EventUIButton = Class(Button, function(self, owner)
