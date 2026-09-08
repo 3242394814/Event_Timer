@@ -21,6 +21,19 @@ MOD_util:AddPlayerPostInit(function(world, player)
         local MainThread
         local GetTimeThreadList, GetTextThreadList = {}, {}
         local MainFn = function()
+            -- 首次加载（快速初始化）
+            for warningevent, data in pairs(GLOBAL.ClientWarningEvents) do
+                if data.remotegettimefn and (not GLOBAL.EventTimer.GetTimeFromServerMod[warningevent] or data.ForceEnableRemotegettimefn) then
+                    data.remotegettimefn()
+                    GLOBAL.Sleep(0.1)
+                end
+                if data.remotegettextfn and (not GLOBAL.EventTimer.GetTimeFromServerMod[warningevent] or data.ForceEnableRemotegettextfn) then
+                    data.remotegettextfn()
+                    GLOBAL.Sleep(0.1)
+                end
+            end
+
+            -- 后续更新
             for warningevent, data in pairs(GLOBAL.ClientWarningEvents) do
                 if data.remotegettimefn and (not GLOBAL.EventTimer.GetTimeFromServerMod[warningevent] or data.ForceEnableRemotegettimefn) then
                     GetTimeThreadList[warningevent] = GLOBAL.StartThread(function()
