@@ -41,9 +41,9 @@ info = {
         local time = ThePlayer.HUD.WarningEventTimeData.deerclopsspawner_time
         local text = ThePlayer.HUD.WarningEventTimeData.deerclopsspawner_text
         local target, _ = Extract_by_format(text, STRINGS.eventtimer.deerclopsspawner.targeted)
-        if target and time then
+        if target and time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.target), target, TimeToString(time))
-        elseif time then
+        elseif time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.deerclopsspawner.cooldown), TimeToString(time))
         end
     end,

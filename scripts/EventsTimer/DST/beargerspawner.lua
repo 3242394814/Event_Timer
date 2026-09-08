@@ -42,9 +42,9 @@ info = {
         local time = ThePlayer.HUD.WarningEventTimeData.beargerspawner_time
         local text = ThePlayer.HUD.WarningEventTimeData.beargerspawner_text
         local target, _ = Extract_by_format(text, STRINGS.eventtimer.beargerspawner.targeted)
-        if target and time then
+        if target and time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.target), target, TimeToString(time))
-        elseif time then
+        elseif time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.beargerspawner.cooldown), TimeToString(time))
         end
     end,

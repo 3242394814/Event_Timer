@@ -175,7 +175,7 @@ info = {
         local time = ThePlayer.HUD.WarningEventTimeData.hounded_time
         local text = ThePlayer.HUD.WarningEventTimeData.hounded_text
         local is_worm_boss = text ~= "" and Extract_by_format(text, ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns.worm_boss))
-        return is_worm_boss and text or time and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time))
+        return (is_worm_boss and text) or (time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.hounded.cooldowns[GetWorldtypeStr()]), TimeToString(time)))
     end,
     tipsfn = function()
         local time = ThePlayer.HUD.WarningEventTimeData.hounded_time
