@@ -172,7 +172,7 @@ Assets = {
     Asset("IMAGE", "images/Roc.tex"),
     Asset("ATLAS", "images/dyc_panel_shadow.xml"), -- 醒目提示部件背景，来自单机饥荒模组【全能信息面板】，感谢DYC
     Asset("IMAGE", "images/dyc_panel_shadow.tex"),
-    Asset("ANIM", "anim/nigthmarephaseindicator.zip"), -- 远古遗迹阶段倒计时贴图，来自【Nightmare phase indicator】模组
+    Asset("ANIM", "anim/nigthmarephaseindicator_eventtimer_client.zip"), -- 远古遗迹阶段倒计时贴图，来自【Nightmare phase indicator】模组
 }
 
 ----------------------------------------语言检测---------------------------------------

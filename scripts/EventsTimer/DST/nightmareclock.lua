@@ -37,8 +37,8 @@ local info
 info = {
     anim = {
         scale = 0.5,
-        bank = "nigthmarephaseindicator",
-        build = "nigthmarephaseindicator",
+        bank = "nigthmarephaseindicator_eventtimer_client",
+        build = "nigthmarephaseindicator_eventtimer_client",
         animation = "calm_loop",
         offset = {
             x = 0,
