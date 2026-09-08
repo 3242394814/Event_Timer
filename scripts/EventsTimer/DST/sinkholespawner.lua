@@ -27,7 +27,7 @@ info = {
     },
     announcefn = function()
         local time = ThePlayer.HUD.WarningEventTimeData.sinkholespawner_time
-        return time and string.format(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.cooldown), TimeToString(time))
+        return time > 0 and string.format(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.cooldown), TimeToString(time))
     end,
     tipsfn = function()
         local time = ThePlayer.HUD.WarningEventTimeData.sinkholespawner_time

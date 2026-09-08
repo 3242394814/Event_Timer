@@ -71,7 +71,7 @@ info = {
     -- },
     announcefn = function()
         local time = ThePlayer.HUD.WarningEventTimeData.shadow_riftspawner_time
-        return time and time > 0 and string.format(STRINGS.eventtimer.riftspawner.shadow_cooldown, TimeToString(time))
+        return time > 0 and string.format(STRINGS.eventtimer.riftspawner.shadow_cooldown, TimeToString(time))
     end,
 }
 

@@ -58,13 +58,13 @@ local function AddWarningEvents(self)
     local warningtips_messages = {}
     local function sort_message()
         for i, msg in ipairs(warningtips_messages) do
-            local w, h = msg.text:GetRegionSize() -- 获取当前消息文字区域大小
+            local w, h = msg:GetTextSize() -- 获取完整消息文字区域大小
             if w and h then
                 msg.target_x = w + 40
 
                 if i > 1 then -- 其它消息，依次根据上个消息的位置调整坐标
                     local up_y = warningtips_messages[i - 1].target_y
-                    local up_w, up_h = warningtips_messages[i - 1].text:GetRegionSize()
+                    local up_w, up_h = warningtips_messages[i - 1]:GetTextSize()
                     msg.target_y = up_y - up_h - h - 50
                 else
                     msg.target_y = msg.base_y -- 第一条消息，Y轴设为基础坐标
@@ -81,50 +81,59 @@ local function AddWarningEvents(self)
         end
     end
 
-    -- 醒目提示
-    function self:ShowTips(timefn, second, level)
-        if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
-        if type(timefn) ~= "function" then return end
+    local function remove_message(message)
+        if message.removing then return end
+        message.removing = true
 
-        -- 获取上一条消息的信息
-        local up_info = #warningtips_messages > 0 and warningtips_messages[#warningtips_messages]
+        if message.remove_task then -- 取消自动销毁任务，避免重复清理
+            message.remove_task:Cancel()
+            message.remove_task = nil
+        end
 
-        local message = self:AddChild(WarningTips(timefn(), up_info, level)) -- 创建新的 widget
+        message:FadeOut()
 
-        -- 插入到旧消息列表
-        table.insert(warningtips_messages, message)
-
-        -- 启动定时器
-        message.inst:DoPeriodicTask(0.5, function() -- 更新倒计时时间
-            message.text:SetString(timefn())
-            local w, h = message.text:GetRegionSize() -- 获取文字区域大小
-            if w and h then
-                message.bg:SetSize( -- 刷新背景大小
-                    w + 5,
-                    h
-                )
-            end
-
-            sort_message() -- 整理所有消息
-        end)
-
-        -- 更新透明度
-        TheWorld:DoTaskInTime((second or 10), function()
-            message.AlphaMode = false
-        end)
-
-        -- 定时销毁与整理其它消息
-        TheWorld:DoTaskInTime((second or 10) + 1, function()
+        message.inst:DoTaskInTime(1, function()
             message:Kill()
+
             for i = #warningtips_messages, 1, -1 do
-                local msg = warningtips_messages[i]
-                if msg == message then
+                if warningtips_messages[i] == message then
                     table.remove(warningtips_messages, i)
                     break
                 end
             end
 
             sort_message()
+        end)
+    end
+
+    -- 醒目提示
+    function self:ShowTips(timefn, second, level)
+        if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
+        if type(timefn) ~= "function" then return end
+
+        local text = timefn()
+        if type(text) ~= "string" or text == "" then return end
+
+        local message = self:AddChild(WarningTips(text, level)) -- 创建新的提示控件
+
+        -- 新消息置顶，旧消息由 sort_message 重排到下方
+        table.insert(warningtips_messages, 1, message)
+        sort_message()
+
+        -- 启动定时器
+        message.inst:DoPeriodicTask(0.5, function() -- 更新倒计时时间
+            if not message:SetText(timefn()) then
+                remove_message(message)
+                return
+            end
+
+            sort_message() -- 整理所有消息
+        end)
+
+        -- 定时销毁与整理其它消息
+        message.remove_task = TheWorld:DoTaskInTime((second or 10), function()
+            message.remove_task = nil
+            remove_message(message)
         end)
     end
 

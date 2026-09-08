@@ -138,9 +138,9 @@ info = {
         local time = ThePlayer.HUD.WarningEventTimeData.twisterspawner_time
         local text = ThePlayer.HUD.WarningEventTimeData.twisterspawner_text
         local target, _ = Extract_by_format(text, STRINGS.eventtimer.twisterspawner.targeted)
-        if target and time then
+        if target and time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.target), target, TimeToString(time))
-        elseif time then
+        elseif time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.twisterspawner.cooldown), TimeToString(time))
         end
     end,

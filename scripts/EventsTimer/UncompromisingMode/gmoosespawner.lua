@@ -146,9 +146,9 @@ info = {
         local time = ThePlayer.HUD.WarningEventTimeData.gmoosespawner_time
         local text = ThePlayer.HUD.WarningEventTimeData.gmoosespawner_text
         local target, _ = Extract_by_format(text, STRINGS.eventtimer.gmoosespawner.targeted)
-        if target and time then
+        if target and time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.target), target, TimeToString(time))
-        elseif time then
+        elseif time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.gmoosespawner.cooldown), TimeToString(time))
         end
     end,
