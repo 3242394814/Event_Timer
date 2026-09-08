@@ -2,10 +2,46 @@ local NineSlice = require "widgets/nineslice"
 local Widget = require("widgets/widget")
 local Text = require("widgets/text")
 
+local TypewriterText = Class(Text, function(self, font, size, text, color)
+    Text._ctor(self, font, size, text, color)
+end)
+
+function TypewriterText:AnimateIn(speed)
+    self.textString = self.string or ""
+    self.animSpeed = speed or 60
+    self.animIndex = 0
+    self.animTimer = 0
+    self:SetString("")
+    self:StartUpdating()
+end
+
+function TypewriterText:OnUpdate(dt) -- 每秒执行【游戏刷新率】次
+    if dt > 0 and self.animIndex and self.textString and #self.textString > 0 then
+        self.animTimer = self.animTimer + dt
+
+        -- 每次更新添加一个字符
+        if self.animTimer > 1 / self.animSpeed then
+            self.animTimer = 0
+            self.animIndex = self.animIndex + 1
+
+            if self.animIndex > #self.textString then
+                self.animIndex = nil
+                self:SetString(self.textString)
+                self:StopUpdating()
+            else
+                local byte = string.byte(self.textString, self.animIndex)
+                if byte and byte > 0x7F then
+                    self.animIndex = self.animIndex + 2
+                end
+                self:SetString(string.sub(self.textString, 1, self.animIndex))
+            end
+        end
+    end
+end
+
 --- @param text string|nil 消息内容
---- @param up_info table|nil 上条提示的info
 --- @param level number|nil 1-静默提醒-白色 2-声音提醒-黄色 3-声音提醒-红色
-local WarningTips = Class(Widget, function(self, text, up_info, level)
+local WarningTips = Class(Widget, function(self, text, level)
     Widget._ctor(self, "WarningTips")
     self:SetScale(2, 2)
     self:SetClickable(false)
@@ -17,15 +53,10 @@ local WarningTips = Class(Widget, function(self, text, up_info, level)
         [2] = RGB(255, 165, 0), -- 黄色
         [3] = RGB(255, 0, 0), -- 红色
     }
-    self.text = self:AddChild(Text(NUMBERFONT, 20, text or "", color[level] or color[2]))
+    self.text = self:AddChild(TypewriterText(NUMBERFONT, 20, text or "", color[level] or color[2]))
     local w, h = self.text:GetRegionSize() -- 获取文字区域大小
-
-    local new_start_y
-    if up_info then
-        local up_y = up_info.target_y
-        local up_w, up_h = up_info.text:GetRegionSize()
-        new_start_y = up_y - up_h - h - 50
-    end
+    self.text_width = w
+    self.text_height = h
 
     self.bg = self:AddChild(NineSlice(
         "images/dyc_panel_shadow.xml", -- atlas
@@ -51,7 +82,7 @@ local WarningTips = Class(Widget, function(self, text, up_info, level)
     self.start_x = w + 340 -- 起始X轴位置
     self.target_x = w + 40 -- 目标X轴位置
     self.base_y = (h / 2 - 160) -- 原始Y轴位置
-    self.start_y = new_start_y or (h / 2 - 160) -- 起始Y轴位置
+    self.start_y = h / 2 - 160 -- 起始Y轴位置
     self.target_y = self.start_y -- 目标Y轴位置
 
     -- 设置锚点
@@ -64,7 +95,8 @@ local WarningTips = Class(Widget, function(self, text, up_info, level)
     self.bg:SetTint(1,1,1,0)
 
     self.inst:StartWallUpdatingComponent(self) -- 更新透明度
-    self.AlphaMode = 1
+    self.AlphaMode = true
+    self.text:AnimateIn()
 
     -- 开始显示，以移动动画形式出现
     self:MoveTo(
@@ -78,21 +110,48 @@ local WarningTips = Class(Widget, function(self, text, up_info, level)
     end
 end)
 
-function WarningTips:OnWallUpdate(dt)
-    if self.AlphaMode then -- 淡入
-        self.Alpha = self.Alpha + 0.02
-    else -- 淡出
-        self.Alpha = self.Alpha - 0.02
+function WarningTips:GetTextSize()
+    return self.text_width, self.text_height
+end
+
+function WarningTips:RefreshTextSize()
+    local w, h = self.text:GetRegionSize()
+    self.text_width = w
+    self.text_height = h
+    self.bg:SetSize(w + 5, h)
+end
+
+function WarningTips:SetText(text)
+    if type(text) ~= "string" or text == "" then
+        return false
     end
 
-    if self.Alpha > 1 then
-        self.Alpha = 1
-    elseif self.Alpha < 0 then
-        self.Alpha = 0
+    self.text.textString = text
+    if not self.text.animIndex then
+        self.text:SetString(self.text.textString)
+        self:RefreshTextSize()
+    end
+    return true
+end
+
+function WarningTips:FadeOut()
+    self.AlphaMode = false
+    self.inst:StartWallUpdatingComponent(self)
+end
+
+function WarningTips:OnWallUpdate(dt) -- 每秒执行【游戏刷新率】次
+    if self.AlphaMode then -- 淡入
+        self.Alpha = math.min(1, self.Alpha + dt * 3)
+    else -- 淡出
+        self.Alpha = math.max(0, self.Alpha - dt)
     end
 
     self.text:UpdateAlpha(self.Alpha)
     self.bg:SetTint(1,1,1,self.Alpha)
+
+    if (self.AlphaMode and self.Alpha >= 1) or (not self.AlphaMode and self.Alpha <= 0) then
+        self.inst:StopWallUpdatingComponent(self)
+    end
 end
 
 return WarningTips

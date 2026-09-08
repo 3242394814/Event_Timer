@@ -22,6 +22,8 @@ info = {
             return true, info.announcefn, time, nil, 2
         elseif ready_attack(time) then
             return true, StringToFunction(ReplacePrefabName(STRINGS.eventtimer.sinkholespawner.attack)), 10, time, 3
+        elseif time <= 0 then
+            RemoveWarningTips("sinkholespawner")
         end
         return false
     end

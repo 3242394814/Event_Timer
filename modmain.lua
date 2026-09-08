@@ -309,6 +309,14 @@ local function ready_attack(time)
     return false
 end
 
+-- 移除特定的醒目提示
+local function RemoveWarningTips(warningevent)
+    local hud = GLOBAL.ThePlayer and GLOBAL.ThePlayer.HUD
+    if hud and hud.RemoveWarningTips then
+        hud:RemoveWarningTips(warningevent)
+    end
+end
+
 -- 获取事件计时
 local file_env = {
     TimeToString = TimeToString, -- 格式化时间
@@ -332,6 +340,7 @@ local file_env = {
     StringToFunction = StringToFunction, -- 将字符串打包为一个返回该字符串的函数
     JustEntered = JustEntered, -- 如果event_time > 0，在刚进入游戏的10秒内返回true
     ready_attack = ready_attack, -- 当time在0~2秒时返回true
+    RemoveWarningTips = RemoveWarningTips, -- 移除特定的醒目提示
 }
 if GLOBAL.TheNet:GetIsServer() then
     AddComponentPostInit("clock", function(self)
