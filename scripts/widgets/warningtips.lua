@@ -4,13 +4,13 @@ local Text = require("widgets/text")
 
 local TypewriterText = Class(Text, function(self, font, size, text, color)
     Text._ctor(self, font, size, text, color)
-end)
-
-function TypewriterText:AnimateIn(speed)
     self.textString = self.string or ""
-    self.animSpeed = speed or 60
+    self.animSpeed = 60
     self.animIndex = 0
     self.animTimer = 0
+end)
+
+function TypewriterText:AnimateIn()
     self:SetString("")
     self:StartUpdating()
 end
