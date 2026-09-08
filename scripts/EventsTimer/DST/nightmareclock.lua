@@ -59,8 +59,8 @@ info = {
     end,
     anim = {
         scale = 0.5,
-        bank = "nigthmarephaseindicator",
-        build = "nigthmarephaseindicator",
+        bank = "nigthmarephaseindicator_eventtimer_server",
+        build = "nigthmarephaseindicator_eventtimer_server",
         animation = "calm_loop",
         offset = {
             x = 0,
