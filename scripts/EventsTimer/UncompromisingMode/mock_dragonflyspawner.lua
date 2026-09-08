@@ -34,9 +34,9 @@ info = {
         local time = ThePlayer.HUD.WarningEventTimeData.mock_dragonflyspawner_time
         local text = ThePlayer.HUD.WarningEventTimeData.mock_dragonflyspawner_text
         local target, _ = Extract_by_format(text, STRINGS.eventtimer.mock_dragonflyspawner.targeted)
-        if target and time then
+        if target and time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.target), target, TimeToString(time))
-        elseif time then
+        elseif time > 0 then
             return string.format(ReplacePrefabName(STRINGS.eventtimer.mock_dragonflyspawner.cooldown), TimeToString(time))
         end
     end,

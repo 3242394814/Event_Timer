@@ -15,7 +15,6 @@ local function AddWarningEvents(self)
     end)
 
     local warningtips_messages = {}
-    local warningtips_by_event = {}
     local function sort_message()
         for i, msg in ipairs(warningtips_messages) do
             local w, h = msg:GetTextSize() -- 获取完整消息文字区域大小
@@ -45,16 +44,7 @@ local function AddWarningEvents(self)
         if message.removing then return end
         message.removing = true
 
-        local warningevent = message.warningevent
-        local messages = warningevent and warningtips_by_event[warningevent]
-        if messages then
-            messages[message] = nil
-            if not next(messages) then
-                warningtips_by_event[warningevent] = nil
-            end
-        end
-
-        if message.remove_task then -- 在使用RemoveWarningTips方法移除时，移除一开始自动创建的定时任务
+        if message.remove_task then -- 取消自动销毁任务，避免重复清理
             message.remove_task:Cancel()
             message.remove_task = nil
         end
@@ -75,22 +65,8 @@ local function AddWarningEvents(self)
         end)
     end
 
-    function self:RemoveWarningTips(warningevent)
-        if type(warningevent) ~= "string" then return end
-        local messages = warningtips_by_event[warningevent] -- 当重复调用RemoveWarningTips函数时， warningtips_by_event会拦截重复的无效调用
-        if not messages then return end
-
-        local messages_to_remove = {}
-        for message in pairs(messages) do
-            table.insert(messages_to_remove, message)
-        end
-        for _, message in ipairs(messages_to_remove) do
-            remove_message(message)
-        end
-    end
-
     -- 醒目提示
-    function self:ShowTips(timefn, second, level, warningevent)
+    function self:ShowTips(timefn, second, level)
         if not EventTimer.TimerTips then return end -- 判断模组设置是否开启了醒目提示功能
         if type(timefn) ~= "function" then return end
 
@@ -98,15 +74,6 @@ local function AddWarningEvents(self)
         if type(text) ~= "string" or text == "" then return end
 
         local message = self:AddChild(WarningTips(text, level)) -- 创建新的提示控件
-        message.warningevent = warningevent
-        if type(warningevent) == "string" then
-            local messages = warningtips_by_event[warningevent]
-            if not messages then
-                messages = {}
-                warningtips_by_event[warningevent] = messages
-            end
-            messages[message] = true
-        end
 
         -- 新消息置顶，旧消息由 sort_message 重排到下方
         table.insert(warningtips_messages, 1, message)
@@ -190,10 +157,10 @@ local function AddWarningEvents(self)
                     last_tips_cache[warningevent] = true
                     if delay and TheWorld then
                         TheWorld:DoTaskInTime(delay, function() -- 延迟提示
-                            self:ShowTips(tipstextfn, tipstime, level, warningevent)
+                            self:ShowTips(tipstextfn, tipstime, level)
                         end)
                     else
-                        self:ShowTips(tipstextfn, tipstime, level, warningevent)
+                        self:ShowTips(tipstextfn, tipstime, level)
                     end
                 elseif not need_tips then
                     last_tips_cache[warningevent] = false
