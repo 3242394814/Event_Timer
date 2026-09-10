@@ -17,7 +17,7 @@ You can tick the checkbox on the right side of the panel to keep the timer alway
 点击事件可宣告其信息
 ]])
 author = "冰冰羊"
-version = "0.2.05" -- 模组版本
+version = "0.2.06" -- 模组版本
 api_version = 10
 
 --[[

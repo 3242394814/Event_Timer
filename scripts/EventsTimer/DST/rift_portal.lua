@@ -2,6 +2,12 @@
 
 -- 吓哭了
 local remotegettextfn = function(Thread)
+    if not (TheWorld and TheWorld:HasTag("forest")) then -- 仅在森林世界更新数据
+        -- 取消数据更新任务
+        if Thread then KillThreadsWithID(Thread.id) end
+        return
+    end
+
 local cmd = [[
 local STAGE_GROWTH_TIMER = "trynextstage"
 local MAX_CRYSTAL_RING_COUNT_BY_STAGE = BBGOAT_FN.getval(_G.Prefabs.lunarrift_portal.fn, "MAX_CRYSTAL_RING_COUNT_BY_STAGE")
@@ -97,9 +103,8 @@ crystal_spawn_time = crystal_spawn_time, -- 下一波晶体生成时间
             -- 合并信息
             local description = CombineLines(stage_info, crystal_count_info, crystal_spawn_info)
             SaveTextData("rift_portal", description)
-        elseif res and res.not_found then
-            -- 取消数据更新任务
-            if Thread then KillThreadsWithID(Thread.id) end
+        elseif res and res.not_found then -- 当前裂隙未生成
+            SaveTextData("rift_portal", "")
         else
             SaveTextData("rift_portal", "")
             if res and res.err then

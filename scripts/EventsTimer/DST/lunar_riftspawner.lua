@@ -36,6 +36,12 @@ info = {
             return
         end
 
+        if not (TheWorld and TheWorld:HasTag("forest")) then -- 仅在森林世界更新数据
+            -- 取消数据更新任务
+            if Thread then KillThreadsWithID(Thread.id) end
+            return
+        end
+
         GetWorldSettingsTimeLeft("rift_spawn_timer", nil, function(res)
             if res and res.err then
                 SaveTimeData("lunar_riftspawner", 0)

@@ -1,6 +1,12 @@
 -- 暗影裂隙信息，参考了Insight代码 https://steamcommunity.com/sharedfiles/filedetails/?id=2189004162 @penguin0616
 
 local remotegettextfn = function(Thread)
+    if not (TheWorld and TheWorld:HasTag("cave")) then -- 仅在洞穴世界更新数据
+        -- 取消数据更新任务
+        if Thread then KillThreadsWithID(Thread.id) end
+        return
+    end
+
     local cmd = [[
         local TimerPrefabs = _G.EventTimerClient.TimerPrefabs
         local HookPrefab = _G.EventTimerClient.HookPrefab
@@ -44,9 +50,8 @@ local remotegettextfn = function(Thread)
                 stage_info = stage_info .. ": " .. string.format(STRINGS.eventtimer.rift_portal.next_stage, TimeToString(res.next_stage_time))
             end
             SaveTextData("shadowrift_portal", stage_info)
-        elseif res and res.not_found then
-            -- 取消数据更新任务
-            if Thread then KillThreadsWithID(Thread.id) end
+        elseif res and res.not_found then -- 当前裂隙未生成
+            SaveTextData("shadowrift_portal", "")
         end
     end)
 end
